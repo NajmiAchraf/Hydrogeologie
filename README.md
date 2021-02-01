@@ -231,5 +231,5 @@ Cette application est une solution pour les relations d'hydrologie et de process
 ### [version 3.2.0.4 RC](https://github.com/DeepEastWind/Hydrogeologie/releases/tag/bc89ca6)
 1. améliorer DrawLaTex dans FigureXY par la méthode la plus rapide jamais vue pour afficher les résultats dans la feuille de calcul
 
-### version 3.2.0.5 FV
+### [version 3.2.0.5 FV](https://github.com/DeepEastWind/Hydrogeologie/releases/tag/9ab6fea)
 1. améliorer à nouveau DrawLaTex dans FigureXY
