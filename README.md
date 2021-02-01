@@ -121,7 +121,7 @@ Cette application est une solution pour les relations d'hydrologie et de process
         
     2. Le coefficient de stockage:
     
-        ![S=\frac{2.246Tt_0}{r^2}](https://latex.codecogs.com/svg.latex?\Large&space;S=\frac{2.246Tt_0}{r^2})
+        ![S=\frac{2.246Tt_0}{r^2}](https://latex.codecogs.com/svg.latex?\Large&space;S=\frac{2.246Tt_{0}}{r^2})
 
 4. Méthode de solution de Chow:
 
@@ -212,9 +212,18 @@ Cette application est une solution pour les relations d'hydrologie et de process
 1. colorée les résultats et le texte généralement dans la feuille du calcul
 
 ### [version 3.2.0.1 bêta](https://github.com/DeepEastWind/Hydrogeologie/releases/tag/c86ba28)
+
 1. amélioré la coloration des résultats et le texte généralement dans la feuille du calcul
 
 2. correction de texte partout dans l'application
 
-### version 3.2.0.2 bêta
+### [version 3.2.0.2 bêta](https://github.com/DeepEastWind/Hydrogeologie/releases/tag/f9006c9)
 1. amélioration global du script
+
+### version 3.2.0.3 bêta
+1. améliorer DrawLaTex dans FigureXY pour GUI en :
+    1. l'afichage rapide des des résultats dans la feuille de calcul
+    
+    2. définir la position verticale de chaque ligne de texte en attente sur l'axe x
+    
+    3. améliore les couleurs pour chaque ligne de texte dans la feuille de calcul
