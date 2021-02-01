@@ -189,32 +189,42 @@ class ScrollableTkAggXY(tk.Canvas):
 
 
 class FigureXY(Figure):
-    def __init__(self, font_size, rgb_color, save_draw=3, **kwargs):
+    rgb_Black = ((0. / 255.), (0. / 255.), (0. / 255.))
+    rgb_White = ((255. / 255.), (255. / 255.), (255. / 255.))
+    def __init__(self, font_size, save_draw=3, **kwargs):
         super(FigureXY, self).__init__(tight_layout=True, **kwargs)
         self.font_size = font_size
         self.save_draw = save_draw
-        self.rgb_color = rgb_color
-        self.Axes = self.add_subplot(1, 1, 1)
-        self.Text = self.Axes.text(0, 1, '', color=self.rgb_color, fontsize=self.font_size)
+
         self.latex_math = []
         self.latex_line = []
+        self.rgb_color = []
+
         self.singing_math = []
         self.singing_line = []
+        self.singing_color = []
+
         self.size_w = [10]
         self.size_h = 10
         self.width = max(self.size_w)
         self.height = float(self.size_h)
 
-    def DrawLaTex(self, LaTexT, axe_x=0):
+        self.Axes = self.add_subplot(1, 1, 1)
+        self.Text = self.Axes.text(0, 1, '', fontsize=self.font_size)
+
+
+    def DrawLaTex(self, LaTexT, axe_x=0, color=rgb_Black):
         """
 
-        :param axe_x: set the vertical position of text
         :param LaTexT: input LaTeX or text of each line
+        :param axe_x: set the vertical position of text
+        :param color: set color for text
         :return: set function Draw at the end of lines you input
         """
 
         self.latex_math.append(LaTexT)
         self.latex_line.append(axe_x)
+        self.rgb_color.append(color)
         self.clear()
         yn_lines = len(self.latex_math)
         # Gap between lines in axes coords
@@ -230,10 +240,11 @@ class FigureXY(Figure):
             y_baseline = yn_lines - yi_line
             la_text = self.latex_math[yi_line]
             x_baseline = self.latex_line[yi_line]
+            color_base = self.rgb_color[yi_line]
             self.Text = self.Axes.text(x=x_baseline,
                                        y=y_baseline - 0.5,
                                        s=la_text,
-                                       color=self.rgb_color,
+                                       color=color_base,
                                        fontsize=self.font_size)
 
         Renderer = self.canvas.get_renderer(cleared=True)
@@ -268,15 +279,17 @@ class FigureXY(Figure):
         for lil in range(self.save_draw):
             self.singing_math.append(self.latex_math[lil])
             self.singing_line.append(self.latex_line[lil])
+            self.singing_color.append(self.rgb_color[lil])
 
         self.latex_math.clear()
         self.latex_line.clear()
+        self.rgb_color.clear()
         self.size_w.clear()
         self.size_w.append(10)
         self.size_h = 10
 
         for lil in range(self.save_draw):
-            self.DrawLaTex(self.singing_math[lil], self.singing_line[lil])
+            self.DrawLaTex(self.singing_math[lil], self.singing_line[lil], self.singing_color[lil])
 
         self.Draw()
 
@@ -346,7 +359,7 @@ class ScrollBind(object):
     def __init__(self, canvas_self, canvas_widget, y_scroll, x_scroll, vbar=None, hbar=None):
         self.canvas_self, self.canvas_widget = canvas_self, canvas_widget
         self.y_scroll, self.x_scroll = y_scroll, x_scroll
-        self.scroll_inch = 5
+        self.scroll_inch = 3
 
         if self.y_scroll:
             self.canvas_self.bind_all("<MouseWheel>", self.MouseWheelHandler)
