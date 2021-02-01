@@ -191,9 +191,16 @@ Cette application est une solution pour les relations d'hydrologie et de process
 ### [version 3.0.0.4 FV](https://github.com/DeepEastWind/Hydrogeologie/releases/tag/5f90fbd)
 1. des petites améliorations au niveau du script
 
-### version 3.1.0.1 bêta
+### [version 3.1.0.1 bêta](https://github.com/DeepEastWind/Hydrogeologie/releases/tag/4c2a01c)
 1. ajout la possibilité de cliquer sur entré est afficher la résultat sur la feuille de calcul
 
 2. corrige le lent démarrage d'application
 
 3. amélioration l’adaptation du script
+
+### version 3.1.0.2 bêta
+1. colorée la feuille du calcul au couleur blanche
+
+2. attribue les résultats par l'axe x dans la feuille du calcul
+
+3. amélioration global du script
