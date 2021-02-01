@@ -6,137 +6,165 @@ from sympy.solvers import solve
 from sympy.solvers.solveset import solvify
 
 r"""
-1. ECOULEMENT UNIDIRECTIONNEL STABLE
-    1.1. Aquifére confine:
-        "$h = -\frac{vx}{K}$"
+Hydrologie des eaux souterraines Livre de David Keith Todd
 
-    1.2. Aquifére non confine:
-        "$q = \frac{K}{2x}\left({h_0^2-h^2}\right)$"
+    Chapiter Ⅳ: Hydraulique des puits, pompage d'essai et étude des rabattements"
 
-    1.3. Flux de base vers un flux:
-        "$q_x = \frac{K\left({h_1^2-h_2^2}\right)}{2L}-W\left(\frac{L}{2}-x\right)$"
-
-        "$d = \frac{L}{2}-\frac{K}{W}\frac{\left({h_0^2-h^2}\right)}{2L}$"
-
-        "$h^2_{max} = {h_1^2}-\frac{\left({h_1^2-h_2^2}\right)d}{L}+\frac{W}{K}\left(L-d\right)d$"
-
-        "$h_{max} = \sqrt{{h_1^2}-\frac{\left({h_1^2-h_2^2}\right)d}{L}+\frac{W}{K}\left(L-d\right)d}$"
-
-2. ECOULEMENT RADIAL CONSTANT VERS UN PUITS
-    2.1. Aquifére confine:
-        Débit de pompage:
-            "$Q = 2\pi Kb\frac{h-h_w}{ln\left(\frac{r}{r_w}\right)}$"
-
-            "$T = Kb = \frac{Q}{2\pi \left(h_1-h_2\right)}ln\left(\frac{r_2}{r_1}\right)$"
-            
-        Conductivité hydraulique:
-            "$K = \frac{Q}{2\pi b\left(h-h_w\right)}ln\left(\frac{r}{r_w}\right)$"
-            
-        Niveau d'eau dans le puit pompé:
-            "$h_w =  h_2 - \frac{Q}{2 \pi K b} \ln{\frac{r_2}{r_1}}$"
-            
-        Rayon d'influence:
-            "$R = r_0 = r_1 e^{\left(2\pi Kb\frac{h_0-h_1}{Q}\right)}$"
-
-    2.2. Aquifére non confine:
-        Débit de pompage:
-            "$Q = \pi K\frac{h^2_2-h^2_1}{ln\left(\frac{r_2}{r_1}\right)}$"
-    
-            "$T \cong K\frac{h_1+h_2}{2}$"
+        1. ECOULEMENT UNIDIRECTIONNEL STABLE
+            1. Aquifére confine:
+                
+                $h=-\frac{vx}{K}$
         
-        Conductivité hydraulique:
-            "$K = \frac{Q}{\pi \left(h^2_2-h^2_1\right)}ln\left(\frac{r_2}{r_1}\right)$"
-    
-            "$T \cong K\frac{h_1+h_2}{2}$"
+            2. Aquifére non confine:
             
-        Niveau d'eau dans le puit pompé:
-            "$h_w =  \sqrt{h_2^2 - \frac{Q}{\pi K} \ln{\frac{r_2}{r_1}} }$"
+                $q=\frac{K}{2x}\left({h_0^2-h^2}\right)$
+        
+            3. Flux de base vers un flux:
             
-        Rayon d'influence
-            "$R = r_0 = r_1 e^{\left(\pi K\frac{h_0^2-h_1^2}{Q}\right)}$"
+                $q_x=\frac{K\left({h_1^2-h_2^2}\right)}{2L}-W\left(\frac{L}{2}-x\right)$
         
-    2.3. Aquifére non confine avec recharge uniforme:
-        Equation de la courbe de rabattement:
-            "$h^2_0-h^2 = \frac{W}{2K}\left(r^2-r^2_0\right)+\frac{Q_w}{\pi K}ln\left(\frac{r_0}{r}\right)$"
+                $d=\frac{L}{2}-\frac{K}{W}\frac{\left({h_0^2-h^2}\right)}{2L}$
+        
+                $h^2_{max}={h_1^2}-\frac{\left({h_1^2-h_2^2}\right)d}{L}+\frac{W}{K}\left(L-d\right)d$
+        
+                $h_{max}=\sqrt{{h_1^2}-\frac{\left({h_1^2-h_2^2}\right)d}{L}+\frac{W}{K}\left(L-d\right)d}$
+        
+        2. ECOULEMENT RADIAL CONSTANT VERS UN PUITS
+            1. Aquifére confine:
+                1. Débit de pompage:
+                
+                    $Q=2\pi{Kb}\frac{h-h_w}{ln\left(\frac{r}{r_w}\right)}$
+        
+                    $T=Kb=\frac{Q}{2\pi\left(h_1-h_2\right)}ln\left(\frac{r_2}{r_1}\right)$
+                    
+                2. Conductivité hydraulique:
+                
+                    $K=\frac{Q}{2\pi{b}\left(h-h_w\right)}ln\left(\frac{r}{r_w}\right)$
+                    
+                3. Niveau d'eau dans le puit pompé:
+                
+                    $h_w=h_2-\frac{Q}{2\pi{Kb}}\ln{\frac{r_2}{r_1}}$
+                    
+                4. Rayon d'influence:
+                
+                    $R=r_0=r_1e^{\left(2\pi{Kb}\frac{h_0-h_1}{Q}\right)}$
+        
+            2. Aquifére non confine:
+                1. Débit de pompage:
+                
+                    $Q=\pi{K}\frac{h^2_2-h^2_1}{ln\left(\frac{r_2}{r_1}\right)}$
             
-        Débit de pompage:
-            "$Q_w = \pi r_0^2 W$"
-        
-3. PUIT DANS UN ECOULEMENT UNIFORME
-    Conductivité hydraulique (K):
-        "$K = \frac{2Q}{\pi r\left(h_u+h_d\right)\left(i_u+i_d\right)}$"
-        
-    La pente de la surface piézométrique dans les conditions naturelles:
-        $i = \frac{\Delta h}{\Delta x}$
-        
-    Les limites longitudinales et transversales des eaux souterraines entrant dans le puit:
-        "$y_L =  \pm \frac{Q}{2Kbi}$"
-        
-        "$x_L = -\frac{Q}{2\pi Kbi}$"
-
-4. FLUX RADIAL INSTANTANE DANS UN AQUIFERE CONFINE
-    4.1. Equation de pompage de puits instable:
-        La Transmisivité:
-            "$T = \frac{114.6Q}{s}W\left(u\right)$"
+                    $T\cong{K}\frac{h_1+h_2}{2}$
+                
+                2. Conductivité hydraulique:
+                
+                    $K=\frac{Q}{\pi\left(h^2_2-h^2_1\right)}ln\left(\frac{r_2}{r_1}\right)$
             
-            "$T = \frac{Q}{4 \pi s}W(u)$"
+                    $T\cong{K}\frac{h_1+h_2}{2}$
+                    
+                3. Niveau d'eau dans le puit pompé:
+                
+                    $h_w=\sqrt{h_2^2-\frac{Q}{\pi{K}}\ln{\frac{r_2}{r_1}}}$
+                    
+                4. Rayon d'influence:
+                
+                    $R=r_0=r_{1}e^{\left(\pi{K}\frac{h_0^2-h_1^2}{Q}\right)}$
+                
+            3. Aquifére non confine avec recharge uniforme:
+                1. Equation de la courbe de rabattement:
+                
+                    $h^2_0-h^2=\frac{W}{2K}\left(r^2-r^2_0\right)+\frac{Q_w}{\pi{K}}ln\left(\frac{r_0}{r}\right)$
+                    
+                2. Débit de pompage:
+                
+                    $Q_w=\pi{r_{0}^{2}}W$
+                
+        3. PUIT DANS UN ECOULEMENT UNIFORME
+            1. Conductivité hydraulique (K):
             
-        Le coefficient de stockage:
-            "$S = \frac{Tt}{\frac{1}{u} 1.87r^2}$" (t in days)
+                $K=\frac{2Q}{\pi{r\left(h_u+h_d\right)}\left(i_u+i_d\right)}$
+                
+            2. La pente de la surface piézométrique dans les conditions naturelles:
+            
+                $i=\frac{\Delta{h}}{\Delta{x}}$
+                
+            3. Les limites longitudinales et transversales des eaux souterraines entrant dans le puit:
+            
+                $y_L=\pm\frac{Q}{2Kbi}$
+                
+                $x_L=-\frac{Q}{2\pi{Kbi}}$
         
-            "$S = \frac{Tt}{\frac{1}{u} 2693r^2}$" (t in minutes)
+        4. FLUX RADIAL INSTANTANE DANS UN AQUIFERE CONFINE
+            1. Equation de pompage de puits instable:
+                1. La Transmisivité:
+                
+                    $T=\frac{114.6Q}{s}W\left(u\right)$
+                    
+                    $T=\frac{Q}{4\pi{s}}W\left(u\right)$
+                    
+                2. Le coefficient de stockage:
+                
+                    $S=\frac{Tt}{\frac{1}{u}1.87r^2}$ (t in days)
+                
+                    $S=\frac{Tt}{\frac{1}{u}2693r^2}$ (t in minutes)
+                
+            2. Methode de solution de Theis:
+                1. La Transmisivité:
+                
+                    $T=\frac{Q}{4\pi{s}}W\left(u\right)$
+                    
+                2. Le coefficient de stockage:
+                
+                    $S=\frac{4Tu}{r^2/t}$
         
-    4.2. Methode de solution de Theis:
-        La Transmisivité:
-            "$T = \frac{Q}{4 \pi s}W\left(u\right)$"
+            3. Methode de solution de Cooper-Jacob:
+                1. La Transmisivité:
+                
+                    $T=\frac{2.303Q}{4\pi\Delta{s}}$
+                    
+                2. Le coefficient de stockage:
+                
+                    $S=\frac{2.246Tt_0}{r^2}$
             
-        Le coefficient de stockage:
-            "$S = \frac{4Tu}{r^2/t}$"
-
-    4.3. Methode de solution de Cooper-Jacob:
-        La Transmisivité:
-            "$T = \frac{2.303Q}{4\pi \Delta s}$"
+            4. Methode de solution de Chow:
             
-        Le coefficient de stockage:
-            "$S = \frac{2.246Tt_0}{r^2}$"
-    
-
-    4.4. Methode de solution de Chow:
-        "$F\left(u\right) = \frac{s}{\Delta s}$"
-
-5. FLUX RADIAL INSTANTANE DANS UN AQUIFERE NON CONFINE
-    "$s = \frac{Q}{4\pi T}W\left(u_a, u_y, \eta \right)$"
-
-    "$u_a = \frac{r^2 S}{4Tt}$"
-
-    "$u_y = \frac{r^2 S_y}{4Tt}$"
-
-    "$\eta = \frac{r^2 K_z}{b^2 K_h}$"
-    
-6. ECOULEMENT RADIAL INSTABLE DANS UN AQUIFERE QUI FUIT
-    "$s = \frac{Q}{4\pi T}W\left(u, \frac{r}{B} \right)$"
-
-    "$u = \frac{r^2 S}{4Tt}$"
-
-    "$\frac{r}{B} = \frac{r}{\sqrt{T'\left(\frac{K'}{b'}\right)}}$"
-    
-7. UN PUITS S'ECOULE PRES DES LIMITES DE L'AQUIFERE 
-    "$s_b = \frac{Q}{4\pi T}W\left(u_p\right) + \frac{Q}{4\pi T}W\left(u_i\right)$"
-
-    "$u_p = \frac{r^2_p S}{4Tt_p}$"
-
-    "$u_i = \frac{r^2_i S}{4Tt_i}$"
-
-
-"""
+                $F\left(u\right)=\frac{s}{\Delta{s}}$
+        
+        5. FLUX RADIAL INSTANTANE DANS UN AQUIFERE NON CONFINE
+        
+            $s=\frac{Q}{4\pi{T}}W\left(u_a,u_y,\eta\right)$
+        
+            $u_a=\frac{r^{2}S}{4Tt}$
+        
+            $u_y=\frac{r^{2}S_y}{4Tt}$
+        
+            $\eta=\frac{r^{2}K_z}{b^{2}K_h}$
+            
+        6. ECOULEMENT RADIAL INSTABLE DANS UN AQUIFERE QUI FUIT
+        
+            $s=\frac{Q}{4\pi{T}}W\left(u,\frac{r}{B}\right)$
+        
+            $u=\frac{r^{2}S}{4Tt}$
+        
+            $\frac{r}{B}=\frac{r}{\sqrt{T'\left(\frac{K'}{b'}\right)}}$
+            
+        7. UN PUITS S'ECOULE PRES DES LIMITES DE L'AQUIFERE 
+        
+            $s_b=\frac{Q}{4\pi{T}}W\left(u_p\right)+\frac{Q}{4\pi{T}}W\left(u_i\right)$
+        
+            $u_p=\frac{r^{2}_{p}S}{4Tt_p}$
+        
+            $u_i=\frac{r^{2}_{i}S}{4Tt_i}$
+        
+        """
 '''
-### version 3.2.0.4 RC
-1. améliorer DrawLaTex dans FigureXY par la méthode la plus rapide jamais vue pour afficher les résultats dans la feuille de calcul
+### version 3.2.0.5 FV
+1. améliorer à nouveau DrawLaTex dans FigureXY
 '''
 __author__ = 'DeepEastWind'
-__first__ = 'NORA'
-__last__ = 'NAJMI'
-__version__ = '3.2.0.4 RC'
+__first_name__ = 'NORA'
+__family_name__ = 'NAJMI'
+__version__ = '3.2.0.5 FV'
 __title__ = 'Hydrogéologie'
 
 btn_prm = {'padx': 18,
@@ -347,7 +375,7 @@ class GUI_MASTER(Frame):
         # self.LaTexT(f'{math("it", __first__)} {math("it", __last__)} {math("frak", "Master")} {math("cal", "HIGH")} '
         #             f'{math("bb", "2020/2021")}', n_identify, color=rgb_Red)
         self.LaTexT(self.FonTex(
-            ("it", __first__), ("it", __last__), ("frak", "Master"), ("cal", "HIGH"), ("bb", "2020/2021")),
+            ("it", __first_name__), ("it", __family_name__), ("frak", "Master"), ("cal", "HIGH"), ("bb", "2020/2021")),
             n_identify, color=rgb_Blue)
 
         self.LaTexT(
@@ -524,7 +552,7 @@ class ECOULEMENT_UNIDIRECTIONNEL_STABLE_1(ttk.Frame):
 
         self.Title4rdTex(f"Nappe Captive ({TX('h')}):")
 
-        self.RelaTex(r"h = -\frac{vx}{K}")
+        self.RelaTex(r"h=-\frac{vx}{K}")
 
         self.Draw()
 
@@ -540,13 +568,13 @@ class ECOULEMENT_UNIDIRECTIONNEL_STABLE_1(ttk.Frame):
 
         self.EntryTex(('v', v, 'm/j'), ('x', x, 'm'), ('K', K, 'm/j'))
         self.IntroTex(f"Calcul de Nappe Captive ({TX('h')}):")
-        self.CalclTex(r"$h = -\frac{vx}{K}$")
+        self.CalclTex(r"$h=-\frac{vx}{K}$")
         self.EvalTex("h", h, "m")
 
         r"""
 1. ECOULEMENT UNIDIRECTIONNEL STABLE:
     1.1. Aquifére confine:
-        "$h = -\frac{vx}{K}$"
+        "$h=-\frac{vx}{K}$"
 """
         self.Draw()
 
@@ -589,7 +617,7 @@ class ECOULEMENT_UNIDIRECTIONNEL_STABLE_2(ttk.Frame):
 
         self.Title4rdTex(f"Equation du puit ({TX('q')}):")
 
-        self.RelaTex(r"q = \frac{K}{2x}\left({h_0^2-h^2}\right)")
+        self.RelaTex(r"q=\frac{K}{2x}\left({h_0^2-h^2}\right)")
 
         self.Draw()
 
@@ -606,12 +634,12 @@ class ECOULEMENT_UNIDIRECTIONNEL_STABLE_2(ttk.Frame):
 
         self.EntryTex(('h', h, 'm'), ('h_0', h0, 'm'), ('x', x, 'm'), ('K', K, 'm/j'))
         self.IntroTex(f"Calcul d'Equation du puit ({TX('q')}):")
-        self.CalclTex(r"$q = \frac{K}{2x}\left({h_0^2-h^2}\right)$")
+        self.CalclTex(r"$q=\frac{K}{2x}\left({h_0^2-h^2}\right)$")
         self.EvalTex("q", q, 'm^2/j')
 
         r"""
     1.2. Aquifére non confine:
-        "$q = \frac{K}{2x}\left({h_0^2-h^2}\right)$"
+        "$q=\frac{K}{2x}\left({h_0^2-h^2}\right)$"
 """
         self.Draw()
 
@@ -654,9 +682,9 @@ class ECOULEMENT_UNIDIRECTIONNEL_STABLE_3(ttk.Frame):
 
         self.Title3rdTex("1.3. Débit de base vers un cours d'eau:")
 
-        self.RelaTex(r"q_x = \frac{K\left({h_1^2-h_2^2}\right)}{2L}-W\left(\frac{L}{2}-x\right)",
-                     r"d = \frac{L}{2}-\frac{K}{W}\frac{\left({h_0^2-h^2}\right)}{2L}",
-                     r"h^2_{max} = {h_1^2}-\frac{\left({h_1^2-h_2^2}\right)d}{L}+\frac{W}{K}\left(L-d\right)d")
+        self.RelaTex(r"q_x=\frac{K\left({h_1^2-h_2^2}\right)}{2L}-W\left(\frac{L}{2}-x\right)",
+                     r"d=\frac{L}{2}-\frac{K}{W}\frac{\left({h_0^2-h^2}\right)}{2L}",
+                     r"h^2_{max}={h_1^2}-\frac{\left({h_1^2-h_2^2}\right)d}{L}+\frac{W}{K}\left(L-d\right)d")
 
         self.Draw()
 
@@ -693,36 +721,36 @@ class ECOULEMENT_UNIDIRECTIONNEL_STABLE_3(ttk.Frame):
         self.CalclTex(TX(f"W = {Wa} / 365 = {eval(W)} m/j"), color=rgb_Green)
 
         self.IntroTex(f'Calcul de debit quotidien par Kilomètre de la nappe vers les deux rivières ({TX("q_x")}):')
-        self.CalclTex(r"$q_x = \frac{K\left({h_1^2-h_2^2}\right)}{2L}-W\left(\frac{L}{2}-x\right)$")
+        self.CalclTex(r"$q_x=\frac{K\left({h_1^2-h_2^2}\right)}{2L}-W\left(\frac{L}{2}-x\right)$")
         self.EvalTex("q_x", qx, "m^2/j")
 
         self.IntroTex(f"Calcul de localisation de la ligne de partage d'eau souterraine ({TX('d')}):")
-        self.CalclTex(r"$d = \frac{L}{2}-\frac{K}{W}\frac{\left({h_0^2-h^2}\right)}{2L}$")
+        self.CalclTex(r"$d=\frac{L}{2}-\frac{K}{W}\frac{\left({h_0^2-h^2}\right)}{2L}$")
         self.EvalTex("d", d, "m")
 
         self.IntroTex(f"Calcul de Hauteur Piézométrique maximale au niveau de la ligne de partage d'eau "
                       f"({TX('h_{max}')}):")
         # First Method
         self.IntroTex(f"Première méthode:")
-        self.CalclTex(r"$h^2_{max} = {h_1^2}-\frac{\left({h_1^2-h_2^2}\right)d}{L}+\frac{W}{K}\left(L-d\right)d$")
-        self.CalclTex(r"$h_{max} = \sqrt{{h_1^2}-\frac{\left({h_1^2-h_2^2}\right)d}{L}+\frac{W}{K}\left(L-d\right)d}$")
+        self.CalclTex(r"$h^2_{max}={h_1^2}-\frac{\left({h_1^2-h_2^2}\right)d}{L}+\frac{W}{K}\left(L-d\right)d$")
+        self.CalclTex(r"$h_{max}=\sqrt{{h_1^2}-\frac{\left({h_1^2-h_2^2}\right)d}{L}+\frac{W}{K}\left(L-d\right)d}$")
         self.EvalTex("h_{max}", hmax, "m")
         # Second Method
         self.IntroTex(f"Deuxième méthode:")
-        self.CalclTex(r"$h^2_{max} = {h_1^2}-\frac{\left({h_1^2-h_2^2}\right)d}{L}+\frac{W}{K}\left(L-d\right)d$")
+        self.CalclTex(r"$h^2_{max}={h_1^2}-\frac{\left({h_1^2-h_2^2}\right)d}{L}+\frac{W}{K}\left(L-d\right)d$")
         self.EvalTex("h_{max}^2", hp, color=rgb_Black)
         self.CalclTex(TX(r"h_{max} = "f"{hms}"), color=rgb_Black)
         self.EvalTex("h_{max}", hr, "m")
 
         r"""
     1.3. Flux de base vers un flux:
-        "$q_x = \frac{K\left({h_1^2-h_2^2}\right)}{2L}-W\left(\frac{L}{2}-x\right)$"
+        "$q_x=\frac{K\left({h_1^2-h_2^2}\right)}{2L}-W\left(\frac{L}{2}-x\right)$"
 
-        "$d = \frac{L}{2}-\frac{K}{W}\frac{\left({h_0^2-h^2}\right)}{2L}$"
+        "$d=\frac{L}{2}-\frac{K}{W}\frac{\left({h_0^2-h^2}\right)}{2L}$"
 
-        "$h^2_{max} = {h_1^2}-\frac{\left({h_1^2-h_2^2}\right)d}{L}+\frac{W}{K}\left(L-d\right)d$"
+        "$h^2_{max}={h_1^2}-\frac{\left({h_1^2-h_2^2}\right)d}{L}+\frac{W}{K}\left(L-d\right)d$"
 
-        "$h_{max} = \sqrt{{h_1^2}-\frac{\left({h_1^2-h_2^2}\right)d}{L}+\frac{W}{K}\left(L-d\right)d}$"
+        "$h_{max}=\sqrt{{h_1^2}-\frac{\left({h_1^2-h_2^2}\right)d}{L}+\frac{W}{K}\left(L-d\right)d}$"
 """
         self.Draw()
 
@@ -809,8 +837,8 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1_1(ttk.Frame):
 
         self.Title4rdTex(f"Débit de pompage ({TX('Q')}):")
 
-        self.RelaTex(r"Q = 2\pi Kb\frac{h-h_w}{ln\left(\frac{r}{r_w}\right)}",
-                     r"T = Kb = \frac{Q}{2\pi \left(h_1-h_2\right)}ln\left(\frac{r_2}{r_1}\right)")
+        self.RelaTex(r"Q=2\pi{Kb}\frac{h-h_w}{ln\left(\frac{r}{r_w}\right)}",
+                     r"T=Kb=\frac{Q}{2\pi\left(h_1-h_2\right)}ln\left(\frac{r_2}{r_1}\right)")
 
         self.Draw()
 
@@ -836,7 +864,7 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1_1(ttk.Frame):
         self.EntryTex(("h_1", h1, "m"), ("h_w", h1, "m"), ("h_2", h2, "m"), ("h", h2, "m"), ("r_1", r1, "m"),
                       ("r_w", r1, "m"), ("r_2", r2, "m"), ("r", r2, "m"), ("K", K, "m/j"), ("b", b, "m"))
         self.IntroTex(f'Calcul du Débit de pompage ({TX("Q")}):')
-        self.CalclTex(r"$Q = 2\pi Kb\frac{h-h_w}{ln\left(\frac{r}{r_w}\right)}$")
+        self.CalclTex(r"$Q=2\pi{Kb}\frac{h-h_w}{ln\left(\frac{r}{r_w}\right)}$")
         self.EvalTex("Q", Q, "m^3/j")
 
         self.IntroTex(f'Calcul de la premier relation de la Transmisivité ({TX("T")}) :')
@@ -844,16 +872,16 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1_1(ttk.Frame):
         self.EvalTex("T", T1, "m^2/j")
 
         self.IntroTex(f'Calcul de la deuxième relation de la Transmisivité ({TX("T")}):')
-        self.CalclTex(r"$T = \frac{Q}{2\pi \left(h_1-h_2\right)}ln\left(\frac{r_2}{r_1}\right)$")
+        self.CalclTex(r"$T=\frac{Q}{2\pi\left(h_1-h_2\right)}ln\left(\frac{r_2}{r_1}\right)$")
         self.EvalTex("T", T2, "m^2/j")
 
         r"""
 2. ECOULEMENT RADIAL CONSTANT VERS UN PUITS:
     2.1. Aquifére confine:
         Débit de pompage:
-            "$Q = 2\pi Kb\frac{h-h_w}{ln\left(\frac{r}{r_w}\right)}$"
+            "$Q=2\pi{Kb}\frac{h-h_w}{ln\left(\frac{r}{r_w}\right)}$"
 
-            "$T = Kb = \frac{Q}{2\pi \left(h_1-h_2\right)}ln\left(\frac{r_2}{r_1}\right)$"
+            "$T=Kb=\frac{Q}{2\pi\left(h_1-h_2\right)}ln\left(\frac{r_2}{r_1}\right)$"
 """
         self.Draw()
 
@@ -898,7 +926,7 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1_2(ttk.Frame):
 
         self.Title4rdTex(f"Conductivité hydraulique ({TX('K')}):")
 
-        self.RelaTex(r"K = \frac{Q}{2\pi b\left(h-h_w\right)}ln\left(\frac{r}{r_w}\right)")
+        self.RelaTex(r"K=\frac{Q}{2\pi{b}\left(h-h_w\right)}ln\left(\frac{r}{r_w}\right)")
 
         self.Draw()
 
@@ -917,14 +945,14 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1_2(ttk.Frame):
 
         self.EntryTex(("h_w", hw, "m"), ("h", h, "m"), ("r_w", r, "m"), ("r", r, "m"), ("Q", Q, "m^3/j"), ("b", b, "m"))
         self.IntroTex(f'Calcul de la Conductivité hydraulique ({TX("K")}):')
-        self.CalclTex(r"$K = \frac{Q}{2\pi b\left(h-h_w\right)}ln\left(\frac{r}{r_w}\right)$")
+        self.CalclTex(r"$K=\frac{Q}{2\pi{b}\left(h-h_w\right)}ln\left(\frac{r}{r_w}\right)$")
         self.EvalTex("K", K, "m/j")
 
         r"""
 2. ECOULEMENT RADIAL CONSTANT VERS UN PUITS:
     2.1. Aquifére confine:
         Conductivité hydraulique:
-            "$K = \frac{Q}{2\pi b\left(h-h_w\right)}ln\left(\frac{r}{r_w}\right)$"
+            "$K=\frac{Q}{2\pi{b}\left(h-h_w\right)}ln\left(\frac{r}{r_w}\right)$"
 """
         self.Draw()
 
@@ -969,7 +997,7 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1_3(ttk.Frame):
 
         self.Title4rdTex(f"Niveau d'eau dans le puit pompé ({TX('h_w')}):")
 
-        self.RelaTex(r"h_w =  h_2 - \frac{Q}{2 \pi K b} \ln{\frac{r_2}{r_1}}")
+        self.RelaTex(r"h_w=h_2-\frac{Q}{2\pi{Kb}}\ln{\frac{r_2}{r_1}}")
 
         self.Draw()
 
@@ -989,14 +1017,14 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1_3(ttk.Frame):
         self.EntryTex(("h_2", h2, "m"), ("r_1", r1, "m"), ("r_2", r2, "m"), ("K", K, "m/j"), ("Q", Q, "m^3/j"),
                       ("b", b, "m"))
         self.IntroTex(f"Calcul du niveau d'eau dans le puit pompé ({TX('h_w')}):")
-        self.CalclTex(r"$h_w =  h_2 - \frac{Q}{2 \pi K b} \ln{\frac{r_2}{r_1}}$")
+        self.CalclTex(r"$h_w=h_2-\frac{Q}{2\pi{Kb}}\ln{\frac{r_2}{r_1}}$")
         self.EvalTex("h_w", hw, "m")
 
         r"""
 2. ECOULEMENT RADIAL CONSTANT VERS UN PUITS:
     2.1. Aquifére confine:
         Niveau d'eau dans le puit pompé:
-            "$h_w =  h_2 - \frac{Q}{2 \pi K b} \ln{\frac{r_2}{r_1}}$"
+            "$h_w=h_2-\frac{Q}{2\pi{Kb}}\ln{\frac{r_2}{r_1}}$"
 """
         self.Draw()
 
@@ -1041,7 +1069,7 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1_4(ttk.Frame):
 
         self.Title4rdTex(f"Rayon d'influence ({TX('R')}):")
 
-        self.RelaTex(r"R = r_0 = r_1 e^{\left(2\pi Kb\frac{h_0-h_1}{Q}\right)}")
+        self.RelaTex(r"R=r_0=r_1e^{\left(2\pi{Kb}\frac{h_0-h_1}{Q}\right)}")
 
         self.Draw()
 
@@ -1061,14 +1089,14 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1_4(ttk.Frame):
         self.EntryTex(("h_0", h0, "m"), ("h_1", h1, "m"), ("r_1", r1, "m"), ("K", K, "m/j"), ("Q", Q, "m^3/j"),
                       ("b", b, "m"))
         self.IntroTex(f"Calcul du Rayon d'influence ({TX('R')}):")
-        self.CalclTex(r"$R = r_0 = r_1 e^{\left(2\pi Kb\frac{h_0-h_1}{Q}\right)}$")
+        self.CalclTex(r"$R=r_0=r_1e^{\left(2\pi{Kb}\frac{h_0-h_1}{Q}\right)}$")
         self.EvalTex("R = r_0", R, "m")
 
         r"""
 2. ECOULEMENT RADIAL CONSTANT VERS UN PUITS:
     2.1. Aquifére confine:
         Rayon d'influence
-            "$R = r_0 = r_1 e^{\left(2\pi Kb\frac{h_0-h_1}{Q}\right)}$"
+            "$R=r_0=r_1e^{\left(2\pi{Kb}\frac{h_0-h_1}{Q}\right)}$"
 """
         self.Draw()
 
@@ -1134,7 +1162,7 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2_1(ttk.Frame):
 
         self.Title4rdTex(f"Débit de pompage ({TX('Q')}):")
 
-        self.RelaTex(r"Q = \pi K\frac{h^2_2-h^2_1}{ln\left(\frac{r_2}{r_1}\right)}", r"T \cong K\frac{h_1+h_2}{2}")
+        self.RelaTex(r"Q=\pi{K}\frac{h^2_2-h^2_1}{ln\left(\frac{r_2}{r_1}\right)}", r"T\cong{K}\frac{h_1+h_2}{2}")
 
         self.Draw()
 
@@ -1155,19 +1183,19 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2_1(ttk.Frame):
 
         self.EntryTex(("h_1", h1, "m"), ("h_2", h2, "m"), ("r_1", r1, "m"), ("r_2", r2, "m"), ("K", K, "m/j"))
         self.IntroTex(f'Calcul du Débit de pompage ({TX("Q")}):')
-        self.CalclTex(r"$Q = \pi K\frac{h^2_2-h^2_1}{ln\left(\frac{r_2}{r_1}\right)}$")
+        self.CalclTex(r"$Q=\pi{K}\frac{h^2_2-h^2_1}{ln\left(\frac{r_2}{r_1}\right)}$")
         self.EvalTex("Q", Q, 'm^3/j')
 
         self.IntroTex(f'Calcul de la Transmisivité ({TX("T")}):')
-        self.CalclTex(r"$T \cong K\frac{h_1+h_2}{2}$")
+        self.CalclTex(r"$T\cong{K}\frac{h_1+h_2}{2}$")
         self.EvalTex("T", T, 'm^2/j')
 
         r"""
     2.2. Aquifére non confine:
         Débit de pompage:
-            "$Q = \pi K\frac{h^2_2-h^2_1}{ln\left(\frac{r_2}{r_1}\right)}$"
+            "$Q=\pi{K}\frac{h^2_2-h^2_1}{ln\left(\frac{r_2}{r_1}\right)}$"
 
-            "$T \cong K\frac{h_1+h_2}{2}$"
+            "$T\cong{K}\frac{h_1+h_2}{2}$"
 """
         self.Draw()
 
@@ -1211,8 +1239,8 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2_2(ttk.Frame):
 
         self.Title4rdTex(f"Conductivité hydraulique ({TX('K')}):")
 
-        self.RelaTex(r"K = \frac{Q}{\pi \left(h^2_2-h^2_1\right)}ln\left(\frac{r_2}{r_1}\right)",
-                     r"T \cong K\frac{h_1+h_2}{2}")
+        self.RelaTex(r"K=\frac{Q}{\pi\left(h^2_2-h^2_1\right)}ln\left(\frac{r_2}{r_1}\right)",
+                     r"T\cong{K}\frac{h_1+h_2}{2}")
 
         self.Draw()
 
@@ -1233,19 +1261,19 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2_2(ttk.Frame):
 
         self.EntryTex(("h_1", h1, "m"), ("h_2", h2, "m"), ("r_1", r1, "m"), ("r_2", r2, "m"), ("Q", Q, "m^3/j"))
         self.IntroTex(f'Calcul de la Conductivité hydraulique ({TX("K")}):')
-        self.CalclTex(r"$K = \frac{Q}{\pi \left(h^2_2-h^2_1\right)}ln\left(\frac{r_2}{r_1}\right)$")
+        self.CalclTex(r"$K=\frac{Q}{\pi\left(h^2_2-h^2_1\right)}ln\left(\frac{r_2}{r_1}\right)$")
         self.EvalTex("K", K, "m/j")
 
         self.IntroTex(f'Calcul de la Transmisivité ({TX("T")}):')
-        self.CalclTex(r"$T \cong K\frac{h_1+h_2}{2}$")
+        self.CalclTex(r"$T\cong{K}\frac{h_1+h_2}{2}$")
         self.EvalTex("T", T, "m^2/j")
 
         r"""
     2.2. Aquifére non confine:
         Conductivité hydraulique:
-            "$K = \frac{Q}{\pi \left(h^2_2-h^2_1\right)}ln\left(\frac{r_2}{r_1}\right)$"
+            "$K=\frac{Q}{\pi\left(h^2_2-h^2_1\right)}ln\left(\frac{r_2}{r_1}\right)$"
 
-            "$T \cong K\frac{h_1+h_2}{2}$"
+            "$T\cong{K}\frac{h_1+h_2}{2}$"
 """
         self.Draw()
 
@@ -1289,7 +1317,7 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2_3(ttk.Frame):
 
         self.Title4rdTex(f"Niveau d'eau dans le puit pompé ({TX('h_w')}):")
 
-        self.RelaTex(r"h_w =  \sqrt{h_2^2 - \frac{Q}{\pi K} \ln{\frac{r_2}{r_1}}}")
+        self.RelaTex(r"h_w=\sqrt{h_2^2-\frac{Q}{\pi{K}}\ln{\frac{r_2}{r_1}}}")
 
         self.Draw()
 
@@ -1307,14 +1335,14 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2_3(ttk.Frame):
 
         self.EntryTex(("h_2", h2, "m"), ("r_1", r1, "m"), ("r_2", r2, "m"), ("K", K, "m/j"), ("Q", Q, "m^3/j"))
         self.IntroTex(f"Calcul du niveau d'eau dans le puit pompé ({TX('h_w')}):")
-        self.CalclTex(r"$h_w =  \sqrt{h_2^2 - \frac{Q}{\pi K} \ln{\frac{r_2}{r_1}} }$")
+        self.CalclTex(r"$h_w=\sqrt{h_2^2-\frac{Q}{\pi{K}}\ln{\frac{r_2}{r_1}}}$")
         self.EvalTex("h_w", hw, "m")
 
         r"""
 2. ECOULEMENT RADIAL CONSTANT VERS UN PUITS:
     2.2. Aquifére non confine:
         Niveau d'eau dans le puit pompé:
-            "$h_w =  \sqrt{h_2^2 - \frac{Q}{\pi K} \ln{\frac{r_2}{r_1}} }$"
+            "$h_w=\sqrt{h_2^2-\frac{Q}{\pi{K}}\ln{\frac{r_2}{r_1}}}$"
 """
         self.Draw()
 
@@ -1358,7 +1386,7 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2_4(ttk.Frame):
 
         self.Title4rdTex(f"Rayon d'influence ({TX('R')}):")
 
-        self.RelaTex(r"R = r_0 = r_1 e^{\left(\pi K\frac{h_0^2-h_1^2}{Q}\right)}")
+        self.RelaTex(r"R=r_0=r_{1}e^{\left(\pi{K}\frac{h_0^2-h_1^2}{Q}\right)}")
 
         self.Draw()
 
@@ -1376,14 +1404,14 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2_4(ttk.Frame):
 
         self.EntryTex(("h_0", h0, "m"), ("h_1", h1, "m"), ("r_1", r1, "m"), ("K", K, "m/j"), ("Q", Q, "m^3/j"))
         self.IntroTex(f"Calcul du Rayon d'influence ({TX('R')}):")
-        self.CalclTex(r"$R = r_0 = r_1 e^{\left(\pi K\frac{h_0^2-h_1^2}{Q}\right)}$")
+        self.CalclTex(r"$R=r_0=r_{1}e^{\left(\pi{K}\frac{h_0^2-h_1^2}{Q}\right)}$")
         self.EvalTex("R = r_0", R, "m")
 
         r"""
 2. ECOULEMENT RADIAL CONSTANT VERS UN PUITS:
     2.2. Aquifére non confine:
         Rayon d'influence
-            "$R = r_0 = r_1 e^{\left(\pi K\frac{h_0^2-h_1^2}{Q}\right)}$"
+            "$R=r_0=r_{1}e^{\left(\pi{K}\frac{h_0^2-h_1^2}{Q}\right)}$"
 """
         self.Draw()
 
@@ -1431,9 +1459,8 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_3(ttk.Frame):
 
         self.Title4rdTex(f"Débit de pompage ({TX('Q')}):")
 
-        self.RelaTex(
-            r"h^2_0-h^2 = \frac{W}{2K}\left(r^2-r^2_0\right)+\frac{\pi r_0^2 W}{\pi K}ln\left(\frac{r_0}{r}\right)",
-            r"Q_w = \pi r_0^2 W")
+        self.RelaTex(r"h^2_0-h^2=\frac{W}{2K}\left(r^2-r^2_0\right)+\frac{Q_w}{\pi{K}}ln\left(\frac{r_0}{r}\right)",
+                     r"Q_w=\pi{r_{0}^{2}}W")
 
         self.Draw()
 
@@ -1468,8 +1495,7 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_3(ttk.Frame):
 
         self.EntryTex(("h", h, "m"), ("h_0", h0, "m"), ("r", r, "m"), ("K", K, "m/j"), ("W", W, "m/an"))
         self.IntroTex(f"Equation de la courbe de rabattement:")
-        self.CalclTex(
-            r"$h^2_0-h^2 = \frac{W}{2K}\left(r^2-r^2_0\right)+\frac{\pi r_0^2 W}{\pi K}ln\left(\frac{r_0}{r}\right)$")
+        self.CalclTex(r"$h^2_0-h^2=\frac{W}{2K}\left(r^2-r^2_0\right)+\frac{Q_w}{\pi{K}}ln\left(\frac{r_0}{r}\right)$")
         self.CalclTex(f"{App(q)} = {App(p)}", color=rgb_Black)
         self.CalclTex(App(Eq(sympify(q), sympify(p))), color=rgb_Black)
         self.IntroTex(
@@ -1477,16 +1503,16 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_3(ttk.Frame):
         self.EvalTex("r_0", r0, "m")
 
         self.IntroTex(f'Calcul du Débit de pompage ({TX("Q_w")}):')
-        self.CalclTex(r"$Q_w = \pi r_0^2 W$")
+        self.CalclTex(r"$Q_w=\pi{r_{0}^{2}}W$")
         self.EvalTex("Q_w", Q, "m^3/j")
 
         r"""
     2.3. Aquifére non confine avec recharge uniforme:
         Equation de la courbe de rabattement:
-            "$h^2_0-h^2 = \frac{W}{2K}\left(r^2-r^2_0\right)+\frac{Q_w}{\pi K}ln\left(\frac{r_0}{r}\right)$"
+            "$h^2_0-h^2=\frac{W}{2K}\left(r^2-r^2_0\right)+\frac{Q_w}{\pi{K}}ln\left(\frac{r_0}{r}\right)$"
             
         Débit de pompage:
-            "$Q_w = \pi r_0^2 W$"
+            "$Q_w=\pi{r_{0}^{2}}W$"
 """
         self.Draw()
 
@@ -1549,7 +1575,7 @@ class PUIT_DANS_UN_ECOULEMENT_UNIFORME_1(ttk.Frame):
 
         self.Title3rdTex('Conductivité hydraulique $(K)$:')
 
-        self.RelaTex(r"K = \frac{2Q}{\pi r(h_u+h_d)(i_u+i_d)}")
+        self.RelaTex(r"K=\frac{2Q}{\pi{r\left(h_u+h_d\right)}\left(i_u+i_d\right)}")
 
         self.Draw()
 
@@ -1569,13 +1595,13 @@ class PUIT_DANS_UN_ECOULEMENT_UNIFORME_1(ttk.Frame):
         self.EntryTex(("h_u", hu, "m"), ("h_d", hd, "m"), ("r", r, "m"), ("Q", Q, "m^3/j"), ("i_u", iu, r"\, "),
                       ("i_d", id, r"\, "))
         self.IntroTex("Calcul de la Conductivité hydraulique $(K)$:")
-        self.CalclTex(r"$K = \frac{2Q}{\pi r\left(h_u+h_d\right)\left(i_u+i_d\right)}$")
+        self.CalclTex(r"$K=\frac{2Q}{\pi{r\left(h_u+h_d\right)}\left(i_u+i_d\right)}$")
         self.EvalTex("K", K, "m/j")
 
         r"""
 3. PUIT DANS UN ECOULEMENT UNIFORME
     Conductivité hydraulique (K):
-        "$K = \frac{2Q}{\pi r\left(h_u+h_d\right)\left(i_u+i_d\right)}$"
+        "$K=\frac{2Q}{\pi{r\left(h_u+h_d\right)}\left(i_u+i_d\right)}$"
 """
         self.Draw()
 
@@ -1614,7 +1640,7 @@ class PUIT_DANS_UN_ECOULEMENT_UNIFORME_2(ttk.Frame):
 
         self.Title3rdTex(f"La pente de la surface piézométrique dans les conditions naturelles ({TX('i')}):")
 
-        self.RelaTex(r"i = \frac{\Delta h}{\Delta x}")
+        self.RelaTex(r"i=\frac{\Delta{h}}{\Delta{x}}")
 
         self.Draw()
 
@@ -1629,13 +1655,13 @@ class PUIT_DANS_UN_ECOULEMENT_UNIFORME_2(ttk.Frame):
 
         self.EntryTex((r"\Delta h", dh, "m"), (r"\Delta x", dx, "m"))
         self.IntroTex("Calcul de la pente de la surface piézométrique dans les conditions naturelles $(i)$:")
-        self.CalclTex(r"$i = \frac{\Delta h}{\Delta x}$")
+        self.CalclTex(r"$i=\frac{\Delta{h}}{\Delta{x}}$")
         self.EvalTex("i", i)
 
         r"""
 3. PUIT DANS UN ECOULEMENT UNIFORME
     La pente de la surface piézométrique dans les conditions naturelles:
-        $i = \frac{\Delta h}{\Delta x}$
+        $i=\frac{\Delta{h}}{\Delta{x}}$
 """
         self.Draw()
 
@@ -1677,7 +1703,7 @@ class PUIT_DANS_UN_ECOULEMENT_UNIFORME_3(ttk.Frame):
         self.Title3rdTex(f"Les limites longitudinales et transversales des eaux souterraines entrant dans le puit "
                          f"({TX('y_L')}) & ({TX('x_L')}):")
 
-        self.RelaTex(r"y_L =  \pm \frac{Q}{2Kbi}", r"x_L = -\frac{Q}{2\pi Kbi}")
+        self.RelaTex(r"y_L=\pm\frac{Q}{2Kbi}", r"x_L=-\frac{Q}{2\pi{Kbi}}")
 
         self.Draw()
 
@@ -1697,19 +1723,19 @@ class PUIT_DANS_UN_ECOULEMENT_UNIFORME_3(ttk.Frame):
 
         self.EntryTex(("K", K, "m/j"), ("Q", Q, "m^3/j"), ("i", i, r"\, "), ("b", b, "m"))
         self.IntroTex("Calcul des limites longitudinales des eaux souterraines entrant dans le puit $y_L$:")
-        self.CalclTex(r"$y_L =  \pm \frac{Q}{2Kbi}$")
+        self.CalclTex(r"$y_L=\pm\frac{Q}{2Kbi}$")
         self.EvalTex("y_L", yl, "m")
 
         self.IntroTex(f"Calcul des limites transversales des eaux souterraines entrant dans le puit $x_L$:")
-        self.CalclTex(r"$x_L = -\frac{Q}{2\pi Kbi}$")
+        self.CalclTex(r"$x_L=-\frac{Q}{2\pi{Kbi}}$")
         self.EvalTex("x_L", xl, "m")
 
         r"""
 3. PUIT DANS UN ECOULEMENT UNIFORME
     Les limites longitudinales et transversales des eaux souterraines entrant dans le puit:
-        "$y_L =  \pm \frac{Q}{2Kbi}$"
+        "$y_L=\pm\frac{Q}{2Kbi}$"
         
-        "$x_L = -\frac{Q}{2\pi Kbi}$"
+        "$x_L=-\frac{Q}{2\pi{Kbi}}$"
 """
         self.Draw()
 
@@ -1791,7 +1817,7 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_1_1(ttk.Frame):
 
         self.Title4rdTex("La Transmisivité ($T$):")
 
-        self.RelaTex(r"T = \frac{114.6Q}{s}W\left(u\right)", r"T = \frac{Q}{4 \pi s}W\left(u\right)")
+        self.RelaTex(r"T=\frac{114.6Q}{s}W\left(u\right)", r"T=\frac{Q}{4\pi{s}}W\left(u\right)")
 
         self.Draw()
 
@@ -1816,7 +1842,7 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_1_1(ttk.Frame):
 
         self.EntryTex(("Q", Q, "gpm"), ("s", s, "ft"), (r"W\left( u \right)", Wu, r"\, "))
         self.IntroTex("La Transmisivité en gpd/ft:")
-        self.CalclTex(r"$T = \frac{114.6Q}{s}W\left(u\right)$")
+        self.CalclTex(r"$T=\frac{114.6Q}{s}W\left(u\right)$")
         self.EvalTex("T", T1, "gpd/ft")
 
         self.IntroTex(f"Conversion depuis les unités usuelles de U.S. vers S.I:")
@@ -1824,7 +1850,7 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_1_1(ttk.Frame):
         self.CalclTex(f"s = {s} {TX('ft')} = {Num(st)} {TX('m')}", color=rgb_Black)
 
         self.IntroTex(f"La Transmisivité en {TX('m^2/j')}:")
-        self.CalclTex(r"$T = \frac{Q}{4 \pi s}W\left(u\right)$")
+        self.CalclTex(r"$T=\frac{Q}{4\pi{s}}W\left(u\right)$")
         self.EvalTex("T", T2, "m^2/j")
 
         # T = T1 * 0.01242
@@ -1840,9 +1866,9 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_1_1(ttk.Frame):
 4. FLUX RADIAL INSTANTANE DANS UN AQUIFERE CONFINE
     4.1. Equation de pompage de puits instable:
         La Transmisivité:
-            "$T = \frac{114.6Q}{s}W\left(u\right)$"
+            "$T=\frac{114.6Q}{s}W\left(u\right)$"
             
-            "$T = \frac{Q}{4 \pi s}W(u)$"
+            "$T=\frac{Q}{4\pi{s}}W\left(u\right)$"
 """
         self.Draw()
 
@@ -1885,8 +1911,8 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_1_2(ttk.Frame):
 
         self.Title4rdTex("Le coefficient de stockage ($S$):")
 
-        self.RelaTex(r"S = \frac{Tt}{\frac{1}{u} 1.87r^2}\quad (t\; en\; jours)",
-                     r"S = \frac{Tt}{\frac{1}{u} 2693r^2}\quad (t\; en\; minutes)")
+        self.RelaTex(r"S=\frac{Tt}{\frac{1}{u}1.87r^2}\quad (t\; en\; jours)",
+                     r"S=\frac{Tt}{\frac{1}{u}2693r^2}\quad (t\; en\; minutes)")
 
         self.Draw()
 
@@ -1909,23 +1935,23 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_1_2(ttk.Frame):
 
         self.EntryTex(("T", T, "m^2/j"), ("T", T, "gpd/ft"), ("r", r, "m"), ("t", t, "j"), (r"\frac{1}{u}", u, r"\, "))
         self.IntroTex("t en jours:")
-        self.CalclTex(r"$S = \frac{Tt}{\frac{1}{u} 1.87r^2}$")
+        self.CalclTex(r"$S=\frac{Tt}{\frac{1}{u}1.87r^2}$")
         self.EvalTex("S", Sj)
 
         self.IntroTex(f"Conversion du jours vers minutes:")
         self.CalclTex(f"t = {t} {TX('jours')} = {Num(tm)} {TX('minutes')}")
 
         self.IntroTex("t en minutes:")
-        self.CalclTex(r"$S = \frac{Tt}{\frac{1}{u} 2693r^2}$")
+        self.CalclTex(r"$S=\frac{Tt}{\frac{1}{u}2693r^2}$")
         self.EvalTex("S", Sm)
 
         r"""
 4. FLUX RADIAL INSTANTANE DANS UN AQUIFERE CONFINE
     4.1. Equation de pompage de puits instable:
         Le coefficient de stockage:
-            "$S = \frac{Tt}{\frac{1}{u} 1.87r^2}$" (t in days)
+            "$S=\frac{Tt}{\frac{1}{u}1.87r^2}$" (t in days)
             
-            "$S = \frac{Tt}{\frac{1}{u} 2693r^2}$" (t in minutes)
+            "$S=\frac{Tt}{\frac{1}{u}2693r^2}$" (t in minutes)
 """
         self.Draw()
 
@@ -1985,7 +2011,7 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_2_1(ttk.Frame):
 
         self.Title4rdTex("La Transmisivité ($T$):")
 
-        self.RelaTex(r"T = \frac{Q}{4 \pi s}W\left(u\right)")
+        self.RelaTex(r"T=\frac{Q}{4\pi{s}}W\left(u\right)")
 
         self.Draw()
 
@@ -2001,7 +2027,7 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_2_1(ttk.Frame):
 
         self.EntryTex(("Q", Q, "m^3/j"), ("s", s, "m"), (r"W\left( u \right)", Wu, r"\, "))
         self.IntroTex(f"Calcul de la Transmisivité ({TX('t')}):")
-        self.CalclTex(r"$T = \frac{Q}{4 \pi s}W\left(u\right)$")
+        self.CalclTex(r"$T=\frac{Q}{4\pi{s}}W\left(u\right)$")
         self.EvalTex("T", T, "m^2/j")
 
         r"""
@@ -2009,7 +2035,7 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_2_1(ttk.Frame):
 4. FLUX RADIAL INSTANTANE DANS UN AQUIFERE CONFINE    
     4.2. Methode de solution de Theis:
         La Transmisivité:
-            "$T = \frac{Q}{4 \pi s}W\left(u\right)$"
+            "$T=\frac{Q}{4\pi{s}}W\left(u\right)$"
 """
         self.Draw()
 
@@ -2051,7 +2077,7 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_2_2(ttk.Frame):
 
         self.Title4rdTex("Le coefficient de stockage ($S$):")
 
-        self.RelaTex(r"S = \frac{4Tu}{r^2/t}")
+        self.RelaTex(r"S=\frac{4Tu}{r^2/t}")
 
         self.Draw()
 
@@ -2067,14 +2093,14 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_2_2(ttk.Frame):
 
         self.EntryTex(("T", T, "m^2/j"), ("r^2/t", rt, "m^2/j"), ("u", u, r"\, "))
         self.IntroTex("Calcul du coefficient de stockage (S):")
-        self.CalclTex(r"$S = \frac{4Tu}{r^2/t}$")
+        self.CalclTex(r"$S=\frac{4Tu}{r^2/t}$")
         self.EvalTex("S", S)
 
         r"""
 4. FLUX RADIAL INSTANTANE DANS UN AQUIFERE CONFINE
     4.2. Methode de solution de Theis:
         Le coefficient de stockage:
-            "$S = \frac{4Tu}{r^2/t}$"
+            "$S=\frac{4Tu}{r^2/t}$"
 """
         self.Draw()
 
@@ -2133,7 +2159,7 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_3_1(ttk.Frame):
 
         self.Title4rdTex("La Transmisivité ($T$):")
 
-        self.RelaTex(r"T = \frac{2.303Q}{4\pi \Delta s}")
+        self.RelaTex(r"T=\frac{2.303Q}{4\pi\Delta{s}}")
 
         self.Draw()
 
@@ -2148,7 +2174,7 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_3_1(ttk.Frame):
 
         self.EntryTex(("Q", Q, "m^3/j"), (r"\Delta s", ds, "m"))
         self.IntroTex(f"Calcul de la Transmisivité ({TX('t')}):")
-        self.CalclTex(r"$T = \frac{2.303Q}{4\pi \Delta s}$")
+        self.CalclTex(r"$T=\frac{2.303Q}{4\pi\Delta{s}}$")
         self.EvalTex("T", T, "m^2/j")
 
         r"""
@@ -2156,7 +2182,7 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_3_1(ttk.Frame):
 4. FLUX RADIAL INSTANTANE DANS UN AQUIFERE CONFINE    
     4.3. Methode de solution de Cooper-Jacob:
         La Transmisivité:
-            "$T = \frac{2.303Q}{4\pi \Delta s}$"
+            "$T=\frac{2.303Q}{4\pi\Delta{s}}$"
 """
         self.Draw()
 
@@ -2198,7 +2224,7 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_3_2(ttk.Frame):
 
         self.Title4rdTex("Le coefficient de stockage ($S$):")
 
-        self.RelaTex(r"S = \frac{2.246Tt_0}{r^2}")
+        self.RelaTex(r"S=\frac{2.246Tt_0}{r^2}")
 
         self.Draw()
 
@@ -2214,14 +2240,14 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_3_2(ttk.Frame):
 
         self.EntryTex(("T", T, "m^2/j"), ("t_0", t0, "j"), ("r", r, "m"))
         self.IntroTex("Calcul du coefficient de stockage (S):")
-        self.CalclTex(r"$S = \frac{2.246Tt_0}{r^2}$")
+        self.CalclTex(r"$S=\frac{2.246Tt_0}{r^2}$")
         self.EvalTex("S", S)
 
         r"""
 4. FLUX RADIAL INSTANTANE DANS UN AQUIFERE CONFINE
     4.3. Methode de solution de Cooper-Jacob:
         Le coefficient de stockage:
-            "$S = \frac{2.246Tt_0}{r^2}$"
+            "$S=\frac{2.246Tt_0}{r^2}$"
 """
         self.Draw()
 

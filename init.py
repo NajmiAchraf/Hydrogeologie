@@ -196,10 +196,12 @@ class FigureXY(Figure):
     rgb_Black = ((0. / 255.), (0. / 255.), (0. / 255.))
     rgb_White = ((255. / 255.), (255. / 255.), (255. / 255.))
 
-    def __init__(self, font_size, save_draw=3, **kwargs):
+    def __init__(self, font_size, save_draw=1, **kwargs):
         super(FigureXY, self).__init__(tight_layout=True, **kwargs)
         self.font_size = font_size
         self.save_draw = save_draw
+
+        self.tex_draw = 1
 
         self.latex_math = []
         self.latex_line = []
@@ -226,19 +228,16 @@ class FigureXY(Figure):
         :param color: set color for text
         :return: set function Draw at the end of lines you input
         """
+        if self.save_draw >= self.tex_draw:
+            self.latex_math.append(LaTexT)
+            self.latex_line.append(axe_x)
+            self.rgb_color.append(color)
 
-        self.latex_math.append(LaTexT)
-        self.latex_line.append(axe_x)
-        self.rgb_color.append(color)
-
-        la_text = self.latex_math[-1]
-        x_baseline = self.latex_line[-1]
-        color_base = self.rgb_color[-1]
         # Texting directly
-        self.Text = self.Axes.text(x=x_baseline,
-                                   y=0.5 - len(self.latex_math),
-                                   s=la_text,
-                                   color=color_base,
+        self.Text = self.Axes.text(x=axe_x,
+                                   y=0.5 - self.tex_draw,
+                                   s=LaTexT,
+                                   color=color,
                                    fontsize=self.font_size)
 
         Renderer = self.canvas.get_renderer(cleared=True)
@@ -252,11 +251,13 @@ class FigureXY(Figure):
         self.size_w.append(self.max_w)
 
         # Configure the coordination of subplot
-        self.Axes.set_ylim((-len(self.latex_math), 0))
+        self.Axes.set_ylim((-self.tex_draw, 0))
         self.Axes.set_xlim((0, (self.max_w + 20) / 10))
         self.Axes.axis('off')
         self.Axes.set_xticklabels("", visible=False)
         self.Axes.set_yticklabels("", visible=False)
+
+        self.tex_draw += 1
 
         # self.tight_layout()
 
@@ -277,7 +278,7 @@ class FigureXY(Figure):
     def Clear(self):
         self.clear()
 
-        self.singing_math.clear()
+        self.tex_draw = 1
 
         for lil in range(self.save_draw):
             self.singing_math.append(self.latex_math[lil])
