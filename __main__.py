@@ -130,13 +130,18 @@ r"""
 
 """
 '''
-### version 3.2.0.2 bêta
-1. amélioration global du script
+### version 3.2.0.3 bêta
+1. améliorer DrawLaTex dans FigureXY pour GUI en :
+    1. l'afichage rapide des des résultats dans la feuille de calcul
+    
+    2. définir la position verticale de chaque ligne de texte en attente sur l'axe x
+    
+    3. améliore les couleurs pour chaque ligne de texte dans la feuille de calcul
 '''
 __author__ = 'DeepEastWind'
 __first__ = 'NORA'
 __last__ = 'NAJMI'
-__version__ = '3.2.0.2 bêta'
+__version__ = '3.2.0.3 bêta'
 __title__ = 'Hydrogéologie'
 
 btn_prm = {'padx': 18,
