@@ -1,5 +1,6 @@
 import itertools
 import tkinter as tk
+from tkinter.ttk import Notebook
 from abc import ABC
 
 from sympy import sympify, latex
@@ -382,3 +383,16 @@ class ScrollBind(object):
 
         elif event.num == 7:
             self.canvas_widget.xview_scroll(self.scroll_inch, "units")
+
+
+class NoteBook(Notebook):
+    def __init__(self, master, classes, cls_name, **kw):
+        super(NoteBook, self).__init__(master=master, **kw)
+        self.grid(row=0, column=0, sticky=tk.NSEW)
+        for nb in range(len(classes)):
+            cls = classes[nb]
+            self.add(cls(), text=cls_name[nb])
+
+    def Identify(self, event):
+        return self.tk.call(self._w, "identify", "tab", event.x, event.y)
+

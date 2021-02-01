@@ -1,6 +1,5 @@
 from init import *
 from tkinter import *
-from tkinter.ttk import Notebook
 from sympy import *
 from sympy.solvers import solve
 from sympy.solvers.solveset import solvify
@@ -130,13 +129,12 @@ r"""
 
 """
 '''
-### version 3.0.0.3 RC
-1. amélioration du script et ajoute des nouvelles tab
+### version 3.0.0.4 FV
+1. des petites améliorations au niveau du script
 '''
 __author__ = 'NORA NAJMI'
-__version__ = '3.0.0.3 RC'
-__title_h__ = 'Hydrogéologie'
-__title_l__ = "Hydraulique des puits, pompage d'essai et étude des rabattements"
+__version__ = '3.0.0.4 FV'
+__title__ = 'Hydrogéologie'
 
 btn_prm = {'padx': 18,
            'pady': 1,
@@ -178,9 +176,11 @@ class Hydrogeologie(Tk):
         super(Hydrogeologie, self).__init__()
         self.iconbitmap('Google-Noto-Emoji-Travel-Places-42474-national-park.ico')
         self.iconify()
+        self.geometry("1360x715")
         self.minsize(width=1133, height=500)
-        self.title(u"%s v%s" % (__title_h__, __version__))
-        self.configure(background='#212121')
+        self.resizable(width=True, height=True)
+        self.title(u"%s v%s" % (__title__, __version__))
+        self.configure(background=lbl_prm['bg'])
 
         classes = [ECOULEMENT_UNIDIRECTIONNEL_STABLE,
                    ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS,
@@ -191,11 +191,7 @@ class Hydrogeologie(Tk):
                     '3. PUIT DANS UN ECOULEMENT UNIFORME',
                     '4. FLUX RADIAL INSTANTANE DANS UN AQUIFERE CONFINE']
 
-        self.NoteBook = Notebook(self)
-        self.NoteBook.grid(row=0, column=0, sticky=NSEW)
-        for nb in range(len(classes)):
-            cls = classes[nb]
-            self.NoteBook.add(cls(), text=cls_name[nb])
+        NoteBook(master=self, classes=classes, cls_name=cls_name)
 
         self.rowconfigure(0, weight=1)
         self.columnconfigure(0, weight=1)
@@ -208,10 +204,10 @@ class GUI_MASTER(Frame):
         super(GUI_MASTER, self).__init__(master=master)
         self.rowconfigure(0, weight=1)
         self.columnconfigure(1, weight=1)
-
+        
         self.automatic = True
 
-        self.frame1 = Frame(self, background='#212121', relief='flat')
+        self.frame1 = Frame(self, background=lbl_prm['bg'], relief='flat')
         self.frame1.grid(row=0, column=0, sticky=NSEW)
 
         self.FigureXY = FigureXY(figsize=(1, 1), fontsize=16, savedraw=savedraw + 2, facecolor='#F0F0F0')
@@ -248,14 +244,17 @@ class GUI_MASTER(Frame):
         self.button = []
         cbtn_text = ["Effacer", "Mode Automatique", "Calculer"]
 
-        cbtn_ball = ["Effacer toutes les entrées et résultats de la feuille de calcul",
+        cbtn_ball = ["Description de la bouton Effacer:"
+                     "\nEffacer toutes les entrées et résultats de la feuille de calcul",
 
-                     "Mode Automatique :"
+                     "Cliquer pour switcher vers le Mode Manuel"
+                     "\nDescription du Mode Automatique :"
                      "\nSupprimer automatiquement toutes les entrées et résultats"
                      "\nde la feuille de calcul, lorsque nous cliquons sur "
                      "\nle bouton Effacer ou Calculer",
 
-                     "Calculer permet d'afficher les résultats des formules"
+                     "Description de la bouton Calculer:"
+                     "\nCalculer permet d'afficher les résultats des formules"
                      "\nde cette partie dans la feuille de calcul"]
 
         for er in range(len(cbtn_text)):
@@ -272,7 +271,7 @@ class GUI_MASTER(Frame):
 
         self.LaTexT(f'{__author__} Master HIGH 2020/2021')
 
-        self.LaTexT(f"Chapiter 4 : {__title_l__}")
+        self.LaTexT("Chapiter 4 : Hydraulique des puits, pompage d'essai et étude des rabattements")
 
     def LaTexT(self, LaTexT):
         self.FigureXY.DrawLaTex(LaTexT)
@@ -315,10 +314,11 @@ class GUI_MASTER(Frame):
 
     def Switcher(self):
         if self.automatic:
-            self.button[0].change_balloon_bind("Effacer toutes les entrées")
+            self.button[0].change_balloon_bind("Description de la bouton Effacer :\nEffacer toutes les entrées")
             self.button[1]['text'] = 'Mode Manuel'
             self.button[1].change_balloon_bind(
-                "Mode Manuel : "
+                "Cliquer pour switcher vers le Mode Automatique"
+                "\nDescription du Mode Manuel : "
                 "\nLorsque nous cliquons sur le bouton :"
                 "\nEffacer : supprimer toutes les entrées"
                 "\nCorbeille 🗑 : supprimer les résultats de la feuille de calcul"
@@ -327,7 +327,8 @@ class GUI_MASTER(Frame):
         elif not self.automatic:
             self.button[0].change_balloon_bind("Effacer toutes les entrées et résultats de la feuille de calcul")
             self.button[1]['text'] = 'Mode Automatique'
-            self.button[1].change_balloon_bind("Mode Automatique :"
+            self.button[1].change_balloon_bind("Cliquer pour switcher vers le Mode Manuel"
+                                               "\nDescription du Mode Automatique :"
                                                "\nSupprimer automatiquement toutes les entrées et résultats"
                                                "\nde la feuille de calcul, lorsque nous cliquons sur "
                                                "\nle bouton Effacer ou Calculer")
@@ -346,6 +347,7 @@ class GUI_MASTER(Frame):
             self.Delete()
 
 
+# 1. ECOULEMENT UNIDIRECTIONNEL STABLE #################################################################################
 class ECOULEMENT_UNIDIRECTIONNEL_STABLE(Frame):
     def __init__(self):
         super(ECOULEMENT_UNIDIRECTIONNEL_STABLE, self).__init__()
@@ -359,13 +361,10 @@ class ECOULEMENT_UNIDIRECTIONNEL_STABLE(Frame):
                     '1.2. Aquifere non confine',
                     '1.3. Flux de base vers un flux']
 
-        self.NoteBook = Notebook(self)
-        self.NoteBook.grid(row=0, column=0, sticky=NSEW)
-        for nb in range(len(classes)):
-            cls = classes[nb]
-            self.NoteBook.add(cls(), text=cls_name[nb])
+        NoteBook(master=self, classes=classes, cls_name=cls_name)
 
 
+# 1.1. Aquifere confine ================================================================================================
 class ECOULEMENT_UNIDIRECTIONNEL_STABLE_1(Frame):
     def __init__(self):
         super(ECOULEMENT_UNIDIRECTIONNEL_STABLE_1, self).__init__()
@@ -419,6 +418,7 @@ class ECOULEMENT_UNIDIRECTIONNEL_STABLE_1(Frame):
         self.Draw()
 
 
+# 1.2. Aquifere non confine ============================================================================================
 class ECOULEMENT_UNIDIRECTIONNEL_STABLE_2(Frame):
     def __init__(self):
         super(ECOULEMENT_UNIDIRECTIONNEL_STABLE_2, self).__init__()
@@ -473,6 +473,7 @@ class ECOULEMENT_UNIDIRECTIONNEL_STABLE_2(Frame):
         self.Draw()
 
 
+# 1.3. Flux de base vers un flux =======================================================================================
 class ECOULEMENT_UNIDIRECTIONNEL_STABLE_3(Frame):
     def __init__(self):
         super(ECOULEMENT_UNIDIRECTIONNEL_STABLE_3, self).__init__()
@@ -557,6 +558,7 @@ class ECOULEMENT_UNIDIRECTIONNEL_STABLE_3(Frame):
         self.Draw()
 
 
+# 2. ECOULEMENT RADIAL CONSTANT VERS UN PUITS ##########################################################################
 class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS(Frame):
     def __init__(self):
         super(ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS, self).__init__()
@@ -570,13 +572,10 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS(Frame):
                     '2.2. Aquifere non confine',
                     '2.3. Aquifere non confine avec recharge uniforme']
 
-        self.NoteBook = Notebook(self)
-        self.NoteBook.grid(row=0, column=0, sticky=NSEW)
-        for nb in range(len(classes)):
-            cls = classes[nb]
-            self.NoteBook.add(cls(), text=cls_name[nb])
+        NoteBook(master=self, classes=classes, cls_name=cls_name)
 
 
+# 2.1. Aquifere confine ================================================================================================
 class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1(Frame):
     def __init__(self):
         super(ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1, self).__init__()
@@ -592,13 +591,10 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1(Frame):
                     "Niveau d'eau dans le puit pompé",
                     "Rayon d'influence"]
 
-        self.NoteBook = Notebook(self)
-        self.NoteBook.grid(row=0, column=0, sticky=NSEW)
-        for nb in range(len(classes)):
-            cls = classes[nb]
-            self.NoteBook.add(cls(), text=cls_name[nb])
+        NoteBook(master=self, classes=classes, cls_name=cls_name)
 
 
+# Débit de pompage -----------------------------------------------------------------------------------------------------
 class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1_1(Frame):
     def __init__(self):
         super(ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1_1, self).__init__()
@@ -675,6 +671,7 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1_1(Frame):
         self.Draw()
 
 
+# Conductivité hydraulique ---------------------------------------------------------------------------------------------
 class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1_2(Frame):
     def __init__(self):
         super(ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1_2, self).__init__()
@@ -735,6 +732,7 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1_2(Frame):
         self.Draw()
 
 
+# Niveau d'eau dans le puit pompé --------------------------------------------------------------------------------------
 class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1_3(Frame):
     def __init__(self):
         super(ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1_3, self).__init__()
@@ -795,6 +793,7 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1_3(Frame):
         self.Draw()
 
 
+# Rayon d'influence ----------------------------------------------------------------------------------------------------
 class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1_4(Frame):
     def __init__(self):
         super(ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1_4, self).__init__()
@@ -855,6 +854,7 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1_4(Frame):
         self.Draw()
 
 
+# 2.2. Aquifere non confine ============================================================================================
 class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2(Frame):
     def __init__(self):
         super(ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2, self).__init__()
@@ -870,13 +870,10 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2(Frame):
                     "Niveau d'eau dans le puit pompé",
                     "Rayon d'influence"]
 
-        self.NoteBook = Notebook(self)
-        self.NoteBook.grid(row=0, column=0, sticky=NSEW)
-        for nb in range(len(classes)):
-            cls = classes[nb]
-            self.NoteBook.add(cls(), text=cls_name[nb])
+        NoteBook(master=self, classes=classes, cls_name=cls_name)
 
 
+# Débit de pompage -----------------------------------------------------------------------------------------------------
 class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2_1(Frame):
     def __init__(self):
         super(ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2_1, self).__init__()
@@ -944,6 +941,7 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2_1(Frame):
         self.Draw()
 
 
+# Conductivité hydraulique ---------------------------------------------------------------------------------------------
 class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2_2(Frame):
     def __init__(self):
         super(ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2_2, self).__init__()
@@ -1011,6 +1009,7 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2_2(Frame):
         self.Draw()
 
 
+# Niveau d'eau dans le puit pompé --------------------------------------------------------------------------------------
 class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2_3(Frame):
     def __init__(self):
         super(ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2_3, self).__init__()
@@ -1069,6 +1068,7 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2_3(Frame):
         self.Draw()
 
 
+# Rayon d'influence ----------------------------------------------------------------------------------------------------
 class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2_4(Frame):
     def __init__(self):
         super(ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2_4, self).__init__()
@@ -1127,6 +1127,7 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2_4(Frame):
         self.Draw()
 
 
+# 2.3. Aquifere non confine avec recharge uniforme =====================================================================
 class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_3(Frame):
     def __init__(self):
         super(ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_3, self).__init__()
@@ -1176,17 +1177,16 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_3(Frame):
 
         # qs = h0 ** 2 - h ** 2
         q = f"{h0} ** 2 - {h} ** 2"
-        qs = str(sympify(q))
+
         # ps = (W / (2 * K)) * (r ** 2 - x ** 2) + ((pi * x ** 2 * W) / (pi * K)) * log(r0 / r)
         p = f"({W} / (2*{K})) * ({r}**2 - {self.r_0}**2) + ((pi*{self.r_0}**2 * {W}) / (pi*{K}))*log({self.r_0} / {r})"
-        ps = str(sympify(p))
 
         try:
-            sol = solve(Eq(sympify(qs), sympify(ps)), self.r_0)
+            sol = solve(Eq(sympify(q), sympify(p)), self.r_0)
         except Exception:
-            sol = solvify(Eq(sympify(qs), sympify(ps)), self.r_0, self.C)
+            sol = solvify(Eq(sympify(q), sympify(p)), self.r_0, self.C)
             if sol is None:
-                sol = solvify(Eq(sympify(qs), sympify(ps)), self.r_0, self.R)
+                sol = solvify(Eq(sympify(q), sympify(p)), self.r_0, self.R)
 
         r0 = sol[0]
         # Q = pi * r0 ** 2 * W
@@ -1198,6 +1198,7 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_3(Frame):
         self.LaTexT(
             r"$h^2_0-h^2 = \frac{W}{2K}\left(r^2-r^2_0\right)+\frac{\pi r_0^2 W}{\pi K}ln\left(\frac{r_0}{r}\right)$")
         self.LaTexT(f"{App(q)} = {App(p)}")
+        self.LaTexT(App(Eq(sympify(q), sympify(p))))
         self.LaTexT(f"Rayon d'influence ({TeX('r_0')}) donné par la résolution d'équation de la courbe de rabattement:")
         self.LaTexT(f'{TeX("r_0")} = {Eva(r0)} {TeX("m")}')
         # self.EvalLaTexT("r_0", r0, "m")
@@ -1217,6 +1218,7 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_3(Frame):
         self.Draw()
 
 
+# 3. PUIT DANS UN ECOULEMENT UNIFORME ##################################################################################
 class PUIT_DANS_UN_ECOULEMENT_UNIFORME(Frame):
     def __init__(self):
         super(PUIT_DANS_UN_ECOULEMENT_UNIFORME, self).__init__()
@@ -1230,13 +1232,10 @@ class PUIT_DANS_UN_ECOULEMENT_UNIFORME(Frame):
                     "La pente de la surfece piézométrique dans les conditions naturelles",
                     "Les limites longitudinales et transversales des eaux souterraines entrant dans le puit"]
 
-        self.NoteBook = Notebook(self)
-        self.NoteBook.grid(row=0, column=0, sticky=NSEW)
-        for nb in range(len(classes)):
-            cls = classes[nb]
-            self.NoteBook.add(cls(), text=cls_name[nb])
+        NoteBook(master=self, classes=classes, cls_name=cls_name)
 
 
+# Conductivité hydraulique ---------------------------------------------------------------------------------------------
 class PUIT_DANS_UN_ECOULEMENT_UNIFORME_1(Frame):
     def __init__(self):
         super(PUIT_DANS_UN_ECOULEMENT_UNIFORME_1, self).__init__()
@@ -1295,6 +1294,7 @@ class PUIT_DANS_UN_ECOULEMENT_UNIFORME_1(Frame):
         self.Draw()
 
 
+# La pente de la surfece piézométrique dans les conditions naturelles --------------------------------------------------
 class PUIT_DANS_UN_ECOULEMENT_UNIFORME_2(Frame):
     def __init__(self):
         super(PUIT_DANS_UN_ECOULEMENT_UNIFORME_2, self).__init__()
@@ -1346,6 +1346,7 @@ class PUIT_DANS_UN_ECOULEMENT_UNIFORME_2(Frame):
         self.Draw()
 
 
+# Les limites longitudinales et transversales des eaux souterraines entrant dans le puit -------------------------------
 class PUIT_DANS_UN_ECOULEMENT_UNIFORME_3(Frame):
     def __init__(self):
         super(PUIT_DANS_UN_ECOULEMENT_UNIFORME_3, self).__init__()
@@ -1410,6 +1411,7 @@ class PUIT_DANS_UN_ECOULEMENT_UNIFORME_3(Frame):
         self.Draw()
 
 
+# 4. FLUX RADIAL INSTANTANE DANS UN AQUIFERE CONFINE ###################################################################
 class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE(Frame):
     def __init__(self):
         super(FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE, self).__init__()
@@ -1418,20 +1420,17 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE(Frame):
 
         classes = [FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_1,
                    FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_2,
-                   FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_3,]
+                   FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_3, ]
         # FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_4]
         cls_name = ['4.1. Equation de pompage de puits hors equilibre',
                     '4.2. Methode de solution de Theis',
                     '4.3. Methode de solution de Cooper-Jacob',
                     '4.4. Methode de solution de Chow']
 
-        self.NoteBook = Notebook(self)
-        self.NoteBook.grid(row=0, column=0, sticky=NSEW)
-        for nb in range(len(classes)):
-            cls = classes[nb]
-            self.NoteBook.add(cls(), text=cls_name[nb])
+        NoteBook(master=self, classes=classes, cls_name=cls_name)
 
 
+# 4.1. Equation de pompage de puits hors equilibre =====================================================================
 class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_1(Frame):
     def __init__(self):
         super(FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_1, self).__init__()
@@ -1443,13 +1442,10 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_1(Frame):
         cls_name = ['La transmisivité',
                     'Le coefficient de stockage']
 
-        self.NoteBook = Notebook(self)
-        self.NoteBook.grid(row=0, column=0, sticky=NSEW)
-        for nb in range(len(classes)):
-            cls = classes[nb]
-            self.NoteBook.add(cls(), text=cls_name[nb])
+        NoteBook(master=self, classes=classes, cls_name=cls_name)
 
 
+# La transmisivité -----------------------------------------------------------------------------------------------------
 class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_1_1(Frame):
     def __init__(self):
         super(FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_1_1, self).__init__()
@@ -1534,6 +1530,7 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_1_1(Frame):
         self.Draw()
 
 
+# Le coefficient de stockage -------------------------------------------------------------------------------------------
 class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_1_2(Frame):
     def __init__(self):
         super(FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_1_2, self).__init__()
@@ -1608,6 +1605,7 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_1_2(Frame):
         self.Draw()
 
 
+# 4.2. Methode de solution de Theis ====================================================================================
 class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_2(Frame):
     def __init__(self):
         super(FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_2, self).__init__()
@@ -1619,13 +1617,10 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_2(Frame):
         cls_name = ['La transmisivité',
                     'Le coefficient de stockage']
 
-        self.NoteBook = Notebook(self)
-        self.NoteBook.grid(row=0, column=0, sticky=NSEW)
-        for nb in range(len(classes)):
-            cls = classes[nb]
-            self.NoteBook.add(cls(), text=cls_name[nb])
+        NoteBook(master=self, classes=classes, cls_name=cls_name)
 
 
+# La transmisivité -----------------------------------------------------------------------------------------------------
 class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_2_1(Frame):
     def __init__(self):
         super(FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_2_1, self).__init__()
@@ -1683,6 +1678,7 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_2_1(Frame):
         self.Draw()
 
 
+# Le coefficient de stockage -------------------------------------------------------------------------------------------
 class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_2_2(Frame):
     def __init__(self):
         super(FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_2_2, self).__init__()
@@ -1739,6 +1735,7 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_2_2(Frame):
         self.Draw()
 
 
+# 4.3. Methode de solution de Cooper-Jacob =============================================================================
 class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_3(Frame):
     def __init__(self):
         super(FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_3, self).__init__()
@@ -1750,13 +1747,10 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_3(Frame):
         cls_name = ['La transmisivité',
                     'Le coefficient de stockage']
 
-        self.NoteBook = Notebook(self)
-        self.NoteBook.grid(row=0, column=0, sticky=NSEW)
-        for nb in range(len(classes)):
-            cls = classes[nb]
-            self.NoteBook.add(cls(), text=cls_name[nb])
+        NoteBook(master=self, classes=classes, cls_name=cls_name)
 
 
+# La transmisivité -----------------------------------------------------------------------------------------------------
 class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_3_1(Frame):
     def __init__(self):
         super(FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_3_1, self).__init__()
@@ -1764,7 +1758,7 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_3_1(Frame):
         self.columnconfigure(0, weight=1)
 
         function_text = ["Le débit constant du puit (Q)",
-                         "Le rabattement ??(∆s)"]
+                         "le différentiel de rabattement (∆s)"]
         si_text = [f"m{sns(3)}/j", "m"]
 
         self.Master = GUI_MASTER(self, self.Application, function_text, si_text, savedraw=4)
@@ -1812,6 +1806,7 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_3_1(Frame):
         self.Draw()
 
 
+# Le coefficient de stockage -------------------------------------------------------------------------------------------
 class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_3_2(Frame):
     def __init__(self):
         super(FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_3_2, self).__init__()
@@ -1867,6 +1862,8 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_3_2(Frame):
 """
         self.Draw()
 
+
+# 4.4. Methode de solution de Chow =====================================================================================
 
 if __name__ == '__main__':
     # run Hydrogeologie
