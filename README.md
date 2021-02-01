@@ -228,5 +228,8 @@ Cette application est une solution pour les relations d'hydrologie et de process
     
     3. améliore les couleurs pour chaque ligne de texte dans la feuille de calcul
     
-### version 3.2.0.4 RC
+### [version 3.2.0.4 RC](https://github.com/DeepEastWind/Hydrogeologie/releases/tag/bc89ca6)
 1. améliorer DrawLaTex dans FigureXY par la méthode la plus rapide jamais vue pour afficher les résultats dans la feuille de calcul
+
+### version 3.2.0.5 FV
+1. améliorer à nouveau DrawLaTex dans FigureXY
