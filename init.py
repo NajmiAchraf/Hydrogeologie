@@ -11,6 +11,10 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolb
 from Pmw.Pmw_2_0_1.lib.PmwBalloon import Balloon
 
 
+def FonTX(kind, text):
+    return str(r'$\math' + kind + '{' + text + '}' + '$')
+
+
 def TX(Math_Expression):
     TEX = '$' + Math_Expression + '$'
     return TEX
@@ -210,6 +214,7 @@ class FigureXY(Figure):
         self.max_w = max(self.size_w)
         self.max_h = float(self.size_h)
 
+        # Set subplot
         self.Axes = self.add_subplot(1, 1, 1)
         self.Text = self.Axes.text(0, 1, '', fontsize=self.font_size)
 
@@ -226,22 +231,32 @@ class FigureXY(Figure):
         self.latex_line.append(axe_x)
         self.rgb_color.append(color)
 
-        self.clear()
-
         la_text = self.latex_math[-1]
         x_baseline = self.latex_line[-1]
         color_base = self.rgb_color[-1]
         # Texting directly
-        self.Text = self.text(x=x_baseline,
-                              y=0.5,
-                              s=la_text,
-                              color=color_base,
-                              fontsize=self.font_size)
+        self.Text = self.Axes.text(x=x_baseline,
+                                   y=0.5 - len(self.latex_math),
+                                   s=la_text,
+                                   color=color_base,
+                                   fontsize=self.font_size)
 
         Renderer = self.canvas.get_renderer(cleared=True)
         bb = self.Text.get_window_extent(renderer=Renderer)
         self.size_w.append(int(bb.width) + (axe_x * 10) + 80)
         self.size_h += (float(bb.height) * 2)
+
+        self.max_w = max(self.size_w)
+        self.max_h = float(self.size_h)
+        self.size_w.clear()
+        self.size_w.append(self.max_w)
+
+        # Configure the coordination of subplot
+        self.Axes.set_ylim((-len(self.latex_math), 0))
+        self.Axes.set_xlim((0, (self.max_w + 20) / 10))
+        self.Axes.axis('off')
+        self.Axes.set_xticklabels("", visible=False)
+        self.Axes.set_yticklabels("", visible=False)
 
         # self.tight_layout()
 
@@ -256,39 +271,7 @@ class FigureXY(Figure):
         self.TkAggXY = TkAgg
 
     def Draw(self):
-        self.clear()
-
-        self.max_w = max(self.size_w)
-        self.max_h = float(self.size_h)
-        self.size_w.clear()
-        self.size_w.append(self.max_w)
-
-        # Set subplot
-        self.Axes = self.add_subplot(1, 1, 1)
-        # Configure the coordination of subplot
-        self.Axes.set_ylim((0, len(self.latex_math)))
-        self.Axes.set_xlim((0, (self.max_w + 20) / 10))
-        self.Axes.axis('off')
-        self.Axes.set_xticklabels("", visible=False)
-        self.Axes.set_yticklabels("", visible=False)
-
-        yn_lines = len(self.latex_math)
-        # Plotting features formulae
-        for yi_line in range(0, yn_lines):
-            # Configuration the setting of texts
-            y_baseline = yn_lines - yi_line
-            la_text = self.latex_math[yi_line]
-            x_baseline = self.latex_line[yi_line]
-            color_base = self.rgb_color[yi_line]
-            # Texting in subplot
-            self.Text = self.Axes.text(x=x_baseline,
-                                       y=y_baseline - 0.5,
-                                       s=la_text,
-                                       color=color_base,
-                                       fontsize=self.font_size)
-
         self.tight_layout()
-
         self.TkAggXY.Draw(width=self.max_w, height=self.max_h)
 
     def Clear(self):
@@ -304,9 +287,13 @@ class FigureXY(Figure):
         self.latex_math.clear()
         self.latex_line.clear()
         self.rgb_color.clear()
+
         self.size_w.clear()
         self.size_w.append(100)
         self.size_h = 10
+
+        # Set subplot
+        self.Axes = self.add_subplot(1, 1, 1)
 
         for lil in range(self.save_draw):
             self.DrawLaTex(self.singing_math[lil], self.singing_line[lil], self.singing_color[lil])

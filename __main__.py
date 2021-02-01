@@ -130,18 +130,13 @@ r"""
 
 """
 '''
-### version 3.2.0.3 bêta
-1. améliorer DrawLaTex dans FigureXY pour GUI en :
-    1. l'afichage rapide des des résultats dans la feuille de calcul
-    
-    2. définir la position verticale de chaque ligne de texte en attente sur l'axe x
-    
-    3. améliore les couleurs pour chaque ligne de texte dans la feuille de calcul
+### version 3.2.0.4 RC
+1. améliorer DrawLaTex dans FigureXY par la méthode la plus rapide jamais vue pour afficher les résultats dans la feuille de calcul
 '''
 __author__ = 'DeepEastWind'
 __first__ = 'NORA'
 __last__ = 'NAJMI'
-__version__ = '3.2.0.3 bêta'
+__version__ = '3.2.0.4 RC'
 __title__ = 'Hydrogéologie'
 
 btn_prm = {'padx': 18,
@@ -196,16 +191,14 @@ hex_Dark = '#050505'
 sn = SmallNumbers(10)
 sns = SmallNumbers(10, "super")
 
-n_identify = 26
+n_identify = 25
+n_book = 12
 n_title2nd = 5
 n_title3rd = 10
 n_title4rd = 15
 n_intro = 5
 n_calcl = 10
 
-
-def math(kind, text):
-    return str(r'$\math' + kind + '{' + text + '}' + '$')
 
 
 # Master Window ////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -271,7 +264,7 @@ class GUI_MASTER(Frame):
         self.frame1 = Frame(self, background=lbl_prm['bg'], relief='flat')
         self.frame1.grid(row=0, column=0, sticky=NSEW)
 
-        self.FigureXY = FigureXY(figsize=(1, 1), font_size=16, save_draw=save_draw + 2, facecolor=hex_White)
+        self.FigureXY = FigureXY(figsize=(1, 1), font_size=16, save_draw=save_draw + 3, facecolor=hex_White)
         self.TkAggXY = ScrollableTkAggXY(figure=self.FigureXY, master=self)
         self.TkAggXY.grid(row=0, column=1, rowspan=2, sticky=NSEW)
 
@@ -353,21 +346,27 @@ class GUI_MASTER(Frame):
         # self.LaTexT(f'{__first__ __last__} Master HIGH 2020/2021', n_identify, color=rgb_Red)
         # self.LaTexT(f'{math("it", __first__)} {math("it", __last__)} {math("frak", "Master")} {math("cal", "HIGH")} '
         #             f'{math("bb", "2020/2021")}', n_identify, color=rgb_Red)
-        self.AuthorTex(("it", __first__), ("it", __last__), ("frak", "Master"), ("cal", "HIGH"), ("bb", "2020/2021"))
+        self.LaTexT(self.FonTex(
+            ("it", __first__), ("it", __last__), ("frak", "Master"), ("cal", "HIGH"), ("bb", "2020/2021")),
+            n_identify, color=rgb_Blue)
 
-        self.LaTexT("Chapiter 4 : Hydraulique des puits, pompage d'essai et étude des rabattements")
+        self.LaTexT(
+            f'Hydrologie des eaux souterraines '
+            f'{self.FonTex(("frak", "Livre"), ("frak", "de"), ("it", "David"), ("it", "Keith"), ("it", "Todd"))}',
+            n_book, color=rgb_Red)
+
+        self.LaTexT(f"{FonTX('frak', 'Chapiter')} Ⅳ: Hydraulique des puits, pompage d'essai et étude des rabattements")
 
     def LaTexT(self, LaTexT, axe_x=0, color=rgb_Black):
         self.FigureXY.DrawLaTex(LaTexT=LaTexT, axe_x=axe_x, color=color)
 
-    def AuthorTex(self, *args):
-        text = f"{math(args[0][0], args[0][1])}"
+    def FonTex(self, *args):
+        text = f"{FonTX(args[0][0], args[0][1])}"
         for gr in range(1, len(args)):
-            text += f" {math(args[gr][0], args[gr][1])}"
-        self.LaTexT(text, n_identify, color=rgb_Red)
-        del text
+            text += f" {FonTX(args[gr][0], args[gr][1])}"
+        return text
 
-    def Title2ndTex(self, LaTexT, color=rgb_Navy):
+    def Title2ndTex(self, LaTexT, color=rgb_Maroon):
         self.LaTexT(LaTexT=LaTexT, axe_x=n_title2nd, color=color)
 
     def Title3rdTex(self, LaTexT, color=rgb_Teal):
@@ -393,7 +392,7 @@ class GUI_MASTER(Frame):
         self.LaTexT(text)
         del text
 
-    def IntroTex(self, LaTexT, color=rgb_Maroon):
+    def IntroTex(self, LaTexT, color=rgb_Navy):
         self.LaTexT(LaTexT=LaTexT, axe_x=n_intro, color=color)
 
     def CalclTex(self, LaTexT, color=rgb_Purple):
@@ -673,26 +672,25 @@ class ECOULEMENT_UNIDIRECTIONNEL_STABLE_3(ttk.Frame):
         W = f"{Wa} / 365"
 
         # qx = f"((((h1**2)-(h2**2))*K)/(2*L))-W*((L/2)-x)"
-        qx = f"( ( ( ({h1} ** 2) - ({h2} ** 2) ) * {K}) / (2 * {L}) ) - ({Num(W, 3)} * (( {L} / 2 ) - {x}))"
+        qx = f"( ( ( ({h1} ** 2) - ({h2} ** 2) ) * {K}) / (2 * {L}) ) - ({eval(W)} * (( {L} / 2 ) - {x}))"
 
         # d = "(L / 2) - ((K / W) * (((h1 ** 2) - (h2 ** 2)) / (2 * L)))"
-        d = f"({L} / 2) - (({K} / {Num(W, 3)}) * ((({h1} ** 2) - ({h2} ** 2)) / (2 * {L})))"
+        d = f"({L} / 2) - (({K} / {eval(W)}) * ((({h1} ** 2) - ({h2} ** 2)) / (2 * {L})))"
 
-        '''
-    # hmax = "sqrt((h1 ** 2) - ((((h1 ** 2) - (h2 ** 2)) * d) / L) + ((W / K) * (L - d) * d))"
-    hmax = f"sqrt(({h1}**2)-(((({h1}**2)-({h2}**2))*{Num(d, 3)})/{L})+(({Num(W, 3)}/{K})*({L}-{Num(d, 3)}) \
-    *{Num(d, 3)}))"
-        '''
-        hp = f"({h1}**2)-(((({h1}**2)-({h2}**2))*{Num(d, 3)})/{L})+(({Num(W, 3)}/{K})*({L}-{Num(d, 3)})*{Num(d, 3)})"
-        hms = r"\sqrt{%s}" % Num(hp, 16)
-        hr = f"sqrt({Num(hp, 16)})"
+        # First Method
+        # hmax = "sqrt((h1 ** 2) - ((((h1 ** 2) - (h2 ** 2)) * d) / L) + ((W / K) * (L - d) * d))"
+        hmax = f"sqrt(({h1}**2)-(((({h1}**2)-({h2}**2))*{eval(d)})/{L})+(({eval(W)}/{K})*({L}-{eval(d)})*{eval(d)}))"
+        # Second Method
+        hp = f"({h1}**2)-(((({h1}**2)-({h2}**2))*{eval(d)})/{L})+(({eval(W)}/{K})*({L}-{eval(d)})*{eval(d)})"
+        hms = r"\sqrt{%s}" % eval(hp)
+        hr = f"sqrt({eval(hp)})"
 
         self.Clear()
 
         self.EntryTex(("h_1", h1, "m"), ("h_2", h2, "m"), ("L", L, "m"), ("x", x, "m"), ("K", K, "m/j"),
                       ("W", Wa, "m/an"))
         self.IntroTex(f'Convertir la recharge ({TX("W")}) de {TX("m/an")} vers {TX("m/j")} :')
-        self.CalclTex(TX(f"W = {Wa} / 365 = {Num(W, 16)} m/j"), color=rgb_Green)
+        self.CalclTex(TX(f"W = {Wa} / 365 = {eval(W)} m/j"), color=rgb_Green)
 
         self.IntroTex(f'Calcul de debit quotidien par Kilomètre de la nappe vers les deux rivières ({TX("q_x")}):')
         self.CalclTex(r"$q_x = \frac{K\left({h_1^2-h_2^2}\right)}{2L}-W\left(\frac{L}{2}-x\right)$")
@@ -704,6 +702,13 @@ class ECOULEMENT_UNIDIRECTIONNEL_STABLE_3(ttk.Frame):
 
         self.IntroTex(f"Calcul de Hauteur Piézométrique maximale au niveau de la ligne de partage d'eau "
                       f"({TX('h_{max}')}):")
+        # First Method
+        self.IntroTex(f"Première méthode:")
+        self.CalclTex(r"$h^2_{max} = {h_1^2}-\frac{\left({h_1^2-h_2^2}\right)d}{L}+\frac{W}{K}\left(L-d\right)d$")
+        self.CalclTex(r"$h_{max} = \sqrt{{h_1^2}-\frac{\left({h_1^2-h_2^2}\right)d}{L}+\frac{W}{K}\left(L-d\right)d}$")
+        self.EvalTex("h_{max}", hmax, "m")
+        # Second Method
+        self.IntroTex(f"Deuxième méthode:")
         self.CalclTex(r"$h^2_{max} = {h_1^2}-\frac{\left({h_1^2-h_2^2}\right)d}{L}+\frac{W}{K}\left(L-d\right)d$")
         self.EvalTex("h_{max}^2", hp, color=rgb_Black)
         self.CalclTex(TX(r"h_{max} = "f"{hms}"), color=rgb_Black)
@@ -824,7 +829,7 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1_1(ttk.Frame):
         T1 = f"{K} * {b}"
 
         # T2 = "(Q /(2 * pi * (h2 - h1))) * (log(r2 / r1))"
-        T2 = f"({Num(Q, 3)} /({2} * pi * ({h2} - {h1}))) * (log({r2} / {r1}))"
+        T2 = f"({eval(Q)} /({2} * pi * ({h2} - {h1}))) * (log({r2} / {r1}))"
 
         self.Clear()
 
@@ -1898,7 +1903,7 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_1_2(ttk.Frame):
         tm = f"{t} * 24 * 60"
 
         # S = (T * t) / (u * 2693 * r ** 2)
-        Sm = f"({T} * {Num(tm, 4)}) / ({u} * 2693 * {r} ** 2)"
+        Sm = f"({T} * {eval(tm)}) / ({u} * 2693 * {r} ** 2)"
 
         self.Clear()
 
