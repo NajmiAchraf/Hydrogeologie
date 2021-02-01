@@ -198,9 +198,12 @@ Cette application est une solution pour les relations d'hydrologie et de process
 
 3. amélioration l’adaptation du script
 
-### version 3.1.0.2 bêta
+### [version 3.1.0.2 bêta](https://github.com/DeepEastWind/Hydrogeologie/releases/tag/65ee85b)
 1. colorée la feuille du calcul au couleur blanche
 
 2. attribue les résultats par l'axe x dans la feuille du calcul
 
 3. amélioration global du script
+
+### version 3.1.0.3 RC
+1. amélioration partout dans le script
