@@ -6,11 +6,12 @@ from abc import ABC
 from sympy import sympify, latex
 from sympy.parsing.sympy_parser import parse_expr
 from matplotlib.figure import Figure
+from matplotlib.colors import to_hex
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 from Pmw.Pmw_2_0_1.lib.PmwBalloon import Balloon
 
 
-def TeX(Math_Expression):
+def TX(Math_Expression):
     TEX = '$' + Math_Expression + '$'
     return TEX
 
@@ -110,6 +111,8 @@ class ToolbarController(NavigationToolbar2Tk, ABC):
         )
         NavigationToolbar2Tk.__init__(self, canvas_, parent_)
 
+        self.canvas.mpl_disconnect(self._id_drag)
+
     def delete_history(self):
         self.canvas.figure.Clear()
         self.canvas.draw()
@@ -129,8 +132,9 @@ class ScrollableTkAggXY(tk.Canvas):
         self.rowconfigure(1, weight=1)
         self.columnconfigure(0, weight=1)
         figure.InputTkAggXY(self)
+        facecolor = str(to_hex(figure.get_facecolor()))
 
-        self.fig_canvas_xy = tk.Canvas(self)
+        self.fig_canvas_xy = tk.Canvas(self, background=facecolor)
         self.fig_canvas_xy.grid(row=1, column=0, sticky=tk.NSEW)
         self.fig_canvas_xy.rowconfigure(0, weight=1)
         self.fig_canvas_xy.columnconfigure(0, weight=1)
@@ -169,7 +173,7 @@ class ScrollableTkAggXY(tk.Canvas):
     # expand canvas_frame when canvas changes its size
     def OnConfigure_XY(self, width, height):
         # when all widgets are in canvas
-        self.fig_canvas_xy.itemconfigure(self.canvas_frame, width=width + 21, height=height + 20)
+        self.fig_canvas_xy.itemconfigure(self.canvas_frame, width=width + 20, height=height + 20)
         # update scrollregion after starting 'mainloop'
         self.fig_canvas_xy.configure(scrollregion=self.fig_canvas_xy.bbox(tk.ALL))
         self.fig_canvas_xy.yview_moveto(1)
@@ -185,57 +189,61 @@ class ScrollableTkAggXY(tk.Canvas):
 
 
 class FigureXY(Figure):
-    def __init__(self, fontsize, savedraw, **kwargs):
+    def __init__(self, fontsize, rgbcolor, savedraw, **kwargs):
         super(FigureXY, self).__init__(tight_layout=True, **kwargs)
         self.fontsize = fontsize
         self.savedraw = savedraw
+        self.mpl_rgb = rgbcolor
         self.Axes = self.add_subplot(1, 1, 1)
-        self.Text = self.Axes.text(0, 1, '', fontsize=self.fontsize)
+        self.Text = self.Axes.text(0, 1, '',color=self.mpl_rgb, fontsize=self.fontsize)
         self.latex_math = []
+        self.latex_line = []
+        self.singing_math = []
+        self.singing_line = []
         self.size_w = [10]
         self.size_h = 10
         self.width = max(self.size_w)
         self.height = float(self.size_h)
-        self.singing = []
 
-    def DrawLaTex(self, character):
+    def DrawLaTex(self, LaTexT, axe_x=0):
         """
 
-        :param character: input LaTeX or text of each line
+        :param LaTexT: input LaTeX or text of each line
         :return: set function Draw at the end of lines you input
         """
 
-        self.latex_math.append(character)
+        self.latex_math.append(LaTexT)
+        self.latex_line.append(axe_x)
         self.clear()
-        n_lines = len(self.latex_math)
+        yn_lines = len(self.latex_math)
         # Gap between lines in axes coords
         self.Axes = self.add_subplot(1, 1, 1)
-        self.Axes.set_ylim((0, n_lines))
+        self.Axes.set_ylim((0, yn_lines))
+        self.Axes.set_xlim((0, 100))
         self.Axes.axis('off')
         self.Axes.set_xticklabels("", visible=False)
         self.Axes.set_yticklabels("", visible=False)
 
         # Plotting features formulae
-        for i_line in range(0, n_lines):
-            baseline = n_lines - i_line
-            demo = self.latex_math[i_line]
-            self.Text = self.Axes.text(0, baseline - 0.5, demo, fontsize=self.fontsize)
+        for yi_line in range(0, yn_lines):
+            y_baseline = yn_lines - yi_line
+            demo = self.latex_math[yi_line]
+            x_baseline = self.latex_line[yi_line]
+            self.Text = self.Axes.text(x_baseline, y_baseline - 0.5, demo, color=self.mpl_rgb, fontsize=self.fontsize)
 
-        Renderer = self.canvas.get_renderer()
+        Renderer = self.canvas.get_renderer(cleared=True)
         bb = self.Text.get_window_extent(renderer=Renderer)
-        self.size_w.append(int(bb.width))
+        self.size_w.append(int(bb.width) + 80)
         self.size_h += (float(bb.height) * 2)
 
         self.width = max(self.size_w)
         self.height = float(self.size_h)
 
+        self.tight_layout(renderer=Renderer)
+
         del Renderer
         del bb
 
-        # try:
-        #     self.tight_layout()
-        # except Exception:
-        #     pass
 
     def InputTkAggXY(self, TkAgg):
         """
@@ -251,18 +259,20 @@ class FigureXY(Figure):
     def Clear(self):
         self.clear()
 
-        self.singing.clear()
+        self.singing_math.clear()
 
         for lil in range(self.savedraw):
-            self.singing.append(self.latex_math[lil])
+            self.singing_math.append(self.latex_math[lil])
+            self.singing_line.append(self.latex_line[lil])
 
         self.latex_math.clear()
+        self.latex_line.clear()
         self.size_w.clear()
         self.size_w.append(10)
         self.size_h = 10
 
         for lil in range(self.savedraw):
-            self.DrawLaTex(self.singing[lil])
+            self.DrawLaTex(self.singing_math[lil], self.singing_line[lil])
 
         self.Draw()
 
@@ -399,7 +409,6 @@ class NoteBook(Notebook):
 
         self.grid(row=0, column=0, sticky=tk.NSEW)
         self.bind('<Button-1>', self.IdentifyTab)
-        # print(self, self.Tabs)
 
     def Identify(self, event):
         return self.tk.call(self._w, "identify", "tab", event.x, event.y)
