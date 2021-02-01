@@ -130,11 +130,11 @@ r"""
 
 """
 '''
-### version 3.1.0.3 RC
-1. amélioration partout dans le script
+### version 3.1.0.4 FV
+1. colorée les résultats et le texte généralement dans la feuille du calcul
 '''
 __author__ = 'NORA NAJMI'
-__version__ = '3.1.0.3 RC'
+__version__ = '3.1.0.4 FV'
 __title__ = 'Hydrogéologie'
 
 btn_prm = {'padx': 18,
@@ -167,6 +167,13 @@ si_prm = {'fg': 'white',
           # 'anchor': 'w',
           'font': ('DejaVu Sans', 14),
           'relief': 'flat'}
+
+rgb_white = ((255. / 255.), (255. / 255.), (255. / 255.))
+rgb_black = ((0. / 255.), (0. / 255.), (0. / 255.))
+
+# hex_gray = '#F0F0F0'
+hex_white = '#FFFFFF'
+hex_dark = '#050505'
 
 sn = SmallNumbers(10)
 sns = SmallNumbers(10, "super")
@@ -229,7 +236,7 @@ class Hydrogeologie(Tk):
 
 # Master GUI \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 class GUI_MASTER(Frame):
-    def __init__(self, master, Application, function_text, si_text, savedraw):
+    def __init__(self, master, Application, function_text, si_text, save_draw):
         super(GUI_MASTER, self).__init__(master=master)
         self.grid(row=0, column=0, sticky=NSEW)
         self.rowconfigure(0, weight=1)
@@ -242,10 +249,8 @@ class GUI_MASTER(Frame):
         self.frame1 = Frame(self, background=lbl_prm['bg'], relief='flat')
         self.frame1.grid(row=0, column=0, sticky=NSEW)
 
-        # mpl_white_rgb = ((255. / 255.), (255. / 255.), (255. / 255.))
-        mpl_black_rgb = ((0. / 255.), (0. / 255.), (0. / 255.))
-        self.FigureXY = FigureXY(figsize=(1, 1), fontsize=16, rgbcolor=mpl_black_rgb,
-                                 savedraw=savedraw + 2, facecolor='#FFFFFF')
+        self.FigureXY = FigureXY(figsize=(1, 1), font_size=16, rgb_color=rgb_black,
+                                 save_draw=save_draw + 2, facecolor=hex_white)
         self.TkAggXY = ScrollableTkAggXY(figure=self.FigureXY, master=self)
         self.TkAggXY.grid(row=0, column=1, rowspan=2, sticky=NSEW)
 
@@ -439,7 +444,7 @@ class ECOULEMENT_UNIDIRECTIONNEL_STABLE_1(ttk.Frame):
                          "Conductivité (K)"]
         si_text = ["m/j", "m", "m/j"]
 
-        self.Master = GUI_MASTER(self, self.Application, function_text, si_text, savedraw=4)
+        self.Master = GUI_MASTER(self, self.Application, function_text, si_text, save_draw=4)
 
         self.entry = self.Master.entry
         self.Clear = self.Master.Clear
@@ -498,7 +503,7 @@ class ECOULEMENT_UNIDIRECTIONNEL_STABLE_2(ttk.Frame):
                          "Conductivité (K)"]
         si_text = ["m", "m", "m", "m/j"]
 
-        self.Master = GUI_MASTER(self, self.Application, function_text, si_text, savedraw=4)
+        self.Master = GUI_MASTER(self, self.Application, function_text, si_text, save_draw=4)
 
         self.entry = self.Master.entry
         self.Clear = self.Master.Clear
@@ -559,7 +564,7 @@ class ECOULEMENT_UNIDIRECTIONNEL_STABLE_3(ttk.Frame):
                          "Recharge (W)"]
         si_text = ["m", "m", "m", "m", "m/j", "m/an"]
 
-        self.Master = GUI_MASTER(self, self.Application, function_text, si_text, savedraw=3)
+        self.Master = GUI_MASTER(self, self.Application, function_text, si_text, save_draw=3)
 
         self.entry = self.Master.entry
         self.Clear = self.Master.Clear
@@ -704,7 +709,7 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1_1(ttk.Frame):
                          "Épaisseur (b)"]
         si_text = ["m", "m", "m", "m", "m/j", "m"]
 
-        self.Master = GUI_MASTER(self, self.Application, function_text, si_text, savedraw=3)
+        self.Master = GUI_MASTER(self, self.Application, function_text, si_text, save_draw=3)
 
         self.entry = self.Master.entry
         self.Clear = self.Master.Clear
@@ -785,7 +790,7 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1_2(ttk.Frame):
                          "Épaisseur (b)"]
         si_text = ["m", "m", "m", "m", f"m{sns(3)}/j", "m"]
 
-        self.Master = GUI_MASTER(self, self.Application, function_text, si_text, savedraw=3)
+        self.Master = GUI_MASTER(self, self.Application, function_text, si_text, save_draw=3)
 
         self.entry = self.Master.entry
         self.Clear = self.Master.Clear
@@ -849,7 +854,7 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1_3(ttk.Frame):
                          "Épaisseur (b)"]
         si_text = ["m", "m", "m", "m/j", f"m{sns(3)}/j", 'm']
 
-        self.Master = GUI_MASTER(self, self.Application, function_text, si_text, savedraw=3)
+        self.Master = GUI_MASTER(self, self.Application, function_text, si_text, save_draw=3)
 
         self.entry = self.Master.entry
         self.Clear = self.Master.Clear
@@ -913,7 +918,7 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1_4(ttk.Frame):
                          "Épaisseur (b)"]
         si_text = ["m", "m", "m", "m", f"m{sns(3)}/j", "m"]
 
-        self.Master = GUI_MASTER(self, self.Application, function_text, si_text, savedraw=3)
+        self.Master = GUI_MASTER(self, self.Application, function_text, si_text, save_draw=3)
 
         self.entry = self.Master.entry
         self.Clear = self.Master.Clear
@@ -998,7 +1003,7 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2_1(ttk.Frame):
                          "Conductivité (K)"]
         si_text = ["m", "m", "m", "m", "m/j"]
 
-        self.Master = GUI_MASTER(self, self.Application, function_text, si_text, savedraw=3)
+        self.Master = GUI_MASTER(self, self.Application, function_text, si_text, save_draw=3)
 
         self.entry = self.Master.entry
         self.Clear = self.Master.Clear
@@ -1068,7 +1073,7 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2_2(ttk.Frame):
                          "Débit de pompage (Q)"]
         si_text = ["m", "m", "m", "m", f"m{sns(3)}/j"]
 
-        self.Master = GUI_MASTER(self, self.Application, function_text, si_text, savedraw=3)
+        self.Master = GUI_MASTER(self, self.Application, function_text, si_text, save_draw=3)
 
         self.entry = self.Master.entry
         self.Clear = self.Master.Clear
@@ -1138,7 +1143,7 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2_3(ttk.Frame):
                          "Débit de pompage (Q)"]
         si_text = ["m", "m", "m", "m/j", f"m{sns(3)}/j"]
 
-        self.Master = GUI_MASTER(self, self.Application, function_text, si_text, savedraw=3)
+        self.Master = GUI_MASTER(self, self.Application, function_text, si_text, save_draw=3)
 
         self.entry = self.Master.entry
         self.Clear = self.Master.Clear
@@ -1199,7 +1204,7 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2_4(ttk.Frame):
                          "Débit de pompage (Q)"]
         si_text = ["m", "m", "m", "m", f"m{sns(3)}/j"]
 
-        self.Master = GUI_MASTER(self, self.Application, function_text, si_text, savedraw=3)
+        self.Master = GUI_MASTER(self, self.Application, function_text, si_text, save_draw=3)
 
         self.entry = self.Master.entry
         self.Clear = self.Master.Clear
@@ -1260,7 +1265,7 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_3(ttk.Frame):
                          "Recharge (W)"]
         si_text = ["m", "m", "m", "m/j", "m/an"]
 
-        self.Master = GUI_MASTER(self, self.Application, function_text, si_text, savedraw=3)
+        self.Master = GUI_MASTER(self, self.Application, function_text, si_text, save_draw=3)
 
         self.entry = self.Master.entry
         self.Clear = self.Master.Clear
@@ -1378,7 +1383,7 @@ class PUIT_DANS_UN_ECOULEMENT_UNIFORME_1(ttk.Frame):
                          "Pente de la nappe phréatique (i𝒹)"]
         si_text = ["m", "m", "m", f"m{sns(3)}/j", "", ""]
 
-        self.Master = GUI_MASTER(self, self.Application, function_text, si_text, savedraw=3)
+        self.Master = GUI_MASTER(self, self.Application, function_text, si_text, save_draw=3)
 
         self.entry = self.Master.entry
         self.Clear = self.Master.Clear
@@ -1437,7 +1442,7 @@ class PUIT_DANS_UN_ECOULEMENT_UNIFORME_2(ttk.Frame):
                          "La distance entre les deux puits\n(∆x)"]
         si_text = ["m", "m"]
 
-        self.Master = GUI_MASTER(self, self.Application, function_text, si_text, savedraw=3)
+        self.Master = GUI_MASTER(self, self.Application, function_text, si_text, save_draw=3)
 
         self.entry = self.Master.entry
         self.Clear = self.Master.Clear
@@ -1493,7 +1498,7 @@ class PUIT_DANS_UN_ECOULEMENT_UNIFORME_3(ttk.Frame):
                          "Épaisseur (b)"]
         si_text = ["m/j", f"m{sns(3)}/j", "", "m"]
 
-        self.Master = GUI_MASTER(self, self.Application, function_text, si_text, savedraw=3)
+        self.Master = GUI_MASTER(self, self.Application, function_text, si_text, save_draw=3)
 
         self.entry = self.Master.entry
         self.Clear = self.Master.Clear
@@ -1600,7 +1605,7 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_1_1(ttk.Frame):
                          "Fonction du puit (W(u))"]
         si_text = ["gpm", "ft", ""]
 
-        self.Master = GUI_MASTER(self, self.Application, function_text, si_text, savedraw=4)
+        self.Master = GUI_MASTER(self, self.Application, function_text, si_text, save_draw=4)
 
         self.entry = self.Master.entry
         self.Clear = self.Master.Clear
@@ -1688,7 +1693,7 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_1_2(ttk.Frame):
                          "(1/u)"]
         si_text = [f"m{sns(2)}/j\ngpd/ft", "m", "j", ""]
 
-        self.Master = GUI_MASTER(self, self.Application, function_text, si_text, savedraw=4)
+        self.Master = GUI_MASTER(self, self.Application, function_text, si_text, save_draw=4)
 
         self.entry = self.Master.entry
         self.Clear = self.Master.Clear
@@ -1783,7 +1788,7 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_2_1(ttk.Frame):
                          "Fonction du puit (W(u))"]
         si_text = [f"m{sns(3)}/j", "m", ""]
 
-        self.Master = GUI_MASTER(self, self.Application, function_text, si_text, savedraw=4)
+        self.Master = GUI_MASTER(self, self.Application, function_text, si_text, save_draw=4)
 
         self.entry = self.Master.entry
         self.Clear = self.Master.Clear
@@ -1843,7 +1848,7 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_2_2(ttk.Frame):
                          "(u)"]
         si_text = [f"m{sns(2)}/j", f"m{sns(2)}/j", ""]
 
-        self.Master = GUI_MASTER(self, self.Application, function_text, si_text, savedraw=4)
+        self.Master = GUI_MASTER(self, self.Application, function_text, si_text, save_draw=4)
 
         self.entry = self.Master.entry
         self.Clear = self.Master.Clear
@@ -1919,7 +1924,7 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_3_1(ttk.Frame):
                          "le différentiel de rabattement (∆s)"]
         si_text = [f"m{sns(3)}/j", "m"]
 
-        self.Master = GUI_MASTER(self, self.Application, function_text, si_text, savedraw=4)
+        self.Master = GUI_MASTER(self, self.Application, function_text, si_text, save_draw=4)
 
         self.entry = self.Master.entry
         self.Clear = self.Master.Clear
@@ -1978,7 +1983,7 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_3_2(ttk.Frame):
                          "Distance (r)"]
         si_text = [f"m{sns(2)}/j", "j", "m"]
 
-        self.Master = GUI_MASTER(self, self.Application, function_text, si_text, savedraw=4)
+        self.Master = GUI_MASTER(self, self.Application, function_text, si_text, save_draw=4)
 
         self.entry = self.Master.entry
         self.Clear = self.Master.Clear

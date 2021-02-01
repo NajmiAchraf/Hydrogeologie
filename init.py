@@ -1,6 +1,6 @@
 import itertools
 import tkinter as tk
-from tkinter.ttk import Notebook, Progressbar
+from tkinter.ttk import Notebook
 from abc import ABC
 
 from sympy import sympify, latex
@@ -127,19 +127,19 @@ class ToolbarController(NavigationToolbar2Tk, ABC):
 
 class ScrollableTkAggXY(tk.Canvas):
     def __init__(self, figure, master, **kw):
-        # --- create canvas with scrollbar ---
-        super(ScrollableTkAggXY, self).__init__(master, **kw)
-        self.rowconfigure(1, weight=1)
-        self.columnconfigure(0, weight=1)
         figure.InputTkAggXY(self)
         facecolor = str(to_hex(figure.get_facecolor()))
+        # --- create canvas with scrollbar ---
+        super(ScrollableTkAggXY, self).__init__(master, background=facecolor, **kw)
+        self.rowconfigure(1, weight=1)
+        self.columnconfigure(0, weight=1)
 
         self.fig_canvas_xy = tk.Canvas(self, background=facecolor)
         self.fig_canvas_xy.grid(row=1, column=0, sticky=tk.NSEW)
         self.fig_canvas_xy.rowconfigure(0, weight=1)
         self.fig_canvas_xy.columnconfigure(0, weight=1)
 
-        self.fig_wrapper_xy = tk.Frame(self.fig_canvas_xy)
+        self.fig_wrapper_xy = tk.Frame(self.fig_canvas_xy, background=facecolor)
         self.fig_wrapper_xy.grid(row=0, column=0, sticky=tk.NSEW)
         self.fig_wrapper_xy.rowconfigure(0, weight=1)
         self.fig_wrapper_xy.columnconfigure(0, weight=1)
@@ -189,13 +189,13 @@ class ScrollableTkAggXY(tk.Canvas):
 
 
 class FigureXY(Figure):
-    def __init__(self, fontsize, rgbcolor, savedraw, **kwargs):
+    def __init__(self, font_size, rgb_color, save_draw=3, **kwargs):
         super(FigureXY, self).__init__(tight_layout=True, **kwargs)
-        self.fontsize = fontsize
-        self.savedraw = savedraw
-        self.mpl_rgb = rgbcolor
+        self.font_size = font_size
+        self.save_draw = save_draw
+        self.rgb_color = rgb_color
         self.Axes = self.add_subplot(1, 1, 1)
-        self.Text = self.Axes.text(0, 1, '',color=self.mpl_rgb, fontsize=self.fontsize)
+        self.Text = self.Axes.text(0, 1, '', color=self.rgb_color, fontsize=self.font_size)
         self.latex_math = []
         self.latex_line = []
         self.singing_math = []
@@ -208,6 +208,7 @@ class FigureXY(Figure):
     def DrawLaTex(self, LaTexT, axe_x=0):
         """
 
+        :param axe_x: set the vertical position of text
         :param LaTexT: input LaTeX or text of each line
         :return: set function Draw at the end of lines you input
         """
@@ -227,9 +228,13 @@ class FigureXY(Figure):
         # Plotting features formulae
         for yi_line in range(0, yn_lines):
             y_baseline = yn_lines - yi_line
-            demo = self.latex_math[yi_line]
+            la_text = self.latex_math[yi_line]
             x_baseline = self.latex_line[yi_line]
-            self.Text = self.Axes.text(x_baseline, y_baseline - 0.5, demo, color=self.mpl_rgb, fontsize=self.fontsize)
+            self.Text = self.Axes.text(x=x_baseline,
+                                       y=y_baseline - 0.5,
+                                       s=la_text,
+                                       color=self.rgb_color,
+                                       fontsize=self.font_size)
 
         Renderer = self.canvas.get_renderer(cleared=True)
         bb = self.Text.get_window_extent(renderer=Renderer)
@@ -243,7 +248,6 @@ class FigureXY(Figure):
 
         del Renderer
         del bb
-
 
     def InputTkAggXY(self, TkAgg):
         """
@@ -261,7 +265,7 @@ class FigureXY(Figure):
 
         self.singing_math.clear()
 
-        for lil in range(self.savedraw):
+        for lil in range(self.save_draw):
             self.singing_math.append(self.latex_math[lil])
             self.singing_line.append(self.latex_line[lil])
 
@@ -271,7 +275,7 @@ class FigureXY(Figure):
         self.size_w.append(10)
         self.size_h = 10
 
-        for lil in range(self.savedraw):
+        for lil in range(self.save_draw):
             self.DrawLaTex(self.singing_math[lil], self.singing_line[lil])
 
         self.Draw()
@@ -400,9 +404,10 @@ class NoteBook(Notebook):
         super(NoteBook, self).__init__(master=master, **kw)
 
         self.NtBk_tab = 0
+        self.TotalTabs = len(classes)
 
         self.Tabs = []
-        for nb in range(len(classes)):
+        for nb in range(self.TotalTabs):
             cls = classes[nb](master=self)
             self.Tabs.append(cls)
             self.add(cls, text=cls_name[nb])
@@ -420,6 +425,6 @@ class NoteBook(Notebook):
             pass
 
     def Keyboard(self, keyword):
-        for cls in range(len(self.Tabs)):
+        for cls in range(self.TotalTabs):
             if self.NtBk_tab == cls:
                 self.Tabs[cls].Keyboard(keyword)
