@@ -1,4 +1,7 @@
+import itertools
 import tkinter as tk
+from abc import ABC
+
 from sympy import sympify, latex
 from sympy.parsing.sympy_parser import parse_expr
 from matplotlib.figure import Figure
@@ -6,7 +9,12 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolb
 from Pmw.Pmw_2_0_1.lib.PmwBalloon import Balloon
 
 
-def LaTex(Math_Expression):
+def TeX(Math_Expression):
+    TEX = '$' + Math_Expression + '$'
+    return TEX
+
+
+def LaTeX(Math_Expression):
     TEX = '$' + latex(Math_Expression) + '$'
     return TEX
 
@@ -18,7 +26,18 @@ def App(character):
             expression = parse_expr(pik, evaluate=False)
         except Exception:
             expression = sympify(pik, rational=True, evaluate=False)
-        return LaTex(expression)
+        return LaTeX(expression)
+    except None:
+        pass
+    except Exception:
+        pass
+
+
+def Eva(character):
+    try:
+        pik = str(character)
+        expression = sympify(pik, evaluate=True)
+        return LaTeX(expression)
     except None:
         pass
     except Exception:
@@ -26,16 +45,20 @@ def App(character):
 
 
 def Num(*args):
+    global expression
     try:
         if len(args) == 1 and isinstance(args[0], str):
-            return sympify(args[0], evaluate=True).evalf()
+            expression = sympify(args[0], evaluate=True).evalf()
+            return LaTeX(expression)
 
         elif len(args) == 2:
             if isinstance(args[0], str) and isinstance(args[1], int):
-                return sympify(args[0], evaluate=True).evalf(args[1])
+                expression = sympify(args[0], evaluate=True).evalf(args[1])
 
             elif isinstance(args[0], int) and isinstance(args[1], str):
-                return sympify(args[1], evaluate=True).evalf(args[0])
+                expression = sympify(args[1], evaluate=True).evalf(args[0])
+
+            return expression
     except None:
         pass
     except Exception:
@@ -75,13 +98,13 @@ class HoverButton(tk.Button):
         self['bg'] = self.DefaultBG
 
 
-class ToolbarController(NavigationToolbar2Tk):
+class ToolbarController(NavigationToolbar2Tk, ABC):
     def __init__(self, canvas_, parent_):
         self.toolitems = (
             (None, None, None, None),
-            ('Delete', 'Clear the paper work', 'delete', 'delete_history'),
+            ('Delete', 'Effacer la feuille de calcul', 'delete', 'delete_history'),
             (None, None, None, None),
-            ('Save', 'Save the paper work', 'filesave', 'save_figure'),
+            ('Save', 'Enregistrer la feuille de calcul', 'filesave', 'save_figure'),
             (None, None, None, None)
         )
         NavigationToolbar2Tk.__init__(self, canvas_, parent_)
@@ -89,6 +112,13 @@ class ToolbarController(NavigationToolbar2Tk):
     def delete_history(self):
         self.canvas.figure.Clear()
         self.canvas.draw()
+
+    def delete_state(self, automatic):
+        if not automatic:
+            self._buttons['Delete']['state'] = tk.NORMAL
+
+        elif automatic:
+            self._buttons['Delete']['state'] = tk.DISABLED
 
 
 class ScrollableTkAggXY(tk.Canvas):
@@ -148,11 +178,16 @@ class ScrollableTkAggXY(tk.Canvas):
         self.OnConfigure_XY(width=width, height=height)
         self.TkAgg.draw()
 
+    # shortcut of delete state
+    def delete_state(self, automatic):
+        self.ToolBar.delete_state(automatic)
+
 
 class FigureXY(Figure):
-    def __init__(self, fontsize, **kwargs):
+    def __init__(self, fontsize, savedraw, **kwargs):
         super(FigureXY, self).__init__(tight_layout=True, **kwargs)
         self.fontsize = fontsize
+        self.savedraw = savedraw
         self.Axes = self.add_subplot(1, 1, 1)
         self.Text = self.Axes.text(0, 1, '', fontsize=self.fontsize)
         self.latex_math = []
@@ -160,7 +195,7 @@ class FigureXY(Figure):
         self.size_h = 10
         self.width = max(self.size_w)
         self.height = float(self.size_h)
-        self.TkAggXY = ScrollableTkAggXY
+        self.singing = []
 
     def DrawLaTex(self, character):
         """
@@ -214,17 +249,64 @@ class FigureXY(Figure):
 
     def Clear(self):
         self.clear()
-        singing_prog = self.latex_math[0]
-        singing_mode = self.latex_math[1]
+
+        self.singing.clear()
+
+        for lil in range(self.savedraw):
+            self.singing.append(self.latex_math[lil])
+
         self.latex_math.clear()
         self.size_w.clear()
         self.size_w.append(10)
         self.size_h = 10
-        self.DrawLaTex(singing_prog)
-        self.DrawLaTex(singing_mode)
+
+        for lil in range(self.savedraw):
+            self.DrawLaTex(self.singing[lil])
+
         self.Draw()
-        del singing_prog
-        del singing_mode
+
+
+class SmallNumbers(object):
+    def __init__(self, total_of_numbers, place_of_script='sub'):
+        """
+        :param total_of_numbers: input integer or string numbers to get list of string numbers
+        :param place_of_script: sub or super, default is sub
+        """
+        try:
+            self.total_nbrs = int(eval(total_of_numbers))
+        except TypeError:
+            self.total_nbrs = int(total_of_numbers)
+
+        self.place_of_script = str(place_of_script).lower()
+
+        if self.place_of_script == 'sub':
+            self.work_list = ['₀', '₁', '₂', '₃', '₄', '₅', '₆', '₇', '₈', '₉']
+            self.generated_list = ['₀', '₁', '₂', '₃', '₄', '₅', '₆', '₇', '₈', '₉']
+
+        elif self.place_of_script == 'super':
+            self.work_list = ['⁰', '¹', '²', '³', '⁴', '⁵', '⁶', '⁷', '⁸', '⁹']
+            self.generated_list = ['⁰', '¹', '²', '³', '⁴', '⁵', '⁶', '⁷', '⁸', '⁹']
+
+        if self.total_nbrs >= 10:
+            start = 10
+            end = 100
+            for cmb in range(2, len(str(self.total_nbrs)) + 1):
+                self.ListOfCombinations(is_upper_then=start, is_under_then=end, combinations=cmb)
+                start *= 10
+                end *= 10
+
+    def __call__(self, call_number, *args, **kwargs):
+        return self.generated_list[call_number]
+
+    def ListOfCombinations(self, is_upper_then, is_under_then, combinations):
+        multi_work_list = eval(str('self.work_list,') * combinations)
+        nbr = 0
+        for subset in itertools.product(*multi_work_list):
+            if is_upper_then <= nbr < is_under_then:
+                self.generated_list.append(''.join(subset))
+                if self.total_nbrs == nbr:
+                    break
+            nbr += 1
 
 
 class AutoScrollbar(tk.Scrollbar):
@@ -258,17 +340,17 @@ class ScrollBind(object):
             self.canvas_self.bind_all("<Shift-MouseWheel>", self.ShiftMouseWheelHandler)
             self.hbar = hbar
         self.canvas_self.bind_all("<Button>", self.TouchPadHandler)
-        self.canvas_self.bind('<Enter>', self.BoundToScroling)
-        self.canvas_self.bind('<Leave>', self.UnboundToScroling)
+        self.canvas_self.bind('<Enter>', self.BoundToScrolling)
+        self.canvas_self.bind('<Leave>', self.UnboundToScrolling)
 
-    def BoundToScroling(self, event):
+    def BoundToScrolling(self, event):
         if self.y_scroll:
             self.canvas_self.bind_all("<MouseWheel>", self.MouseWheelHandler)
         if self.x_scroll:
             self.canvas_self.bind_all("<Shift-MouseWheel>", self.ShiftMouseWheelHandler)
         self.canvas_self.bind_all("<Button>", self.TouchPadHandler)
 
-    def UnboundToScroling(self, event):
+    def UnboundToScrolling(self, event):
         if self.y_scroll:
             self.canvas_self.unbind_all("<MouseWheel>")
         if self.x_scroll:
