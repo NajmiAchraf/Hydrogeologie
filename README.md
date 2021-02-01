@@ -179,5 +179,8 @@ Cette application est une solution pour les relations d'hydrologie et de process
 
 2. amélioration du script
 
-### version 3.0.0.1 bêta
+### [version 3.0.0.1 bêta](https://github.com/DeepEastWind/Hydrogeologie/releases/tag/30d8efe)
 1. commencer à inclure de nouvelles relations dans l'application
+
+### version 3.0.0.2 bêta
+1. amélioration du script et des relations
