@@ -5,8 +5,6 @@ from sympy import *
 from sympy.solvers import solve
 from sympy.solvers.solveset import solvify
 
-
-
 r"""
 1. ECOULEMENT UNIDIRECTIONNEL STABLE
     1.1. Aquifere confine:
@@ -83,20 +81,25 @@ r"""
             
             "$T = \frac{Q}{4 \pi s}W(u)$"
             
-        Le Coefficien de stockage:
+        Le coefficient de stockage:
             "$S = \frac{Tt}{\frac{1}{u} 1.87r^2}$" (t in days)
         
             "$S = \frac{Tt}{\frac{1}{u} 2693r^2}$" (t in minutes)
         
     4.2. Methode de solution de Theis:
-        "$s = \left( \frac{Q}{4\pi T}\right) W\left(u\right)$"
-
-        "$\frac{r^2}{t} = \left(\frac{4T}{S}\right)u$"
+        La transmisivité:
+            "$T = \frac{Q}{4 \pi s}W\left(u\right)$"
+            
+        Le coefficient de stockage:
+            "$S = \frac{4Tu}{r^2/t}$"
 
     4.3. Methode de solution de Cooper-Jacob:
-        "$S = \frac{2.246Tt_0}{r^2}$"
-
-        "$T = \frac{2.303Q}{4\pi \Delta s}$"
+        La transmisivité:
+            "$T = \frac{2.303Q}{4\pi \Delta s}$"
+            
+        Le coefficient de stockage:
+            "$S = \frac{2.246Tt_0}{r^2}$"
+    
 
     4.4. Methode de solution de Chow:
         "$F\left(u\right) = \frac{s}{\Delta s}$"
@@ -127,11 +130,11 @@ r"""
 
 """
 '''
-### version 3.0.0.2 bêta
-1. amélioration du script et des relations
+### version 3.0.0.3 RC
+1. amélioration du script et ajoute des nouvelles tab
 '''
 __author__ = 'NORA NAJMI'
-__version__ = '3.0.0.2 bêta'
+__version__ = '3.0.0.3 RC'
 __title_h__ = 'Hydrogéologie'
 __title_l__ = "Hydraulique des puits, pompage d'essai et étude des rabattements"
 
@@ -170,9 +173,10 @@ sn = SmallNumbers(10)
 sns = SmallNumbers(10, "super")
 
 
-class HIGH_MASTER(Tk):
+class Hydrogeologie(Tk):
     def __init__(self):
-        super(HIGH_MASTER, self).__init__()
+        super(Hydrogeologie, self).__init__()
+        self.iconbitmap('Google-Noto-Emoji-Travel-Places-42474-national-park.ico')
         self.iconify()
         self.minsize(width=1133, height=500)
         self.title(u"%s v%s" % (__title_h__, __version__))
@@ -276,7 +280,7 @@ class GUI_MASTER(Frame):
     def Draw(self):
         self.FigureXY.Draw()
 
-    def EvalLaTexT(self, expression, variable, unite):
+    def EvalLaTexT(self, expression, variable, unite=None):
         result_str = App(variable)
         result_expr = Eva(variable)
         result_num = Num(variable)
@@ -285,36 +289,24 @@ class GUI_MASTER(Frame):
 
         if dot_zero == result_expr or result_expr == result_num:
             self.LaTexT(f'{TeX(expression)} = {result_str}')
-            self.LaTexT(f'{TeX(expression)} = {result_expr} {TeX(unite)}')
+            if unite is None:
+                self.LaTexT(f'{TeX(expression)} = {result_expr}')
+            else:
+                self.LaTexT(f'{TeX(expression)} = {result_expr} {TeX(unite)}')
 
         elif result_expr == result_str and dot_zero != result_expr:
             self.LaTexT(f'{TeX(expression)} = {result_expr}')
-            self.LaTexT(f'{TeX(expression)} = {result_num} {TeX(unite)}')
+            if unite is None:
+                self.LaTexT(f'{TeX(expression)} = {result_num}')
+            else:
+                self.LaTexT(f'{TeX(expression)} = {result_num} {TeX(unite)}')
         else:
             self.LaTexT(f'{TeX(expression)} = {result_str}')
             self.LaTexT(f'{TeX(expression)} = {result_expr}')
-            self.LaTexT(f'{TeX(expression)} = {result_num} {TeX(unite)}')
-
-        del result_str, result_expr, result_num, dot_zero
-
-    def EvalLaTexTS(self, expression, variable):
-        result_str = App(variable)
-        result_expr = Eva(variable)
-        result_num = Num(variable)
-        # checking by zero
-        dot_zero = str(result_num).replace('.0', '')
-
-        if dot_zero == result_expr or result_expr == result_num:
-            self.LaTexT(f'{TeX(expression)} = {result_str}')
-            self.LaTexT(f'{TeX(expression)} = {result_expr}')
-
-        elif result_expr == result_str and dot_zero != result_expr:
-            self.LaTexT(f'{TeX(expression)} = {result_expr}')
-            self.LaTexT(f'{TeX(expression)} = {result_num}')
-        else:
-            self.LaTexT(f'{TeX(expression)} = {result_str}')
-            self.LaTexT(f'{TeX(expression)} = {result_expr}')
-            self.LaTexT(f'{TeX(expression)} = {result_num}')
+            if unite is None:
+                self.LaTexT(f'{TeX(expression)} = {result_num}')
+            else:
+                self.LaTexT(f'{TeX(expression)} = {result_num} {TeX(unite)}')
 
         del result_str, result_expr, result_num, dot_zero
 
@@ -1157,7 +1149,6 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_3(Frame):
         self.Draw = self.Master.Draw
         self.EvalLaTexT = self.Master.EvalLaTexT
 
-
         self.r_0 = symbols('r_0')
         self.R = S.Reals
         self.C = S.Complexes
@@ -1182,30 +1173,32 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_3(Frame):
         r = eval(str(self.entry[2].get()))
         K = eval(str(self.entry[3].get()))
         W = eval(str(self.entry[4].get()))
-        
-        # q = h0 ** 2 - h ** 2
-        q = str(sympify(f"{h0} ** 2 - {h} ** 2"))
-        # p = (W / (2 * K)) * (r ** 2 - x ** 2) + ((pi * x ** 2 * W) / (pi * K)) * log(r0 / r)
-        p = str(sympify(f"({W} / (2 * {K})) * ({r} ** 2 - {self.r_0} ** 2) + ((pi * {self.r_0} ** 2 * {W}) / (pi * {K})) * log({self.r_0} / {r})"))
+
+        # qs = h0 ** 2 - h ** 2
+        q = f"{h0} ** 2 - {h} ** 2"
+        qs = str(sympify(q))
+        # ps = (W / (2 * K)) * (r ** 2 - x ** 2) + ((pi * x ** 2 * W) / (pi * K)) * log(r0 / r)
+        p = f"({W} / (2*{K})) * ({r}**2 - {self.r_0}**2) + ((pi*{self.r_0}**2 * {W}) / (pi*{K}))*log({self.r_0} / {r})"
+        ps = str(sympify(p))
 
         try:
-            sol = solve(Eq(sympify(q), sympify(p)), self.r_0)
+            sol = solve(Eq(sympify(qs), sympify(ps)), self.r_0)
         except Exception:
-                sol = solvify(Eq(sympify(q), sympify(p)), self.r_0, self.C)
-                if sol is None:
-                    sol = solvify(Eq(sympify(q), sympify(p)), self.r_0, self.R)
+            sol = solvify(Eq(sympify(qs), sympify(ps)), self.r_0, self.C)
+            if sol is None:
+                sol = solvify(Eq(sympify(qs), sympify(ps)), self.r_0, self.R)
 
         r0 = sol[0]
         # Q = pi * r0 ** 2 * W
         Q = f"{pi} * {r0} ** 2 * {W}"
-        
+
         self.Clear()
 
         self.LaTexT(f"Equation de la courbe de rabattement:")
         self.LaTexT(
             r"$h^2_0-h^2 = \frac{W}{2K}\left(r^2-r^2_0\right)+\frac{\pi r_0^2 W}{\pi K}ln\left(\frac{r_0}{r}\right)$")
         self.LaTexT(f"{App(q)} = {App(p)}")
-        self.LaTexT(f"Rayon d'influence ({TeX('r_0')}):")
+        self.LaTexT(f"Rayon d'influence ({TeX('r_0')}) donné par la résolution d'équation de la courbe de rabattement:")
         self.LaTexT(f'{TeX("r_0")} = {Eva(r0)} {TeX("m")}')
         # self.EvalLaTexT("r_0", r0, "m")
 
@@ -1255,9 +1248,8 @@ class PUIT_DANS_UN_ECOULEMENT_UNIFORME_1(Frame):
                          "Distance (r)",
                          "Débit de pompage (Q)",
                          "Pente de la nappe phréatique (iᵤ)",
-                         "Pente de la nappe phréatique (i𝒹)",
-                         "Épaisseur (b)"]
-        si_text = ["m", "m", "m", f"m{sns(3)}/j", "", "", "m"]
+                         "Pente de la nappe phréatique (i𝒹)"]
+        si_text = ["m", "m", "m", f"m{sns(3)}/j", "", ""]
 
         self.Master = GUI_MASTER(self, self.Application, function_text, si_text, savedraw=3)
         self.Master.grid(row=0, column=0, sticky=NSEW)
@@ -1286,7 +1278,6 @@ class PUIT_DANS_UN_ECOULEMENT_UNIFORME_1(Frame):
         Q = eval(str(self.entry[3].get()))
         iu = eval(str(self.entry[4].get()))
         id = eval(str(self.entry[5].get()))
-        b = eval(str(self.entry[6].get()))
 
         # K = (2 * Q) / (pi * r * (hu + hd) * (iu + id))
         K = f"(2 * {Q}) / (pi * {r} * ({hu} + {hd}) * ({iu} + {id}))"
@@ -1310,8 +1301,8 @@ class PUIT_DANS_UN_ECOULEMENT_UNIFORME_2(Frame):
         self.rowconfigure(0, weight=1)
         self.columnconfigure(0, weight=1)
 
-        function_text = ["Le niveau piézométrique obsérvé\nentre les 2 puits (∆h)",
-                         "La distance entre les 2 puits (∆x)"]
+        function_text = ["Le niveau piézométrique obsérvé\nentre les deux puits (∆h)",
+                         "La distance entre les deux puits\n(∆x)"]
         si_text = ["m", "m"]
 
         self.Master = GUI_MASTER(self, self.Application, function_text, si_text, savedraw=3)
@@ -1321,7 +1312,7 @@ class PUIT_DANS_UN_ECOULEMENT_UNIFORME_2(Frame):
         self.Clear = self.Master.Clear
         self.LaTexT = self.Master.LaTexT
         self.Draw = self.Master.Draw
-        self.EvalLaTexTS = self.Master.EvalLaTexTS
+        self.EvalLaTexT = self.Master.EvalLaTexT
 
         self.RUN()
 
@@ -1343,9 +1334,9 @@ class PUIT_DANS_UN_ECOULEMENT_UNIFORME_2(Frame):
 
         self.Clear()
 
-        self.LaTexT("Calcule de $i$:")
+        self.LaTexT("Calcul de la pente de la surfece piézométrique dans les conditions naturelles $i$:")
         self.LaTexT(r"$i = \frac{\Delta h}{\Delta x}$")
-        self.EvalLaTexTS("i", i)
+        self.EvalLaTexT("i", i)
 
         r"""
 3. PUIT DANS UN ECOULEMENT UNIFORME
@@ -1393,7 +1384,6 @@ class PUIT_DANS_UN_ECOULEMENT_UNIFORME_3(Frame):
         i = eval(str(self.entry[2].get()))
         b = eval(str(self.entry[3].get()))
 
-
         # yl = Q / (2 * K * b * iu)
         yl = f"{Q} / (2 * {K} * {b} * {i})"
 
@@ -1402,11 +1392,11 @@ class PUIT_DANS_UN_ECOULEMENT_UNIFORME_3(Frame):
 
         self.Clear()
 
-        self.LaTexT("Calcule de $y_L$:")
+        self.LaTexT("Calcul des limites longitudinales des eaux souterraines entrant dans le puit $y_L$:")
         self.LaTexT(r"$y_L =  \pm \frac{Q}{2Kbi}$")
         self.EvalLaTexT("y_L", yl, "m")
 
-        self.LaTexT(f"Calcule de {TeX('x_L')}:")
+        self.LaTexT(f"Calcul des limites transversales des eaux souterraines entrant dans le puit {TeX('x_L')}:")
         self.LaTexT(r"$x_L = -\frac{Q}{2\pi Kbi}$")
         self.EvalLaTexT("x_L", xl, "m")
 
@@ -1426,10 +1416,10 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE(Frame):
         self.rowconfigure(0, weight=1)
         self.columnconfigure(0, weight=1)
 
-        classes = [FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_1,]
-                   # FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_2,
-                   # FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_3,
-                   # FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_4]
+        classes = [FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_1,
+                   FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_2,
+                   FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_3,]
+        # FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_4]
         cls_name = ['4.1. Equation de pompage de puits hors equilibre',
                     '4.2. Methode de solution de Theis',
                     '4.3. Methode de solution de Cooper-Jacob',
@@ -1449,9 +1439,9 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_1(Frame):
         self.columnconfigure(0, weight=1)
 
         classes = [FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_1_1,
-                   FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_1_2,]
+                   FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_1_2, ]
         cls_name = ['La transmisivité',
-                    'Le Coefficien de stockage']
+                    'Le coefficient de stockage']
 
         self.NoteBook = Notebook(self)
         self.NoteBook.grid(row=0, column=0, sticky=NSEW)
@@ -1502,10 +1492,10 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_1_1(Frame):
         T1 = f"((114.6 * {Q}) / {s}) * {Wu}"
 
         # Qt = Q * 0.06309 * 86.4
-        Qt = f"{Q} * 0.06309 * 86.4" # gpm to L/s to m^3/j
+        Qt = f"{Q} * 0.06309 * 86.4"  # gpm to L/s to m^3/j
 
         # st = s * 0.3048
-        st = f"{s} * 0.3048" # ft to m
+        st = f"{s} * 0.3048"  # ft to m
 
         # T2 = (Q / (4 * pi * s)) * Wu
         T2 = f"({Qt} / (4 * pi * {st})) * {Wu}"
@@ -1533,7 +1523,6 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_1_1(Frame):
 
         self.LaTexT(f"T = {Num(T)} {TeX('m^2/j')}")
 
-
         r"""
 4. FLUX RADIAL INSTANTANE DANS UN AQUIFERE CONFINE
     4.1. Equation de pompage de puits instable:
@@ -1553,7 +1542,7 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_1_2(Frame):
 
         function_text = ["La transmisivité (T)",
                          "Distance (r)",
-                         "Temp (t)",
+                         "Temps (t)",
                          "(1/u)"]
         si_text = [f"m{sns(2)}/j\ngpd/ft", "m", "j", ""]
 
@@ -1564,7 +1553,7 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_1_2(Frame):
         self.Clear = self.Master.Clear
         self.LaTexT = self.Master.LaTexT
         self.Draw = self.Master.Draw
-        self.EvalLaTexTS = self.Master.EvalLaTexTS
+        self.EvalLaTexT = self.Master.EvalLaTexT
 
         self.RUN()
 
@@ -1573,7 +1562,7 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_1_2(Frame):
 
         self.LaTexT("4.1. Equation de pompage de puits instable:")
 
-        self.LaTexT("Le Coefficien de stockage (S):")
+        self.LaTexT("Le coefficient de stockage (S):")
 
         self.LaTexT(r"Relations : $S = \frac{Tt}{\frac{1}{u} 1.87r^2}$ (t en jours)"
                     r" || $S = \frac{Tt}{\frac{1}{u} 2693r^2}$ (t en minutes)")
@@ -1599,27 +1588,286 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_1_2(Frame):
 
         self.LaTexT("t en jours:")
         self.LaTexT(r"$S = \frac{Tt}{\frac{1}{u} 1.87r^2}$")
-        self.EvalLaTexTS("S", Sj)
+        self.EvalLaTexT("S", Sj)
 
         self.LaTexT(f"Convertion du jours vers minutes:")
         self.LaTexT(f"t = {t} {TeX('jours')} = {Num(tm)} {TeX('minutes')}")
 
         self.LaTexT("t en minutes:")
         self.LaTexT(r"$S = \frac{Tt}{\frac{1}{u} 2693r^2}$")
-        self.EvalLaTexTS("S", Sm)
-
+        self.EvalLaTexT("S", Sm)
 
         r"""
 4. FLUX RADIAL INSTANTANE DANS UN AQUIFERE CONFINE
     4.1. Equation de pompage de puits instable:
-        Le Coefficien de stockage:
+        Le coefficient de stockage:
             "$S = \frac{Tt}{\frac{1}{u} 1.87r^2}$" (t in days)
-        
+            
             "$S = \frac{Tt}{\frac{1}{u} 2693r^2}$" (t in minutes)
 """
         self.Draw()
 
 
+class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_2(Frame):
+    def __init__(self):
+        super(FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_2, self).__init__()
+        self.rowconfigure(0, weight=1)
+        self.columnconfigure(0, weight=1)
+
+        classes = [FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_2_1,
+                   FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_2_2, ]
+        cls_name = ['La transmisivité',
+                    'Le coefficient de stockage']
+
+        self.NoteBook = Notebook(self)
+        self.NoteBook.grid(row=0, column=0, sticky=NSEW)
+        for nb in range(len(classes)):
+            cls = classes[nb]
+            self.NoteBook.add(cls(), text=cls_name[nb])
+
+
+class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_2_1(Frame):
+    def __init__(self):
+        super(FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_2_1, self).__init__()
+        self.rowconfigure(0, weight=1)
+        self.columnconfigure(0, weight=1)
+
+        function_text = ["Le débit constant du puit (Q)",
+                         "Le rabattement (s)",
+                         "Fonction du puit (W(u))"]
+        si_text = [f"m{sns(3)}/j", "m", ""]
+
+        self.Master = GUI_MASTER(self, self.Application, function_text, si_text, savedraw=4)
+        self.Master.grid(row=0, column=0, sticky=NSEW)
+
+        self.entry = self.Master.entry
+        self.Clear = self.Master.Clear
+        self.LaTexT = self.Master.LaTexT
+        self.Draw = self.Master.Draw
+        self.EvalLaTexT = self.Master.EvalLaTexT
+
+        self.RUN()
+
+    def RUN(self):
+        self.LaTexT("4. FLUX RADIAL INSTANTANE DANS UN AQUIFERE CONFINE:")
+
+        self.LaTexT("4.2. Methode de solution de Theis:")
+
+        self.LaTexT("La transmisivité (T):")
+
+        self.LaTexT(r"Relation : $T = \frac{Q}{4 \pi s}W\left(u\right)$")
+
+        self.Draw()
+
+    def Application(self):
+        Q = eval(str(self.entry[0].get()))
+        s = eval(str(self.entry[1].get()))
+        Wu = eval(str(self.entry[2].get()))
+
+        # T = (Q / (4 * pi * s)) * Wu
+        T = f"({Q} / (4 * pi * {s})) * {Wu}"
+
+        self.Clear()
+
+        self.LaTexT(f"Calcul de la transmisivité ({TeX('t')}):")
+        self.LaTexT(r"$T = \frac{Q}{4 \pi s}W\left(u\right)$")
+        self.EvalLaTexT("T", T, "m^2/j")
+
+        r"""
+        
+4. FLUX RADIAL INSTANTANE DANS UN AQUIFERE CONFINE    
+    4.2. Methode de solution de Theis:
+        La transmisivité:
+            "$T = \frac{Q}{4 \pi s}W\left(u\right)$"
+"""
+        self.Draw()
+
+
+class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_2_2(Frame):
+    def __init__(self):
+        super(FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_2_2, self).__init__()
+        self.rowconfigure(0, weight=1)
+        self.columnconfigure(0, weight=1)
+
+        function_text = ["La transmisivité (T)",
+                         f"la distance carré par le temps (r{sns(2)}/t)",
+                         "(u)"]
+        si_text = [f"m{sns(2)}/j", f"m{sns(2)}/j", ""]
+
+        self.Master = GUI_MASTER(self, self.Application, function_text, si_text, savedraw=4)
+        self.Master.grid(row=0, column=0, sticky=NSEW)
+
+        self.entry = self.Master.entry
+        self.Clear = self.Master.Clear
+        self.LaTexT = self.Master.LaTexT
+        self.Draw = self.Master.Draw
+        self.EvalLaTexT = self.Master.EvalLaTexT
+
+        self.RUN()
+
+    def RUN(self):
+        self.LaTexT("4. FLUX RADIAL INSTANTANE DANS UN AQUIFERE CONFINE:")
+
+        self.LaTexT("4.2. Methode de solution de Theis:")
+
+        self.LaTexT("Le coefficient de stockage (S):")
+
+        self.LaTexT(r"Relation : $S = \frac{4Tu}{r^2/t}$")
+
+        self.Draw()
+
+    def Application(self):
+        T = eval(str(self.entry[0].get()))
+        rt = eval(str(self.entry[1].get()))
+        u = eval(str(self.entry[2].get()))
+
+        # S = (4 * T * u) / (rt)
+        S = f"(4 * {T} * {u}) / {rt}"
+
+        self.Clear()
+
+        self.LaTexT("Calcul du coefficient de stockage (S):")
+        self.LaTexT(r"$S = \frac{4Tu}{r^2/t}$")
+        self.EvalLaTexT("S", S)
+
+        r"""
+4. FLUX RADIAL INSTANTANE DANS UN AQUIFERE CONFINE
+    4.2. Methode de solution de Theis:
+        Le coefficient de stockage:
+            "$S = \frac{4Tu}{r^2/t}$"
+"""
+        self.Draw()
+
+
+class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_3(Frame):
+    def __init__(self):
+        super(FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_3, self).__init__()
+        self.rowconfigure(0, weight=1)
+        self.columnconfigure(0, weight=1)
+
+        classes = [FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_3_1,
+                   FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_3_2, ]
+        cls_name = ['La transmisivité',
+                    'Le coefficient de stockage']
+
+        self.NoteBook = Notebook(self)
+        self.NoteBook.grid(row=0, column=0, sticky=NSEW)
+        for nb in range(len(classes)):
+            cls = classes[nb]
+            self.NoteBook.add(cls(), text=cls_name[nb])
+
+
+class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_3_1(Frame):
+    def __init__(self):
+        super(FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_3_1, self).__init__()
+        self.rowconfigure(0, weight=1)
+        self.columnconfigure(0, weight=1)
+
+        function_text = ["Le débit constant du puit (Q)",
+                         "Le rabattement ??(∆s)"]
+        si_text = [f"m{sns(3)}/j", "m"]
+
+        self.Master = GUI_MASTER(self, self.Application, function_text, si_text, savedraw=4)
+        self.Master.grid(row=0, column=0, sticky=NSEW)
+
+        self.entry = self.Master.entry
+        self.Clear = self.Master.Clear
+        self.LaTexT = self.Master.LaTexT
+        self.Draw = self.Master.Draw
+        self.EvalLaTexT = self.Master.EvalLaTexT
+
+        self.RUN()
+
+    def RUN(self):
+        self.LaTexT("4. FLUX RADIAL INSTANTANE DANS UN AQUIFERE CONFINE:")
+
+        self.LaTexT("4.3. Methode de solution de Cooper-Jacob:")
+
+        self.LaTexT("La transmisivité (T):")
+
+        self.LaTexT(r"Relation : $T = \frac{2.303Q}{4\pi \Delta s}$")
+
+        self.Draw()
+
+    def Application(self):
+        Q = eval(str(self.entry[0].get()))
+        ds = eval(str(self.entry[1].get()))
+
+        # T = 2.303 * Q / (4 * pi * ds)
+        T = f"2.303 * {Q} / (4 * pi * {ds})"
+
+        self.Clear()
+
+        self.LaTexT(f"Calcul de la transmisivité ({TeX('t')}):")
+        self.LaTexT(r"$T = \frac{2.303Q}{4\pi \Delta s}$")
+        self.EvalLaTexT("T", T, "m^2/j")
+
+        r"""
+        
+4. FLUX RADIAL INSTANTANE DANS UN AQUIFERE CONFINE    
+    4.3. Methode de solution de Cooper-Jacob:
+        La transmisivité:
+            "$T = \frac{2.303Q}{4\pi \Delta s}$"
+"""
+        self.Draw()
+
+
+class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_3_2(Frame):
+    def __init__(self):
+        super(FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_3_2, self).__init__()
+        self.rowconfigure(0, weight=1)
+        self.columnconfigure(0, weight=1)
+
+        function_text = ["La transmisivité (T)",
+                         f"Temps (t{sn(0)})",
+                         "Distance (r)"]
+        si_text = [f"m{sns(2)}/j", "j", "m"]
+
+        self.Master = GUI_MASTER(self, self.Application, function_text, si_text, savedraw=4)
+        self.Master.grid(row=0, column=0, sticky=NSEW)
+
+        self.entry = self.Master.entry
+        self.Clear = self.Master.Clear
+        self.LaTexT = self.Master.LaTexT
+        self.Draw = self.Master.Draw
+        self.EvalLaTexT = self.Master.EvalLaTexT
+
+        self.RUN()
+
+    def RUN(self):
+        self.LaTexT("4. FLUX RADIAL INSTANTANE DANS UN AQUIFERE CONFINE:")
+
+        self.LaTexT("4.3. Methode de solution de Cooper-Jacob:")
+
+        self.LaTexT("Le coefficient de stockage (S):")
+
+        self.LaTexT(r"Relation : $S = \frac{2.246Tt_0}{r^2}$")
+
+        self.Draw()
+
+    def Application(self):
+        T = eval(str(self.entry[0].get()))
+        t0 = eval(str(self.entry[1].get()))
+        r = eval(str(self.entry[2].get()))
+
+        # S = (2.246 * T * t0) / (r ** 2)
+        S = f"(2.246 * {T} * {t0}) / ({r} ** 2)"
+
+        self.Clear()
+
+        self.LaTexT("Calcul du coefficient de stockage (S):")
+        self.LaTexT(r"$S = \frac{2.246Tt_0}{r^2}$")
+        self.EvalLaTexT("S", S)
+
+        r"""
+4. FLUX RADIAL INSTANTANE DANS UN AQUIFERE CONFINE
+    4.3. Methode de solution de Cooper-Jacob:
+        Le coefficient de stockage:
+            "$S = \frac{2.246Tt_0}{r^2}$"
+"""
+        self.Draw()
+
+
 if __name__ == '__main__':
-    # run Eau souterraine et hydraulique de puits
-    HIGH_MASTER()
+    # run Hydrogeologie
+    Hydrogeologie()
