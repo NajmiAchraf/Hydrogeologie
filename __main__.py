@@ -130,15 +130,11 @@ r"""
 
 """
 '''
-### version 3.1.0.2 bêta
-1. colorée la feuille du calcul au couleur blanche
-
-2. attribue les résultats par l'axe x dans la feuille du calcul
-
-3. amélioration global du script
+### version 3.1.0.3 RC
+1. amélioration partout dans le script
 '''
 __author__ = 'NORA NAJMI'
-__version__ = '3.1.0.2 bêta'
+__version__ = '3.1.0.3 RC'
 __title__ = 'Hydrogéologie'
 
 btn_prm = {'padx': 18,
@@ -188,7 +184,7 @@ class Hydrogeologie(Tk):
     def __init__(self):
         # Window Configuration _________________________________________________________________________________________
         super(Hydrogeologie, self).__init__()
-        self.iconbitmap('Google-Noto-Emoji-Travel-Places-42474-national-park.ico')
+        self.iconbitmap('ecology-globe-icon.ico')
         self.iconify()
         self.geometry("1360x715")
         self.minsize(width=1133, height=500)
@@ -345,33 +341,27 @@ class GUI_MASTER(Frame):
         self.LaTexT(text)
         del text
 
-    def EvalLaTexT(self, expression, variable, unite=None):
+    def EvalLaTexT(self, expression, variable, unite=r"\! "):
         result_str = App(variable)
         result_expr = Eva(variable)
         result_num = Num(variable)
         # checking by zero
         dot_zero = str(result_num).replace('.0', '')
 
-        if dot_zero == result_expr or result_expr == result_num:
-            self.LaTexT(f'{TX(expression)} = {result_str}', n_calcl)
-            if unite is None:
-                self.LaTexT(f'{TX(expression)} = {result_expr}', n_calcl)
-            else:
-                self.LaTexT(f'{TX(expression)} = {result_expr} {TX(unite)}', n_calcl)
+        if (result_expr == result_str) and (result_expr == result_num or result_expr == dot_zero):
+            self.LaTexT(f'{TX(expression)} = {result_str} {TX(unite)}', n_calcl)
 
-        elif result_expr == result_str and dot_zero != result_expr:
+        elif (result_expr == dot_zero) or (result_expr == result_num):
+            self.LaTexT(f'{TX(expression)} = {result_str}', n_calcl)
+            self.LaTexT(f'{TX(expression)} = {result_expr} {TX(unite)}', n_calcl)
+
+        elif (result_expr != dot_zero) and (result_expr == result_str):
             self.LaTexT(f'{TX(expression)} = {result_expr}', n_calcl)
-            if unite is None:
-                self.LaTexT(f'{TX(expression)} = {result_num}', n_calcl)
-            else:
-                self.LaTexT(f'{TX(expression)} = {result_num} {TX(unite)}', n_calcl)
+            self.LaTexT(f'{TX(expression)} = {result_num} {TX(unite)}', n_calcl)
         else:
             self.LaTexT(f'{TX(expression)} = {result_str}', n_calcl)
             self.LaTexT(f'{TX(expression)} = {result_expr}', n_calcl)
-            if unite is None:
-                self.LaTexT(f'{TX(expression)} = {result_num}', n_calcl)
-            else:
-                self.LaTexT(f'{TX(expression)} = {result_num} {TX(unite)}', n_calcl)
+            self.LaTexT(f'{TX(expression)} = {result_num} {TX(unite)}', n_calcl)
 
         del result_str, result_expr, result_num, dot_zero
 
@@ -481,7 +471,7 @@ class ECOULEMENT_UNIDIRECTIONNEL_STABLE_1(ttk.Frame):
         h = f"- ({v} * {x}) / {K}"
 
         self.Clear()
-        
+
         self.InputLaTexT(('v', v, 'm/j'), ('x', x, 'm'), ('K', K, 'm/j'))
         self.LaTexT(f"Calcul de Nappe Captive ({TX('h')}):", n_intro)
         self.LaTexT(r"$h = -\frac{vx}{K}$", n_calcl)
@@ -599,22 +589,31 @@ class ECOULEMENT_UNIDIRECTIONNEL_STABLE_3(ttk.Frame):
         x = eval(str(self.entry[3].get()))
         K = eval(str(self.entry[4].get()))
         Wa = eval(str(self.entry[5].get()))
-        W = Wa / 365
+
+        # W = Wa / 365
+        W = f"{Wa} / 365"
 
         # qx = f"((((h1**2)-(h2**2))*K)/(2*L))-W*((L/2)-x)"
-        qx = f"( ( ( ({h1} ** 2) - ({h2} ** 2) ) * {K}) / (2 * {L}) ) - ({W} * (( {L} / 2 ) - {x}))"
+        qx = f"( ( ( ({h1} ** 2) - ({h2} ** 2) ) * {K}) / (2 * {L}) ) - ({Num(W, 3)} * (( {L} / 2 ) - {x}))"
 
         # d = "(L / 2) - ((K / W) * (((h1 ** 2) - (h2 ** 2)) / (2 * L)))"
-        d = f"({L} / 2) - (({K} / {W}) * ((({h1} ** 2) - ({h2} ** 2)) / (2 * {L})))"
+        d = f"({L} / 2) - (({K} / {Num(W, 3)}) * ((({h1} ** 2) - ({h2} ** 2)) / (2 * {L})))"
 
-        # hmax = "sqrt((h1 ** 2) - ((((h1 ** 2) - (h2 ** 2)) * d) / L) + ((W / K) * (L - d) * d))"
-        hmax = f"sqrt(({h1}**2)-(((({h1}**2)-({h2}**2))*{Num(d, 3)})/{L})+(({W}/{K})*({L}-{Num(d, 3)})*{Num(d, 3)}))"
+        '''
+    # hmax = "sqrt((h1 ** 2) - ((((h1 ** 2) - (h2 ** 2)) * d) / L) + ((W / K) * (L - d) * d))"
+    hmax = f"sqrt(({h1}**2)-(((({h1}**2)-({h2}**2))*{Num(d, 3)})/{L})+(({Num(W, 3)}/{K})*({L}-{Num(d, 3)}) \
+    *{Num(d, 3)}))"
+        '''
+        hp = f"({h1}**2)-(((({h1}**2)-({h2}**2))*{Num(d, 3)})/{L})+(({Num(W, 3)}/{K})*({L}-{Num(d, 3)})*{Num(d, 3)})"
+        hms = r"\sqrt{%s}" % Num(hp, 16)
+        hr = f"sqrt({Num(hp, 16)})"
 
         self.Clear()
 
-        self.InputLaTexT(("h_1", h1, "m"), ("h_2", h2, "m"), ("L", L, "m"), ("x", x, "m"), ("K", K, "m/j"), ("W", Wa, "m/an"))
+        self.InputLaTexT(("h_1", h1, "m"), ("h_2", h2, "m"), ("L", L, "m"), ("x", x, "m"), ("K", K, "m/j"),
+                         ("W", Wa, "m/an"))
         self.LaTexT(f'Convertir la recharge ({TX("W")}) de {TX("m/an")} vers {TX("m/j")} :', n_intro)
-        self.LaTexT(TX(f"W = {Wa} / 365 = {W} m/j"), n_calcl)
+        self.LaTexT(TX(f"W = {Wa} / 365 = {Num(W)} m/j"), n_calcl)
 
         self.LaTexT(f'Calcul de debit quotidien par Kilomètre de la nappe vers les deux rivières ({TX("q_x")}):',
                     n_intro)
@@ -629,9 +628,11 @@ class ECOULEMENT_UNIDIRECTIONNEL_STABLE_3(ttk.Frame):
                     f"({TX('h_{max}')}):", n_intro)
         self.LaTexT(r"$h^2_{max} = {h_1^2}-\frac{\left({h_1^2-h_2^2}\right)d}{L}+\frac{W}{K}\left(L-d\right)d$",
                     n_calcl)
-        self.LaTexT(r"$h_{max} = \sqrt{{h_1^2}-\frac{\left({h_1^2-h_2^2}\right)d}{L}+\frac{W}{K}\left(L-d\right)d}$",
-                    n_calcl)
-        self.EvalLaTexT("h_{max}", hmax, "m")
+        self.EvalLaTexT("h_{max}^2", hp)
+        self.LaTexT(TX(r"h_{max} = "f"{hms}"), n_calcl)
+        #  self.LaTexT(r"$h_{max} = \sqrt{{h_1^2}-\frac{\left({h_1^2-h_2^2}\right)d}{L}+\frac{W}{K}\left(L-d\right)d}$",
+        #              n_calcl)
+        self.EvalLaTexT("h_{max}", hr, "m")
 
         r"""
     1.3. Flux de base vers un flux:
@@ -745,7 +746,7 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1_1(ttk.Frame):
         self.Clear()
 
         self.InputLaTexT(("h_1", h1, "m"), ("h_w", h1, "m"), ("h_2", h2, "m"), ("h", h2, "m"), ("r_1", r1, "m"),
-                         ("r_w", r1, "m"), ("r_2", r2, "m"),  ("r", r2, "m"), ("K", K, "m/j"), ("b", b, "m"))
+                         ("r_w", r1, "m"), ("r_2", r2, "m"), ("r", r2, "m"), ("K", K, "m/j"), ("b", b, "m"))
         self.LaTexT(f'Débit de pompage ({TX("Q")}):', n_intro)
         self.LaTexT(r"$Q = 2\pi Kb\frac{h-h_w}{ln\left(\frac{r}{r_w}\right)}$", n_calcl)
         self.EvalLaTexT("Q", Q, "m^3/j")
@@ -818,7 +819,8 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1_2(ttk.Frame):
 
         self.Clear()
 
-        self.InputLaTexT(("h_w", hw, "m"), ("h", h, "m"), ("r_w", r, "m"), ("r", r, "m"), ("Q", Q, "m^3/j"), ("b", b, "m"))
+        self.InputLaTexT(("h_w", hw, "m"), ("h", h, "m"), ("r_w", r, "m"), ("r", r, "m"), ("Q", Q, "m^3/j"),
+                         ("b", b, "m"))
         self.LaTexT(f'Conductivité hydraulique ({TX("K")}):', n_intro)
         self.LaTexT(r"$K = \frac{Q}{2\pi b\left(h-h_w\right)}ln\left(\frac{r}{r_w}\right)$", n_calcl)
         self.EvalLaTexT("K", K, "m/j")
@@ -881,7 +883,8 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1_3(ttk.Frame):
 
         self.Clear()
 
-        self.InputLaTexT(("h_2", h2, "m"), ("r_1", r1, "m"), ("r_2", r2, "m"), ("K", K, "m/j"), ("Q", Q, "m^3/j"), ("b", b, "m"))
+        self.InputLaTexT(("h_2", h2, "m"), ("r_1", r1, "m"), ("r_2", r2, "m"), ("K", K, "m/j"), ("Q", Q, "m^3/j"),
+                         ("b", b, "m"))
         self.LaTexT(f"Niveau d'eau dans le puit pompé ({TX('h_w')}):", n_intro)
         self.LaTexT(r"$h_w =  h_2 - \frac{Q}{2 \pi K b} \ln{\frac{r_2}{r_1}}$", n_calcl)
         self.EvalLaTexT("h_w", hw, "m")
@@ -944,7 +947,8 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1_4(ttk.Frame):
 
         self.Clear()
 
-        self.InputLaTexT(("h_0", h0, "m"), ("h_1", h1, "m"), ("r_1", r1, "m"), ("K", K, "m/j"), ("Q", Q, "m^3/j"), ("b", b, "m"))
+        self.InputLaTexT(("h_0", h0, "m"), ("h_1", h1, "m"), ("r_1", r1, "m"), ("K", K, "m/j"), ("Q", Q, "m^3/j"),
+                         ("b", b, "m"))
         self.LaTexT(f"Rayon d'influence ({TX('R')}):", n_intro)
         self.LaTexT(r"$R = r_0 = r_1 e^{\left(2\pi Kb\frac{h_0-h_1}{Q}\right)}$", n_calcl)
         self.EvalLaTexT("R = r_0", R, "m")
@@ -1304,7 +1308,7 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_3(ttk.Frame):
             if sol is None:
                 sol = solvify(Eq(sympify(q), sympify(p)), self.r_0, self.R)
         try:
-            r0 = sol[0]
+            r0 = str(sol[0])
         except IndexError:
             messagebox.showerror(title="Erreur !!", message=f"L'équation de la courbe de rabattement n'a pas de "
                                                             f"solution pour le Rayon d'influence r{sn(0)}")
@@ -1322,8 +1326,7 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_3(ttk.Frame):
         self.LaTexT(App(Eq(sympify(q), sympify(p))), n_calcl)
         self.LaTexT(f"Rayon d'influence ({TX('r_0')}) donné par la résolution d'équation de la courbe de rabattement:",
                     n_intro)
-        self.LaTexT(f'{TX("r_0")} = {Eva(r0)} {TX("m")}', n_calcl)
-        # self.EvalLaTexT("r_0", r0, "m")
+        self.EvalLaTexT("r_0", r0, "m")
 
         self.LaTexT(f'Débit de pompage ({TX("Q_w")}):', n_intro)
         self.LaTexT(r"$Q_w = \pi r_0^2 W$", n_calcl)
@@ -1409,7 +1412,8 @@ class PUIT_DANS_UN_ECOULEMENT_UNIFORME_1(ttk.Frame):
 
         self.Clear()
 
-        self.InputLaTexT(("h_u", hu, "m"), ("h_d", hd, "m"), ("r", r, "m"), ("Q", Q, "m^3/j"), ("i_u", iu, "."), ("i_d", id, "."))
+        self.InputLaTexT(("h_u", hu, "m"), ("h_d", hd, "m"), ("r", r, "m"), ("Q", Q, "m^3/j"), ("i_u", iu, r"\, "),
+                         ("i_d", id, r"\, "))
         self.LaTexT("Calcul de la Conductivité hydraulique $(K)$:", n_intro)
         self.LaTexT(r"$K = \frac{2Q}{\pi r\left(h_u+h_d\right)\left(i_u+i_d\right)}$", n_calcl)
         self.EvalLaTexT("K", K, "m/j")
@@ -1463,7 +1467,7 @@ class PUIT_DANS_UN_ECOULEMENT_UNIFORME_2(ttk.Frame):
 
         self.Clear()
 
-        self.InputLaTexT(("\Delta h", dh, "m"), ("\Delta x", dx, "m"))
+        self.InputLaTexT((r"\Delta h", dh, "m"), (r"\Delta x", dx, "m"))
         self.LaTexT("Calcul de la pente de la surface piézométrique dans les conditions naturelles $(i)$:", n_intro)
         self.LaTexT(r"$i = \frac{\Delta h}{\Delta x}$", n_calcl)
         self.EvalLaTexT("i", i)
@@ -1525,7 +1529,7 @@ class PUIT_DANS_UN_ECOULEMENT_UNIFORME_3(ttk.Frame):
 
         self.Clear()
 
-        self.InputLaTexT(("K", K, "m/j"), ("Q", Q, "m^3/j"), ("i", i, "."), ("b", b, "m"))
+        self.InputLaTexT(("K", K, "m/j"), ("Q", Q, "m^3/j"), ("i", i, r"\, "), ("b", b, "m"))
         self.LaTexT("Calcul des limites longitudinales des eaux souterraines entrant dans le puit $y_L$:", n_intro)
         self.LaTexT(r"$y_L =  \pm \frac{Q}{2Kbi}$", n_calcl)
         self.EvalLaTexT("y_L", yl, "m")
@@ -1638,7 +1642,7 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_1_1(ttk.Frame):
 
         self.Clear()
 
-        self.InputLaTexT(("Q", Q, "gpm"), ("s", s, "ft"), (r"W\left( u \right)", Wu, "."))
+        self.InputLaTexT(("Q", Q, "gpm"), ("s", s, "ft"), (r"W\left( u \right)", Wu, r"\, "))
         self.LaTexT("La transmisivité en gpd/ft:", n_intro)
         self.LaTexT(r"$T = \frac{114.6Q}{s}W\left(u\right)$", n_calcl)
         self.EvalLaTexT("T", T1, "gpd/ft")
@@ -1725,7 +1729,8 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_1_2(ttk.Frame):
 
         self.Clear()
 
-        self.InputLaTexT(("T", T, "m^2/j"), ("T", T, "gpd/ft"), ("r", r, "m"), ("t", t, "j"), (r"\frac{1}{u}", u, "."))
+        self.InputLaTexT(("T", T, "m^2/j"), ("T", T, "gpd/ft"), ("r", r, "m"), ("t", t, "j"),
+                         (r"\frac{1}{u}", u, r"\, "))
         self.LaTexT("t en jours:", n_intro)
         self.LaTexT(r"$S = \frac{Tt}{\frac{1}{u} 1.87r^2}$", n_calcl)
         self.EvalLaTexT("S", Sj)
@@ -1811,7 +1816,7 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_2_1(ttk.Frame):
 
         self.Clear()
 
-        self.InputLaTexT(("Q", Q, "m^3/j"), ("s", s, "m"), (r"W\left( u \right)", Wu, "."))
+        self.InputLaTexT(("Q", Q, "m^3/j"), ("s", s, "m"), (r"W\left( u \right)", Wu, r"\, "))
         self.LaTexT(f"Calcul de la transmisivité ({TX('t')}):", n_intro)
         self.LaTexT(r"$T = \frac{Q}{4 \pi s}W\left(u\right)$", n_calcl)
         self.EvalLaTexT("T", T, "m^2/j")
@@ -1871,7 +1876,7 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_2_2(ttk.Frame):
 
         self.Clear()
 
-        self.InputLaTexT(("T", T, "m^2/j"), ("r^2/t", rt, "m^2/j"), ("u", u, "."))
+        self.InputLaTexT(("T", T, "m^2/j"), ("r^2/t", rt, "m^2/j"), ("u", u, r"\, "))
         self.LaTexT("Calcul du coefficient de stockage (S):", n_intro)
         self.LaTexT(r"$S = \frac{4Tu}{r^2/t}$", n_calcl)
         self.EvalLaTexT("S", S)
@@ -1946,7 +1951,7 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_3_1(ttk.Frame):
 
         self.Clear()
 
-        self.InputLaTexT(("Q", Q, "m^3/j"), ("\Delta s", ds, "m"))
+        self.InputLaTexT(("Q", Q, "m^3/j"), (r"\Delta s", ds, "m"))
         self.LaTexT(f"Calcul de la transmisivité ({TX('t')}):", n_intro)
         self.LaTexT(r"$T = \frac{2.303Q}{4\pi \Delta s}$", n_calcl)
         self.EvalLaTexT("T", T, "m^2/j")
