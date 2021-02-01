@@ -43,7 +43,7 @@ Débit quotidien par Kilométrer de la nappe vers les deux rivières (q):
     pip install -r requirements.txt
 
 # Notes de Version
-### version 1.0.0.1 RC
+### [version 1.0.0.1 RC](https://github.com/DeepEastWind/Hydrogeologie/releases/tag/df6af02)
 1. Release Candidate contient deux parties:
     1. Écoulement Permanent Unidirectionnel
     
@@ -53,3 +53,8 @@ Débit quotidien par Kilométrer de la nappe vers les deux rivières (q):
     1. la premiers interface contient des boutons de navigation et de control, des entree et des cadres des noms et des unités
     
     2. la deuxième interface contient la feuille du calcul
+
+### version 2.0.0.1 RC
+1. switcher l'interface graphique vers le Notebook
+
+2. amélioration du script
