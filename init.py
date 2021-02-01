@@ -1,6 +1,6 @@
 import itertools
 import tkinter as tk
-from tkinter.ttk import Notebook
+from tkinter.ttk import Notebook, Progressbar
 from abc import ABC
 
 from sympy import sympify, latex
@@ -388,11 +388,29 @@ class ScrollBind(object):
 class NoteBook(Notebook):
     def __init__(self, master, classes, cls_name, **kw):
         super(NoteBook, self).__init__(master=master, **kw)
-        self.grid(row=0, column=0, sticky=tk.NSEW)
+
+        self.NtBk_tab = 0
+
+        self.Tabs = []
         for nb in range(len(classes)):
-            cls = classes[nb]
-            self.add(cls(), text=cls_name[nb])
+            cls = classes[nb](master=self)
+            self.Tabs.append(cls)
+            self.add(cls, text=cls_name[nb])
+
+        self.grid(row=0, column=0, sticky=tk.NSEW)
+        self.bind('<Button-1>', self.IdentifyTab)
+        # print(self, self.Tabs)
 
     def Identify(self, event):
         return self.tk.call(self._w, "identify", "tab", event.x, event.y)
 
+    def IdentifyTab(self, event):
+        try:
+            self.NtBk_tab = int(self.Identify(event))
+        except Exception:
+            pass
+
+    def Keyboard(self, keyword):
+        for cls in range(len(self.Tabs)):
+            if self.NtBk_tab == cls:
+                self.Tabs[cls].Keyboard(keyword)

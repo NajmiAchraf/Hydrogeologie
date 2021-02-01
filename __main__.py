@@ -1,5 +1,6 @@
 from init import *
 from tkinter import *
+from tkinter import ttk
 from sympy import *
 from sympy.solvers import solve
 from sympy.solvers.solveset import solvify
@@ -129,11 +130,15 @@ r"""
 
 """
 '''
-### version 3.0.0.4 FV
-1. des petites améliorations au niveau du script
+### version 3.1.0.1 bêta
+1. ajout la possibilité de cliquer sur entré est afficher la résultat sur la feuille de calcul
+
+2. corrige le lent démarrage d'application
+
+3. amélioration l’adaptation du script
 '''
 __author__ = 'NORA NAJMI'
-__version__ = '3.0.0.4 FV'
+__version__ = '3.1.0.1 bêta'
 __title__ = 'Hydrogéologie'
 
 btn_prm = {'padx': 18,
@@ -171,6 +176,7 @@ sn = SmallNumbers(10)
 sns = SmallNumbers(10, "super")
 
 
+# Master Window ////////////////////////////////////////////////////////////////////////////////////////////////////////
 class Hydrogeologie(Tk):
     def __init__(self):
         super(Hydrogeologie, self).__init__()
@@ -181,6 +187,7 @@ class Hydrogeologie(Tk):
         self.resizable(width=True, height=True)
         self.title(u"%s v%s" % (__title__, __version__))
         self.configure(background=lbl_prm['bg'])
+        self.bind_all('<Key>', self.Keyboard)
 
         classes = [ECOULEMENT_UNIDIRECTIONNEL_STABLE,
                    ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS,
@@ -191,20 +198,33 @@ class Hydrogeologie(Tk):
                     '3. PUIT DANS UN ECOULEMENT UNIFORME',
                     '4. FLUX RADIAL INSTANTANE DANS UN AQUIFERE CONFINE']
 
-        NoteBook(master=self, classes=classes, cls_name=cls_name)
+        self.NtBk = NoteBook(master=self, classes=classes, cls_name=cls_name)
 
         self.rowconfigure(0, weight=1)
         self.columnconfigure(0, weight=1)
+        self.protocol("WM_DELETE_WINDOW", self.ExitApplication)
+
         self.deiconify()
         self.mainloop()
 
+    def ExitApplication(self):
+        self.iconify()
+        sys.exit()
 
+    def Keyboard(self, keyword):
+        self.NtBk.Keyboard(keyword)
+
+
+# Master GUI \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 class GUI_MASTER(Frame):
     def __init__(self, master, Application, function_text, si_text, savedraw):
         super(GUI_MASTER, self).__init__(master=master)
+        self.grid(row=0, column=0, sticky=NSEW)
         self.rowconfigure(0, weight=1)
         self.columnconfigure(1, weight=1)
-        
+
+        self.Application = Application
+
         self.automatic = True
 
         self.frame1 = Frame(self, background=lbl_prm['bg'], relief='flat')
@@ -244,7 +264,7 @@ class GUI_MASTER(Frame):
         self.button = []
         cbtn_text = ["Effacer", "Mode Automatique", "Calculer"]
 
-        cbtn_ball = ["Description de la bouton Effacer:"
+        cbtn_ball = ["Description de la bouton Effacer ou Suppr:"
                      "\nEffacer toutes les entrées et résultats de la feuille de calcul",
 
                      "Cliquer pour switcher vers le Mode Manuel"
@@ -253,7 +273,7 @@ class GUI_MASTER(Frame):
                      "\nde la feuille de calcul, lorsque nous cliquons sur "
                      "\nle bouton Effacer ou Calculer",
 
-                     "Description de la bouton Calculer:"
+                     "Description de la bouton Calculer ou Enter:"
                      "\nCalculer permet d'afficher les résultats des formules"
                      "\nde cette partie dans la feuille de calcul"]
 
@@ -266,7 +286,7 @@ class GUI_MASTER(Frame):
         self.button[1].configure(fg='#FF9950', activeforeground='orange', command=lambda: self.Switcher())
         self.button[1].change_color_bind(DefaultBG='#737373', HoverBG='#696969', ActiveBG='#5F5F5F')
 
-        self.button[2].configure(bg='#20B645', activebackground='#00751E', command=lambda: Application())
+        self.button[2].configure(bg='#20B645', activebackground='#00751E', command=lambda: self.Application())
         self.button[2].change_color_bind(DefaultBG='#20B645', HoverBG='#009C27', ActiveBG='#00751E')
 
         self.LaTexT(f'{__author__} Master HIGH 2020/2021')
@@ -309,12 +329,18 @@ class GUI_MASTER(Frame):
 
         del result_str, result_expr, result_num, dot_zero
 
+    def Keyboard(self, keyword):
+        if keyword.keysym == "Return":
+            self.Application()
+        elif keyword.keysym == "Delete":
+            self.Delete()
+
     def DelState(self):
         self.TkAggXY.delete_state(self.automatic)
 
     def Switcher(self):
         if self.automatic:
-            self.button[0].change_balloon_bind("Description de la bouton Effacer :\nEffacer toutes les entrées")
+            self.button[0].change_balloon_bind("Description de la bouton Effacer ou Suppr:\nEffacer toutes les entrées")
             self.button[1]['text'] = 'Mode Manuel'
             self.button[1].change_balloon_bind(
                 "Cliquer pour switcher vers le Mode Automatique"
@@ -325,7 +351,8 @@ class GUI_MASTER(Frame):
                 "\nCalculer : ajouter des calculs sur les anciens qui existent")
             self.automatic = False
         elif not self.automatic:
-            self.button[0].change_balloon_bind("Effacer toutes les entrées et résultats de la feuille de calcul")
+            self.button[0].change_balloon_bind("Description de la bouton Effacer ou Suppr:"
+                                               "\nEffacer toutes les entrées et résultats de la feuille de calcul")
             self.button[1]['text'] = 'Mode Automatique'
             self.button[1].change_balloon_bind("Cliquer pour switcher vers le Mode Manuel"
                                                "\nDescription du Mode Automatique :"
@@ -337,10 +364,10 @@ class GUI_MASTER(Frame):
         self.DelState()
 
     def Delete(self):
-        if self.automatic:
-            self.FigureXY.Clear()
         for cf in range(len(self.entry)):
             self.entry[cf].delete(0, END)
+        if self.automatic:
+            self.FigureXY.Clear()
 
     def Clear(self):
         if self.automatic:
@@ -348,9 +375,9 @@ class GUI_MASTER(Frame):
 
 
 # 1. ECOULEMENT UNIDIRECTIONNEL STABLE #################################################################################
-class ECOULEMENT_UNIDIRECTIONNEL_STABLE(Frame):
-    def __init__(self):
-        super(ECOULEMENT_UNIDIRECTIONNEL_STABLE, self).__init__()
+class ECOULEMENT_UNIDIRECTIONNEL_STABLE(ttk.Frame):
+    def __init__(self, master):
+        super(ECOULEMENT_UNIDIRECTIONNEL_STABLE, self).__init__(master=master)
         self.rowconfigure(0, weight=1)
         self.columnconfigure(0, weight=1)
 
@@ -361,13 +388,16 @@ class ECOULEMENT_UNIDIRECTIONNEL_STABLE(Frame):
                     '1.2. Aquifere non confine',
                     '1.3. Flux de base vers un flux']
 
-        NoteBook(master=self, classes=classes, cls_name=cls_name)
+        self.NtBk = NoteBook(master=self, classes=classes, cls_name=cls_name)
+
+    def Keyboard(self, keyword):
+        self.NtBk.Keyboard(keyword)
 
 
 # 1.1. Aquifere confine ================================================================================================
-class ECOULEMENT_UNIDIRECTIONNEL_STABLE_1(Frame):
-    def __init__(self):
-        super(ECOULEMENT_UNIDIRECTIONNEL_STABLE_1, self).__init__()
+class ECOULEMENT_UNIDIRECTIONNEL_STABLE_1(ttk.Frame):
+    def __init__(self, master):
+        super(ECOULEMENT_UNIDIRECTIONNEL_STABLE_1, self).__init__(master=master)
         self.rowconfigure(0, weight=1)
         self.columnconfigure(0, weight=1)
 
@@ -377,13 +407,13 @@ class ECOULEMENT_UNIDIRECTIONNEL_STABLE_1(Frame):
         si_text = ["m/j", "m", "m/j"]
 
         self.Master = GUI_MASTER(self, self.Application, function_text, si_text, savedraw=3)
-        self.Master.grid(row=0, column=0, sticky=NSEW)
 
         self.entry = self.Master.entry
         self.Clear = self.Master.Clear
         self.LaTexT = self.Master.LaTexT
         self.Draw = self.Master.Draw
         self.EvalLaTexT = self.Master.EvalLaTexT
+        self.Keyboard = self.Master.Keyboard
 
         self.RUN()
 
@@ -419,9 +449,9 @@ class ECOULEMENT_UNIDIRECTIONNEL_STABLE_1(Frame):
 
 
 # 1.2. Aquifere non confine ============================================================================================
-class ECOULEMENT_UNIDIRECTIONNEL_STABLE_2(Frame):
-    def __init__(self):
-        super(ECOULEMENT_UNIDIRECTIONNEL_STABLE_2, self).__init__()
+class ECOULEMENT_UNIDIRECTIONNEL_STABLE_2(ttk.Frame):
+    def __init__(self, master):
+        super(ECOULEMENT_UNIDIRECTIONNEL_STABLE_2, self).__init__(master=master)
         self.rowconfigure(0, weight=1)
         self.columnconfigure(0, weight=1)
 
@@ -432,13 +462,13 @@ class ECOULEMENT_UNIDIRECTIONNEL_STABLE_2(Frame):
         si_text = ["m", "m", "m", "m/j"]
 
         self.Master = GUI_MASTER(self, self.Application, function_text, si_text, savedraw=3)
-        self.Master.grid(row=0, column=0, sticky=NSEW)
 
         self.entry = self.Master.entry
         self.Clear = self.Master.Clear
         self.LaTexT = self.Master.LaTexT
         self.Draw = self.Master.Draw
         self.EvalLaTexT = self.Master.EvalLaTexT
+        self.Keyboard = self.Master.Keyboard
 
         self.RUN()
 
@@ -474,9 +504,9 @@ class ECOULEMENT_UNIDIRECTIONNEL_STABLE_2(Frame):
 
 
 # 1.3. Flux de base vers un flux =======================================================================================
-class ECOULEMENT_UNIDIRECTIONNEL_STABLE_3(Frame):
-    def __init__(self):
-        super(ECOULEMENT_UNIDIRECTIONNEL_STABLE_3, self).__init__()
+class ECOULEMENT_UNIDIRECTIONNEL_STABLE_3(ttk.Frame):
+    def __init__(self, master):
+        super(ECOULEMENT_UNIDIRECTIONNEL_STABLE_3, self).__init__(master=master)
         self.rowconfigure(0, weight=1)
         self.columnconfigure(0, weight=1)
 
@@ -489,13 +519,13 @@ class ECOULEMENT_UNIDIRECTIONNEL_STABLE_3(Frame):
         si_text = ["m", "m", "m", "m", "m/j", "m/an"]
 
         self.Master = GUI_MASTER(self, self.Application, function_text, si_text, savedraw=3)
-        self.Master.grid(row=0, column=0, sticky=NSEW)
 
         self.entry = self.Master.entry
         self.Clear = self.Master.Clear
         self.LaTexT = self.Master.LaTexT
         self.Draw = self.Master.Draw
         self.EvalLaTexT = self.Master.EvalLaTexT
+        self.Keyboard = self.Master.Keyboard
 
         self.RUN()
 
@@ -559,9 +589,9 @@ class ECOULEMENT_UNIDIRECTIONNEL_STABLE_3(Frame):
 
 
 # 2. ECOULEMENT RADIAL CONSTANT VERS UN PUITS ##########################################################################
-class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS(Frame):
-    def __init__(self):
-        super(ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS, self).__init__()
+class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS(ttk.Frame):
+    def __init__(self, master):
+        super(ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS, self).__init__(master=master)
         self.rowconfigure(0, weight=1)
         self.columnconfigure(0, weight=1)
 
@@ -572,13 +602,16 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS(Frame):
                     '2.2. Aquifere non confine',
                     '2.3. Aquifere non confine avec recharge uniforme']
 
-        NoteBook(master=self, classes=classes, cls_name=cls_name)
+        self.NtBk = NoteBook(master=self, classes=classes, cls_name=cls_name)
+        
+    def Keyboard(self, keyword):
+        self.NtBk.Keyboard(keyword)
 
 
 # 2.1. Aquifere confine ================================================================================================
-class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1(Frame):
-    def __init__(self):
-        super(ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1, self).__init__()
+class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1(ttk.Frame):
+    def __init__(self, master):
+        super(ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1, self).__init__(master=master)
         self.rowconfigure(0, weight=1)
         self.columnconfigure(0, weight=1)
 
@@ -591,13 +624,16 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1(Frame):
                     "Niveau d'eau dans le puit pompé",
                     "Rayon d'influence"]
 
-        NoteBook(master=self, classes=classes, cls_name=cls_name)
+        self.NtBk = NoteBook(master=self, classes=classes, cls_name=cls_name)
+
+    def Keyboard(self, keyword):
+        self.NtBk.Keyboard(keyword)
 
 
 # Débit de pompage -----------------------------------------------------------------------------------------------------
-class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1_1(Frame):
-    def __init__(self):
-        super(ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1_1, self).__init__()
+class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1_1(ttk.Frame):
+    def __init__(self, master):
+        super(ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1_1, self).__init__(master=master)
         self.rowconfigure(0, weight=1)
         self.columnconfigure(0, weight=1)
 
@@ -610,13 +646,13 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1_1(Frame):
         si_text = ["m", "m", "m", "m", "m/j", "m"]
 
         self.Master = GUI_MASTER(self, self.Application, function_text, si_text, savedraw=3)
-        self.Master.grid(row=0, column=0, sticky=NSEW)
 
         self.entry = self.Master.entry
         self.Clear = self.Master.Clear
         self.LaTexT = self.Master.LaTexT
         self.Draw = self.Master.Draw
         self.EvalLaTexT = self.Master.EvalLaTexT
+        self.Keyboard = self.Master.Keyboard
 
         self.RUN()
 
@@ -672,9 +708,9 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1_1(Frame):
 
 
 # Conductivité hydraulique ---------------------------------------------------------------------------------------------
-class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1_2(Frame):
-    def __init__(self):
-        super(ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1_2, self).__init__()
+class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1_2(ttk.Frame):
+    def __init__(self, master):
+        super(ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1_2, self).__init__(master=master)
         self.rowconfigure(0, weight=1)
         self.columnconfigure(0, weight=1)
 
@@ -687,13 +723,13 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1_2(Frame):
         si_text = ["m", "m", "m", "m", f"m{sns(3)}/j", "m"]
 
         self.Master = GUI_MASTER(self, self.Application, function_text, si_text, savedraw=3)
-        self.Master.grid(row=0, column=0, sticky=NSEW)
 
         self.entry = self.Master.entry
         self.Clear = self.Master.Clear
         self.LaTexT = self.Master.LaTexT
         self.Draw = self.Master.Draw
         self.EvalLaTexT = self.Master.EvalLaTexT
+        self.Keyboard = self.Master.Keyboard
 
         self.RUN()
 
@@ -733,9 +769,9 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1_2(Frame):
 
 
 # Niveau d'eau dans le puit pompé --------------------------------------------------------------------------------------
-class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1_3(Frame):
-    def __init__(self):
-        super(ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1_3, self).__init__()
+class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1_3(ttk.Frame):
+    def __init__(self, master):
+        super(ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1_3, self).__init__(master=master)
         self.rowconfigure(0, weight=1)
         self.columnconfigure(0, weight=1)
 
@@ -748,13 +784,13 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1_3(Frame):
         si_text = ["m", "m", "m", "m/j", f"m{sns(3)}/j", 'm']
 
         self.Master = GUI_MASTER(self, self.Application, function_text, si_text, savedraw=3)
-        self.Master.grid(row=0, column=0, sticky=NSEW)
 
         self.entry = self.Master.entry
         self.Clear = self.Master.Clear
         self.LaTexT = self.Master.LaTexT
         self.Draw = self.Master.Draw
         self.EvalLaTexT = self.Master.EvalLaTexT
+        self.Keyboard = self.Master.Keyboard
 
         self.RUN()
 
@@ -794,9 +830,9 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1_3(Frame):
 
 
 # Rayon d'influence ----------------------------------------------------------------------------------------------------
-class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1_4(Frame):
-    def __init__(self):
-        super(ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1_4, self).__init__()
+class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1_4(ttk.Frame):
+    def __init__(self, master):
+        super(ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1_4, self).__init__(master=master)
         self.rowconfigure(0, weight=1)
         self.columnconfigure(0, weight=1)
 
@@ -809,13 +845,13 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1_4(Frame):
         si_text = ["m", "m", "m", "m", f"m{sns(3)}/j", "m"]
 
         self.Master = GUI_MASTER(self, self.Application, function_text, si_text, savedraw=3)
-        self.Master.grid(row=0, column=0, sticky=NSEW)
 
         self.entry = self.Master.entry
         self.Clear = self.Master.Clear
         self.LaTexT = self.Master.LaTexT
         self.Draw = self.Master.Draw
         self.EvalLaTexT = self.Master.EvalLaTexT
+        self.Keyboard = self.Master.Keyboard
 
         self.RUN()
 
@@ -855,9 +891,9 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1_4(Frame):
 
 
 # 2.2. Aquifere non confine ============================================================================================
-class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2(Frame):
-    def __init__(self):
-        super(ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2, self).__init__()
+class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2(ttk.Frame):
+    def __init__(self, master):
+        super(ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2, self).__init__(master=master)
         self.rowconfigure(0, weight=1)
         self.columnconfigure(0, weight=1)
 
@@ -870,13 +906,16 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2(Frame):
                     "Niveau d'eau dans le puit pompé",
                     "Rayon d'influence"]
 
-        NoteBook(master=self, classes=classes, cls_name=cls_name)
+        self.NtBk = NoteBook(master=self, classes=classes, cls_name=cls_name)
+
+    def Keyboard(self, keyword):
+        self.NtBk.Keyboard(keyword)
 
 
 # Débit de pompage -----------------------------------------------------------------------------------------------------
-class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2_1(Frame):
-    def __init__(self):
-        super(ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2_1, self).__init__()
+class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2_1(ttk.Frame):
+    def __init__(self, master):
+        super(ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2_1, self).__init__(master=master)
         self.rowconfigure(0, weight=1)
         self.columnconfigure(0, weight=1)
 
@@ -888,13 +927,13 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2_1(Frame):
         si_text = ["m", "m", "m", "m", "m/j"]
 
         self.Master = GUI_MASTER(self, self.Application, function_text, si_text, savedraw=3)
-        self.Master.grid(row=0, column=0, sticky=NSEW)
 
         self.entry = self.Master.entry
         self.Clear = self.Master.Clear
         self.LaTexT = self.Master.LaTexT
         self.Draw = self.Master.Draw
         self.EvalLaTexT = self.Master.EvalLaTexT
+        self.Keyboard = self.Master.Keyboard
 
         self.RUN()
 
@@ -942,9 +981,9 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2_1(Frame):
 
 
 # Conductivité hydraulique ---------------------------------------------------------------------------------------------
-class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2_2(Frame):
-    def __init__(self):
-        super(ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2_2, self).__init__()
+class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2_2(ttk.Frame):
+    def __init__(self, master):
+        super(ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2_2, self).__init__(master=master)
         self.rowconfigure(0, weight=1)
         self.columnconfigure(0, weight=1)
 
@@ -956,13 +995,13 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2_2(Frame):
         si_text = ["m", "m", "m", "m", f"m{sns(3)}/j"]
 
         self.Master = GUI_MASTER(self, self.Application, function_text, si_text, savedraw=3)
-        self.Master.grid(row=0, column=0, sticky=NSEW)
 
         self.entry = self.Master.entry
         self.Clear = self.Master.Clear
         self.LaTexT = self.Master.LaTexT
         self.Draw = self.Master.Draw
         self.EvalLaTexT = self.Master.EvalLaTexT
+        self.Keyboard = self.Master.Keyboard
 
         self.RUN()
 
@@ -1010,9 +1049,9 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2_2(Frame):
 
 
 # Niveau d'eau dans le puit pompé --------------------------------------------------------------------------------------
-class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2_3(Frame):
-    def __init__(self):
-        super(ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2_3, self).__init__()
+class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2_3(ttk.Frame):
+    def __init__(self, master):
+        super(ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2_3, self).__init__(master=master)
         self.rowconfigure(0, weight=1)
         self.columnconfigure(0, weight=1)
 
@@ -1024,13 +1063,13 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2_3(Frame):
         si_text = ["m", "m", "m", "m/j", f"m{sns(3)}/j"]
 
         self.Master = GUI_MASTER(self, self.Application, function_text, si_text, savedraw=3)
-        self.Master.grid(row=0, column=0, sticky=NSEW)
 
         self.entry = self.Master.entry
         self.Clear = self.Master.Clear
         self.LaTexT = self.Master.LaTexT
         self.Draw = self.Master.Draw
         self.EvalLaTexT = self.Master.EvalLaTexT
+        self.Keyboard = self.Master.Keyboard
 
         self.RUN()
 
@@ -1069,9 +1108,9 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2_3(Frame):
 
 
 # Rayon d'influence ----------------------------------------------------------------------------------------------------
-class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2_4(Frame):
-    def __init__(self):
-        super(ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2_4, self).__init__()
+class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2_4(ttk.Frame):
+    def __init__(self, master):
+        super(ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2_4, self).__init__(master=master)
         self.rowconfigure(0, weight=1)
         self.columnconfigure(0, weight=1)
 
@@ -1083,13 +1122,13 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2_4(Frame):
         si_text = ["m", "m", "m", "m", f"m{sns(3)}/j"]
 
         self.Master = GUI_MASTER(self, self.Application, function_text, si_text, savedraw=3)
-        self.Master.grid(row=0, column=0, sticky=NSEW)
 
         self.entry = self.Master.entry
         self.Clear = self.Master.Clear
         self.LaTexT = self.Master.LaTexT
         self.Draw = self.Master.Draw
         self.EvalLaTexT = self.Master.EvalLaTexT
+        self.Keyboard = self.Master.Keyboard
 
         self.RUN()
 
@@ -1128,9 +1167,9 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2_4(Frame):
 
 
 # 2.3. Aquifere non confine avec recharge uniforme =====================================================================
-class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_3(Frame):
-    def __init__(self):
-        super(ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_3, self).__init__()
+class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_3(ttk.Frame):
+    def __init__(self, master):
+        super(ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_3, self).__init__(master=master)
         self.rowconfigure(0, weight=1)
         self.columnconfigure(0, weight=1)
 
@@ -1142,13 +1181,13 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_3(Frame):
         si_text = ["m", "m", "m", "m/j", "m/an"]
 
         self.Master = GUI_MASTER(self, self.Application, function_text, si_text, savedraw=3)
-        self.Master.grid(row=0, column=0, sticky=NSEW)
 
         self.entry = self.Master.entry
         self.Clear = self.Master.Clear
         self.LaTexT = self.Master.LaTexT
         self.Draw = self.Master.Draw
         self.EvalLaTexT = self.Master.EvalLaTexT
+        self.Keyboard = self.Master.Keyboard
 
         self.r_0 = symbols('r_0')
         self.R = S.Reals
@@ -1219,9 +1258,9 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_3(Frame):
 
 
 # 3. PUIT DANS UN ECOULEMENT UNIFORME ##################################################################################
-class PUIT_DANS_UN_ECOULEMENT_UNIFORME(Frame):
-    def __init__(self):
-        super(PUIT_DANS_UN_ECOULEMENT_UNIFORME, self).__init__()
+class PUIT_DANS_UN_ECOULEMENT_UNIFORME(ttk.Frame):
+    def __init__(self, master):
+        super(PUIT_DANS_UN_ECOULEMENT_UNIFORME, self).__init__(master=master)
         self.rowconfigure(0, weight=1)
         self.columnconfigure(0, weight=1)
 
@@ -1232,13 +1271,16 @@ class PUIT_DANS_UN_ECOULEMENT_UNIFORME(Frame):
                     "La pente de la surfece piézométrique dans les conditions naturelles",
                     "Les limites longitudinales et transversales des eaux souterraines entrant dans le puit"]
 
-        NoteBook(master=self, classes=classes, cls_name=cls_name)
+        self.NtBk = NoteBook(master=self, classes=classes, cls_name=cls_name)
+
+    def Keyboard(self, keyword):
+        self.NtBk.Keyboard(keyword)
 
 
 # Conductivité hydraulique ---------------------------------------------------------------------------------------------
-class PUIT_DANS_UN_ECOULEMENT_UNIFORME_1(Frame):
-    def __init__(self):
-        super(PUIT_DANS_UN_ECOULEMENT_UNIFORME_1, self).__init__()
+class PUIT_DANS_UN_ECOULEMENT_UNIFORME_1(ttk.Frame):
+    def __init__(self, master):
+        super(PUIT_DANS_UN_ECOULEMENT_UNIFORME_1, self).__init__(master=master)
         self.rowconfigure(0, weight=1)
         self.columnconfigure(0, weight=1)
 
@@ -1251,13 +1293,13 @@ class PUIT_DANS_UN_ECOULEMENT_UNIFORME_1(Frame):
         si_text = ["m", "m", "m", f"m{sns(3)}/j", "", ""]
 
         self.Master = GUI_MASTER(self, self.Application, function_text, si_text, savedraw=3)
-        self.Master.grid(row=0, column=0, sticky=NSEW)
 
         self.entry = self.Master.entry
         self.Clear = self.Master.Clear
         self.LaTexT = self.Master.LaTexT
         self.Draw = self.Master.Draw
         self.EvalLaTexT = self.Master.EvalLaTexT
+        self.Keyboard = self.Master.Keyboard
 
         self.RUN()
 
@@ -1295,9 +1337,9 @@ class PUIT_DANS_UN_ECOULEMENT_UNIFORME_1(Frame):
 
 
 # La pente de la surfece piézométrique dans les conditions naturelles --------------------------------------------------
-class PUIT_DANS_UN_ECOULEMENT_UNIFORME_2(Frame):
-    def __init__(self):
-        super(PUIT_DANS_UN_ECOULEMENT_UNIFORME_2, self).__init__()
+class PUIT_DANS_UN_ECOULEMENT_UNIFORME_2(ttk.Frame):
+    def __init__(self, master):
+        super(PUIT_DANS_UN_ECOULEMENT_UNIFORME_2, self).__init__(master=master)
         self.rowconfigure(0, weight=1)
         self.columnconfigure(0, weight=1)
 
@@ -1306,13 +1348,13 @@ class PUIT_DANS_UN_ECOULEMENT_UNIFORME_2(Frame):
         si_text = ["m", "m"]
 
         self.Master = GUI_MASTER(self, self.Application, function_text, si_text, savedraw=3)
-        self.Master.grid(row=0, column=0, sticky=NSEW)
 
         self.entry = self.Master.entry
         self.Clear = self.Master.Clear
         self.LaTexT = self.Master.LaTexT
         self.Draw = self.Master.Draw
         self.EvalLaTexT = self.Master.EvalLaTexT
+        self.Keyboard = self.Master.Keyboard
 
         self.RUN()
 
@@ -1347,9 +1389,9 @@ class PUIT_DANS_UN_ECOULEMENT_UNIFORME_2(Frame):
 
 
 # Les limites longitudinales et transversales des eaux souterraines entrant dans le puit -------------------------------
-class PUIT_DANS_UN_ECOULEMENT_UNIFORME_3(Frame):
-    def __init__(self):
-        super(PUIT_DANS_UN_ECOULEMENT_UNIFORME_3, self).__init__()
+class PUIT_DANS_UN_ECOULEMENT_UNIFORME_3(ttk.Frame):
+    def __init__(self, master):
+        super(PUIT_DANS_UN_ECOULEMENT_UNIFORME_3, self).__init__(master=master)
         self.rowconfigure(0, weight=1)
         self.columnconfigure(0, weight=1)
 
@@ -1360,13 +1402,13 @@ class PUIT_DANS_UN_ECOULEMENT_UNIFORME_3(Frame):
         si_text = ["m/j", f"m{sns(3)}/j", "", "m"]
 
         self.Master = GUI_MASTER(self, self.Application, function_text, si_text, savedraw=3)
-        self.Master.grid(row=0, column=0, sticky=NSEW)
 
         self.entry = self.Master.entry
         self.Clear = self.Master.Clear
         self.LaTexT = self.Master.LaTexT
         self.Draw = self.Master.Draw
         self.EvalLaTexT = self.Master.EvalLaTexT
+        self.Keyboard = self.Master.Keyboard
 
         self.RUN()
 
@@ -1412,9 +1454,9 @@ class PUIT_DANS_UN_ECOULEMENT_UNIFORME_3(Frame):
 
 
 # 4. FLUX RADIAL INSTANTANE DANS UN AQUIFERE CONFINE ###################################################################
-class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE(Frame):
-    def __init__(self):
-        super(FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE, self).__init__()
+class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE(ttk.Frame):
+    def __init__(self, master):
+        super(FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE, self).__init__(master=master)
         self.rowconfigure(0, weight=1)
         self.columnconfigure(0, weight=1)
 
@@ -1427,13 +1469,16 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE(Frame):
                     '4.3. Methode de solution de Cooper-Jacob',
                     '4.4. Methode de solution de Chow']
 
-        NoteBook(master=self, classes=classes, cls_name=cls_name)
+        self.NtBk = NoteBook(master=self, classes=classes, cls_name=cls_name)
+
+    def Keyboard(self, keyword):
+        self.NtBk.Keyboard(keyword)
 
 
 # 4.1. Equation de pompage de puits hors equilibre =====================================================================
-class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_1(Frame):
-    def __init__(self):
-        super(FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_1, self).__init__()
+class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_1(ttk.Frame):
+    def __init__(self, master):
+        super(FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_1, self).__init__(master=master)
         self.rowconfigure(0, weight=1)
         self.columnconfigure(0, weight=1)
 
@@ -1442,13 +1487,16 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_1(Frame):
         cls_name = ['La transmisivité',
                     'Le coefficient de stockage']
 
-        NoteBook(master=self, classes=classes, cls_name=cls_name)
+        self.NtBk = NoteBook(master=self, classes=classes, cls_name=cls_name)
+
+    def Keyboard(self, keyword):
+        self.NtBk.Keyboard(keyword)
 
 
 # La transmisivité -----------------------------------------------------------------------------------------------------
-class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_1_1(Frame):
-    def __init__(self):
-        super(FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_1_1, self).__init__()
+class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_1_1(ttk.Frame):
+    def __init__(self, master):
+        super(FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_1_1, self).__init__(master=master)
         self.rowconfigure(0, weight=1)
         self.columnconfigure(0, weight=1)
 
@@ -1458,13 +1506,13 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_1_1(Frame):
         si_text = ["gpm", "ft", ""]
 
         self.Master = GUI_MASTER(self, self.Application, function_text, si_text, savedraw=4)
-        self.Master.grid(row=0, column=0, sticky=NSEW)
 
         self.entry = self.Master.entry
         self.Clear = self.Master.Clear
         self.LaTexT = self.Master.LaTexT
         self.Draw = self.Master.Draw
         self.EvalLaTexT = self.Master.EvalLaTexT
+        self.Keyboard = self.Master.Keyboard
 
         self.RUN()
 
@@ -1531,9 +1579,9 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_1_1(Frame):
 
 
 # Le coefficient de stockage -------------------------------------------------------------------------------------------
-class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_1_2(Frame):
-    def __init__(self):
-        super(FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_1_2, self).__init__()
+class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_1_2(ttk.Frame):
+    def __init__(self, master):
+        super(FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_1_2, self).__init__(master=master)
         self.rowconfigure(0, weight=1)
         self.columnconfigure(0, weight=1)
 
@@ -1544,13 +1592,13 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_1_2(Frame):
         si_text = [f"m{sns(2)}/j\ngpd/ft", "m", "j", ""]
 
         self.Master = GUI_MASTER(self, self.Application, function_text, si_text, savedraw=4)
-        self.Master.grid(row=0, column=0, sticky=NSEW)
 
         self.entry = self.Master.entry
         self.Clear = self.Master.Clear
         self.LaTexT = self.Master.LaTexT
         self.Draw = self.Master.Draw
         self.EvalLaTexT = self.Master.EvalLaTexT
+        self.Keyboard = self.Master.Keyboard
 
         self.RUN()
 
@@ -1606,9 +1654,9 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_1_2(Frame):
 
 
 # 4.2. Methode de solution de Theis ====================================================================================
-class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_2(Frame):
-    def __init__(self):
-        super(FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_2, self).__init__()
+class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_2(ttk.Frame):
+    def __init__(self, master):
+        super(FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_2, self).__init__(master=master)
         self.rowconfigure(0, weight=1)
         self.columnconfigure(0, weight=1)
 
@@ -1617,13 +1665,16 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_2(Frame):
         cls_name = ['La transmisivité',
                     'Le coefficient de stockage']
 
-        NoteBook(master=self, classes=classes, cls_name=cls_name)
+        self.NtBk = NoteBook(master=self, classes=classes, cls_name=cls_name)
+
+    def Keyboard(self, keyword):
+        self.NtBk.Keyboard(keyword)
 
 
 # La transmisivité -----------------------------------------------------------------------------------------------------
-class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_2_1(Frame):
-    def __init__(self):
-        super(FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_2_1, self).__init__()
+class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_2_1(ttk.Frame):
+    def __init__(self, master):
+        super(FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_2_1, self).__init__(master=master)
         self.rowconfigure(0, weight=1)
         self.columnconfigure(0, weight=1)
 
@@ -1633,13 +1684,13 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_2_1(Frame):
         si_text = [f"m{sns(3)}/j", "m", ""]
 
         self.Master = GUI_MASTER(self, self.Application, function_text, si_text, savedraw=4)
-        self.Master.grid(row=0, column=0, sticky=NSEW)
 
         self.entry = self.Master.entry
         self.Clear = self.Master.Clear
         self.LaTexT = self.Master.LaTexT
         self.Draw = self.Master.Draw
         self.EvalLaTexT = self.Master.EvalLaTexT
+        self.Keyboard = self.Master.Keyboard
 
         self.RUN()
 
@@ -1679,9 +1730,9 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_2_1(Frame):
 
 
 # Le coefficient de stockage -------------------------------------------------------------------------------------------
-class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_2_2(Frame):
-    def __init__(self):
-        super(FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_2_2, self).__init__()
+class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_2_2(ttk.Frame):
+    def __init__(self, master):
+        super(FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_2_2, self).__init__(master=master)
         self.rowconfigure(0, weight=1)
         self.columnconfigure(0, weight=1)
 
@@ -1691,13 +1742,13 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_2_2(Frame):
         si_text = [f"m{sns(2)}/j", f"m{sns(2)}/j", ""]
 
         self.Master = GUI_MASTER(self, self.Application, function_text, si_text, savedraw=4)
-        self.Master.grid(row=0, column=0, sticky=NSEW)
 
         self.entry = self.Master.entry
         self.Clear = self.Master.Clear
         self.LaTexT = self.Master.LaTexT
         self.Draw = self.Master.Draw
         self.EvalLaTexT = self.Master.EvalLaTexT
+        self.Keyboard = self.Master.Keyboard
 
         self.RUN()
 
@@ -1736,9 +1787,9 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_2_2(Frame):
 
 
 # 4.3. Methode de solution de Cooper-Jacob =============================================================================
-class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_3(Frame):
-    def __init__(self):
-        super(FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_3, self).__init__()
+class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_3(ttk.Frame):
+    def __init__(self, master):
+        super(FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_3, self).__init__(master=master)
         self.rowconfigure(0, weight=1)
         self.columnconfigure(0, weight=1)
 
@@ -1747,13 +1798,16 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_3(Frame):
         cls_name = ['La transmisivité',
                     'Le coefficient de stockage']
 
-        NoteBook(master=self, classes=classes, cls_name=cls_name)
+        self.NtBk = NoteBook(master=self, classes=classes, cls_name=cls_name)
+
+    def Keyboard(self, keyword):
+        self.NtBk.Keyboard(keyword)
 
 
 # La transmisivité -----------------------------------------------------------------------------------------------------
-class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_3_1(Frame):
-    def __init__(self):
-        super(FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_3_1, self).__init__()
+class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_3_1(ttk.Frame):
+    def __init__(self, master):
+        super(FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_3_1, self).__init__(master=master)
         self.rowconfigure(0, weight=1)
         self.columnconfigure(0, weight=1)
 
@@ -1762,13 +1816,13 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_3_1(Frame):
         si_text = [f"m{sns(3)}/j", "m"]
 
         self.Master = GUI_MASTER(self, self.Application, function_text, si_text, savedraw=4)
-        self.Master.grid(row=0, column=0, sticky=NSEW)
 
         self.entry = self.Master.entry
         self.Clear = self.Master.Clear
         self.LaTexT = self.Master.LaTexT
         self.Draw = self.Master.Draw
         self.EvalLaTexT = self.Master.EvalLaTexT
+        self.Keyboard = self.Master.Keyboard
 
         self.RUN()
 
@@ -1807,9 +1861,9 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_3_1(Frame):
 
 
 # Le coefficient de stockage -------------------------------------------------------------------------------------------
-class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_3_2(Frame):
-    def __init__(self):
-        super(FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_3_2, self).__init__()
+class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_3_2(ttk.Frame):
+    def __init__(self, master):
+        super(FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_3_2, self).__init__(master=master)
         self.rowconfigure(0, weight=1)
         self.columnconfigure(0, weight=1)
 
@@ -1819,13 +1873,13 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_3_2(Frame):
         si_text = [f"m{sns(2)}/j", "j", "m"]
 
         self.Master = GUI_MASTER(self, self.Application, function_text, si_text, savedraw=4)
-        self.Master.grid(row=0, column=0, sticky=NSEW)
 
         self.entry = self.Master.entry
         self.Clear = self.Master.Clear
         self.LaTexT = self.Master.LaTexT
         self.Draw = self.Master.Draw
         self.EvalLaTexT = self.Master.EvalLaTexT
+        self.Keyboard = self.Master.Keyboard
 
         self.RUN()
 
