@@ -158,9 +158,24 @@ Cette application est une solution pour les relations d'hydrologie et de process
 2. [Python :: 3.8](https://pypi.org/search/?c=Programming+Language+%3A%3A+Python+%3A%3A+3.8)
 
 ## Comment Démarrer
-### Modules Requis :: [pypi](https://pypi.org/) 
 
-    pip install -r requirements.txt
+### [Téléchargez La Dernière Commit Dans Hydrogéologie Repository Fichier .zip](https://github.com/DeepEastWind/Hydrogeologie/archive/main.zip)
+
+### Installation du Font
+
+Pour une bonne qualité d'écriture téléchargez et installée le font `DejaVuSans.ttf`
+
+### Installation des Modules Requis :: [pypi](https://pypi.org/) 
+ouvrir `cmd.exe` en tant qu'administrateur
+```
+C:\WINDOWS\system32>pip install -r requirements.txt
+```
+### Démarrer
+
+ouvrir `cmd.exe` en tant qu'administrateur
+```
+C:\WINDOWS\system32>python C:\ ...(adresse)... \Hydrogeologie-main\__main__.py
+```
 
 # Notes de Version
 ### [version 1.0.0.1 RC](https://github.com/DeepEastWind/Hydrogeologie/releases/tag/df6af02)
@@ -169,8 +184,8 @@ Cette application est une solution pour les relations d'hydrologie et de process
     
     2. Étiage
    
-2. GUi d'application se compose de deux interfaces:
-    1. la premiers interface contient des boutons de navigation et de control, des entree et des cadres des noms et des unités
+2. GUI d'application se compose de deux interfaces:
+    1. la premiers interface contient des boutons de navigation et de control, des entrée et des cadres des noms et des unités
     
     2. la deuxième interface contient la feuille du calcul
 
