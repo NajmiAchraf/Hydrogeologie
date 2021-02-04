@@ -1,9 +1,18 @@
 from init import *
+
+from configparser import ConfigParser
+from os import path
+import os
+
 from tkinter import *
-from tkinter import ttk, messagebox
+from tkinter import ttk, messagebox, font
+
 from sympy import *
 from sympy.solvers import solve
 from sympy.solvers.solveset import solvify
+from matplotlib import font_manager
+import matplotlib as mpl
+
 
 r"""
 Hydrologie des eaux souterraines Livre de David Keith Todd
@@ -43,7 +52,7 @@ Hydrologie des eaux souterraines Livre de David Keith Todd
                     
                 3. Niveau d'eau dans le puit pompé:
                 
-                    $h_w=h_2-\frac{Q}{2\pi{Kb}}\ln{\frac{r_2}{r_1}}$
+                    $h_w=h_2-\frac{Q}{2\pi{Kb}}ln{\frac{r_2}{r_1}}$
                     
                 4. Rayon d'influence:
                 
@@ -64,7 +73,7 @@ Hydrologie des eaux souterraines Livre de David Keith Todd
                     
                 3. Niveau d'eau dans le puit pompé:
                 
-                    $h_w=\sqrt{h_2^2-\frac{Q}{\pi{K}}\ln{\frac{r_2}{r_1}}}$
+                    $h_w=\sqrt{h_2^2-\frac{Q}{\pi{K}}ln{\frac{r_2}{r_1}}}$
                     
                 4. Rayon d'influence:
                 
@@ -158,14 +167,35 @@ Hydrologie des eaux souterraines Livre de David Keith Todd
         
         """
 '''
-### version 3.2.0.5 FV
-1. améliorer à nouveau DrawLaTex dans FigureXY
+### version 4.0.0.1 bêta
+- ajouter menu bare avec deux fonctionnalités:
+    - les paramétrages d'application contient:
+        - changements de polices et de tailles pour la partie GUI et pour la feuille de calcul
+        
+        - changements de titre pour la feuille de calcul
+        
+    - quitté l'application
 '''
 __author__ = 'DeepEastWind'
-__first_name__ = 'NORA'
-__family_name__ = 'NAJMI'
-__version__ = '3.2.0.5 FV'
+__version__ = '4.0.0.1 bêta'
 __title__ = 'Hydrogéologie'
+
+if not path.exists('paramètre.ini'):
+    Create_INI_File()
+
+parser = ConfigParser()
+parser.read('paramètre.ini')
+
+font_name_gui = parser.get('settings', 'font_name_gui')
+font_size_gui = parser.getint('settings', 'font_size_gui')
+font_name_xy = parser.get('settings', 'font_name_xy')
+font_size_xy = parser.getint('settings', 'font_size_xy')
+identify = parser.get('settings', 'identify')
+
+# mpl_default = ['rm', 'it', 'tt', 'sf', 'bf', 'default', 'bb', 'regular']
+mpl.rcParams['mathtext.default'] = 'regular'
+# mpl_fontset = ['dejavusans', 'dejavuserif', 'cm', 'stix', 'stixsans', 'custom']
+# mpl.rcParams['mathtext.fontset'] = 'stixsans'
 
 btn_prm = {'padx': 18,
            'pady': 1,
@@ -173,7 +203,7 @@ btn_prm = {'padx': 18,
            'background': 'firebrick2',
            'fg': 'white',
            'bg': 'firebrick2',
-           'font': ('DejaVu Sans', 14),
+           'font': (font_name_gui, font_size_gui),
            'width': 2,
            'height': 1,
            'relief': 'raised',
@@ -183,19 +213,19 @@ btn_prm = {'padx': 18,
 ent_prm = {'fg': 'black',
            'bg': 'white',
            'width': '12',
-           'font': ('DejaVu Sans', 14),
+           'font': (font_name_gui, font_size_gui),
            'relief': 'flat'}
 lbl_prm = {'fg': 'white',
-           'bg': '#050505',  # purple
+           'bg': '#050505',
            'width': 27,
            'anchor': 'w',
-           'font': ('DejaVu Sans', 14),
+           'font': (font_name_gui, font_size_gui),
            'relief': 'flat'}
 si_prm = {'fg': 'white',
           'width': 4,
           # 'bg': '#212121',
           # 'anchor': 'w',
-          'font': ('DejaVu Sans', 14),
+          'font': (font_name_gui, font_size_gui),
           'relief': 'flat'}
 
 rgb_Black = ((0. / 255.), (0. / 255.), (0. / 255.))
@@ -219,14 +249,14 @@ hex_Dark = '#050505'
 sn = SmallNumbers(10)
 sns = SmallNumbers(10, "super")
 
-n_identify = 25
-n_book = 12
-n_title2nd = 5
-n_title3rd = 10
-n_title4rd = 15
-n_intro = 5
-n_calcl = 10
-
+# (((bb.w1-bb.w2)/4)·100)÷73=x
+n_identify = (128 * font_size_xy) / 100
+n_book = (64 * font_size_xy) / 100
+n_title2nd = (32 * font_size_xy) / 100
+n_title3rd = (64 * font_size_xy) / 100
+n_title4rd = (96 * font_size_xy) / 100
+n_intro = (32 * font_size_xy) / 100
+n_calcl = (64 * font_size_xy) / 100
 
 
 # Master Window ////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -243,6 +273,16 @@ class Hydrogeologie(Tk):
         self.configure(background=lbl_prm['bg'])
         self.bind_all('<Key>', self.Keyboard)
 
+        # Menu Configuration ___________________________________________________________________________________________
+        self.MenuBare = Menu(self)
+        self.File = Menu(self.MenuBare, tearoff=False)
+
+        self.File.add_command(label='Paramètre', command=lambda: ConfigWindow(self))
+        self.File.add_separator()
+        self.File.add_command(label="Quité", command=lambda: self.ExitApplication())
+
+        self.MenuBare.add_cascade(label="File", menu=self.File)
+
         # NoteBook Configuration _______________________________________________________________________________________
         classes = [ECOULEMENT_UNIDIRECTIONNEL_STABLE,
                    ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS,
@@ -256,6 +296,7 @@ class Hydrogeologie(Tk):
         self.NtBk = NoteBook(master=self, classes=classes, cls_name=cls_name)
 
         # Window Configuration _________________________________________________________________________________________
+        self.config(menu=self.MenuBare)
         self.rowconfigure(0, weight=1)
         self.columnconfigure(0, weight=1)
         self.protocol("WM_DELETE_WINDOW", self.ExitApplication)
@@ -277,6 +318,171 @@ class Hydrogeologie(Tk):
         self.NtBk.Keyboard(keyword)
 
 
+# Config Window ********************************************************************************************************
+class ConfigWindow(Toplevel):
+    def __init__(self, master):
+        self.Master = master
+        self.parser = ConfigParser()
+        self.parser.read('paramètre.ini')
+        self.x_pre, self.y_pre = 0, 0
+
+        # Window Configuration _________________________________________________________________________________________
+        super(ConfigWindow, self).__init__()
+        self.WindowGeometry()
+        self.window_exist = True
+
+        # TopLevel Configuration _______________________________________________________________________________________
+        self.grab_set()  # when you show the popup
+        self.geometry("350x400")
+        self.minsize(width=350, height=400)
+        self.resizable(width=False, height=False)
+        self.title(u"Paramètre de %s" % __title__)
+        self.configure(background=lbl_prm['bg'])
+        self.protocol("WM_DELETE_WINDOW", self.ExitWindow)
+        self.wm_overrideredirect(True)
+        self.bind_all("<Configure>", self.WindowConfigure)
+
+        # Frames _______________________________________________________________________________________________________
+
+        text = ["configuration de l'interface", "configuration de feuille de calculs"]
+        label_frame = []
+        for fr in range(2):
+            label_frame.append(LabelFrame(self, text=text[fr]))
+            label_frame[fr].grid(row=fr, column=0, sticky=NSEW)
+            # label_frame[fr].columnconfigure(0, weight=1)
+            label_frame[fr].columnconfigure(1, weight=1)
+            label_frame[fr].columnconfigure(2, weight=1)
+
+        frame = Frame(self)
+        frame.grid(row=2, column=0, sticky=NSEW)
+
+        # Widgets ______________________________________________________________________________________________________
+        # Labels -------------------------------------------------------------------------------------------------------
+
+        lbl = Label(label_frame[0], text="Police & Taille :", anchor='w')
+        lbl.grid(row=0, column=0, sticky=NSEW)
+        label_frame[0].rowconfigure(0, weight=1)
+
+        label = []
+        lbl_txt = ["Police & Taille :",
+                   "Titre ID :"]
+        for lb in range(2):
+            label.append(Label(label_frame[1], text=lbl_txt[lb], anchor='w'))
+            label[lb].grid(row=lb, column=0, sticky=NSEW)
+            label_frame[1].rowconfigure(lb, weight=1)
+
+        # font ---------------------------------------------------------------------------------------------------------
+
+        # font_gui tkiner
+        font_gui = list(tk.font.families())
+        font_gui.sort()
+
+        # font_text matplolib
+        font_xy = ([font for font in sorted(set([f.name for f in font_manager.fontManager.ttflist]))])
+
+        font_list = [font_gui, font_xy]
+
+        self.var_font = [StringVar(), StringVar()]
+        self.var_font[0].set(self.parser.get('settings', 'font_name_gui'))
+        self.var_font[1].set(self.parser.get('settings', 'font_name_xy'))
+
+        om_font = []
+        for omf in range(2):
+            om_font.append(ttk.Combobox(label_frame[omf], textvariable=self.var_font[omf], values=font_list[omf]))
+            om_font[omf].grid(row=0, column=1, sticky=EW)
+
+        # size ---------------------------------------------------------------------------------------------------------
+
+        size_list = []
+        for sz in range(8, 14):
+            size_list.append(int(sz))
+        for zs in range(14, 25, 2):
+            size_list.append(int(zs))
+
+        self.var_size = [IntVar(), IntVar()]
+        self.var_size[0].set(self.parser.getint('settings', 'font_size_gui'))
+        self.var_size[1].set(self.parser.getint('settings', 'font_size_xy'))
+
+        om_size = []
+        for oms in range(2):
+            om_size.append(ttk.Combobox(label_frame[oms], textvariable=self.var_size[oms], values=size_list))
+            om_size[oms].grid(row=0, column=2, sticky=EW)
+
+        # entry --------------------------------------------------------------------------------------------------------
+
+        self.entry = Entry(label_frame[1])
+        self.entry.grid(row=1, column=1, columnspan=2, sticky=EW)
+        self.entry.insert(0, self.parser.get('settings', 'identify'))
+
+        # Buttons ------------------------------------------------------------------------------------------------------
+
+        txt = ["Default", "Annuler", "Enregistrer"]
+        btn = []
+        for bt in range(3):
+            btn.append(Button(frame, text=txt[bt]))
+            btn[bt].grid(row=0, column=bt, sticky=EW)
+            frame.columnconfigure(bt, weight=1)
+
+        btn[0].configure(command=lambda: self.Default())
+        btn[1].configure(command=lambda: self.ExitWindow())
+        btn[2].configure(command=lambda: self.Enregistrer())
+
+        # TopLevel Configuration _______________________________________________________________________________________
+        self.rowconfigure(0, weight=1)
+        self.rowconfigure(1, weight=1)
+        self.columnconfigure(0, weight=1)
+
+        self.update()
+        self.Master.update()
+
+    def WindowGeometry(self):
+        x = self.Master.winfo_rootx()
+        y = self.Master.winfo_rooty()
+        self.wm_geometry("+%d+%d" % (x, y))
+
+    def WindowConfigure(self, event):
+        if not self.window_exist:
+            return
+
+        if self.x_pre != event.x or self.y_pre != event.y:
+            self.x_pre, self.y_pre = event.x, event.y
+            self.WindowGeometry()
+
+    def Enregistrer(self):
+        if self.window_exist:
+            self.window_exist = False
+            Create_INI_File(font_name_gui=self.var_font[0].get(),
+                            font_size_gui=self.var_size[0].get(),
+                            font_name_xy=self.var_font[1].get(),
+                            font_size_xy=self.var_size[1].get(),
+                            identify=self.entry.get())
+            self.grab_release()  # to return to normal
+            self.destroy()
+
+        ask = messagebox.askyesno(title="Redémarrer",
+                                  message=f"Pour appliquez les modifications il faut redémarrer Hydrogéologie, "
+                                          f"oui pour redémarrer et non pour rester")
+        if ask == YES:
+            os.startfile(sys.argv[0])
+            sys.exit()
+
+    def ExitWindow(self):
+        if self.window_exist:
+            self.window_exist = False
+            self.grab_release()  # to return to normal
+            self.destroy()
+
+    def Default(self):
+        self.var_font[0].set(self.parser.get('default', 'font_name_gui'))
+        self.var_size[0].set(self.parser.getint('default', 'font_size_gui'))
+
+        self.var_font[1].set(self.parser.get('default', 'font_name_xy'))
+        self.var_size[1].set(self.parser.getint('default', 'font_size_xy'))
+
+        self.entry.delete(0, END)
+        self.entry.insert(0, self.parser.get('default', 'identify'))
+
+
 # Master GUI \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 class GUI_MASTER(Frame):
     def __init__(self, master, Application, function_text, si_text, save_draw):
@@ -292,7 +498,8 @@ class GUI_MASTER(Frame):
         self.frame1 = Frame(self, background=lbl_prm['bg'], relief='flat')
         self.frame1.grid(row=0, column=0, sticky=NSEW)
 
-        self.FigureXY = FigureXY(figsize=(1, 1), font_size=16, save_draw=save_draw + 3, facecolor=hex_White)
+        self.FigureXY = FigureXY(figsize=(1, 1), font_name=font_name_xy, font_size=font_size_xy,
+                                 save_draw=save_draw + 3, facecolor=hex_White)
         self.TkAggXY = ScrollableTkAggXY(figure=self.FigureXY, master=self)
         self.TkAggXY.grid(row=0, column=1, rowspan=2, sticky=NSEW)
 
@@ -348,10 +555,10 @@ class GUI_MASTER(Frame):
                       "\nLorsque nous cliquons sur le bouton :"
                       "\nEffacer : supprimer toutes les entrées"
                       "\nCorbeille 🗑 : supprimer les résultats de la feuille de calcul"
-                      "\nCalculer : ajouter des calculs sur les anciens qui existent dans la feuille de calcul",
+                      "\nCalculer : ajouter des calculs sur les anciens si ils existent dans la feuille de calcul",
 
-            "calcul": "Description de la bouton Calculer ou Enter:"
-                      "\nCalculer permet d'ajouter des calculs sur les anciens qui existent dans la feuille de calcul"
+            "calcul": "Description de la bouton Calculer ou Enter:\n"
+                      "Calculer permet d'ajouter des calculs sur les anciens si ils existent dans la feuille de calcul"
 
         }
         self.button = []
@@ -371,28 +578,14 @@ class GUI_MASTER(Frame):
         self.button[2].configure(bg='#20B645', activebackground='#00751E', command=lambda: self.Application())
         self.button[2].change_color_bind(DefaultBG='#20B645', HoverBG='#009C27', ActiveBG='#00751E')
 
-        # self.LaTexT(f'{__first__ __last__} Master HIGH 2020/2021', n_identify, color=rgb_Red)
-        # self.LaTexT(f'{math("it", __first__)} {math("it", __last__)} {math("frak", "Master")} {math("cal", "HIGH")} '
-        #             f'{math("bb", "2020/2021")}', n_identify, color=rgb_Red)
-        self.LaTexT(self.FonTex(
-            ("it", __first_name__), ("it", __family_name__), ("frak", "Master"), ("cal", "HIGH"), ("bb", "2020/2021")),
-            n_identify, color=rgb_Blue)
+        self.LaTexT(identify, n_identify, color=rgb_Blue)
 
-        self.LaTexT(
-            f'Hydrologie des eaux souterraines '
-            f'{self.FonTex(("frak", "Livre"), ("frak", "de"), ("it", "David"), ("it", "Keith"), ("it", "Todd"))}',
-            n_book, color=rgb_Red)
+        self.LaTexT(f'Hydrologie des eaux souterraines Livre de David Keith Todd', n_book, color=rgb_Red)
 
-        self.LaTexT(f"{FonTX('frak', 'Chapiter')} Ⅳ: Hydraulique des puits, pompage d'essai et étude des rabattements")
+        self.LaTexT(f"Chapiter IV: Hydraulique des puits, pompage d'essai et étude des rabattements")
 
     def LaTexT(self, LaTexT, axe_x=0, color=rgb_Black):
-        self.FigureXY.DrawLaTex(LaTexT=LaTexT, axe_x=axe_x, color=color)
-
-    def FonTex(self, *args):
-        text = f"{FonTX(args[0][0], args[0][1])}"
-        for gr in range(1, len(args)):
-            text += f" {FonTX(args[gr][0], args[gr][1])}"
-        return text
+        return self.FigureXY.DrawLaTex(LaTexT=LaTexT, axe_x=axe_x, color=color)
 
     def Title2ndTex(self, LaTexT, color=rgb_Maroon):
         self.LaTexT(LaTexT=LaTexT, axe_x=n_title2nd, color=color)
@@ -410,6 +603,7 @@ class GUI_MASTER(Frame):
             text = f"Relations : {TX(args[0])} "
             for gr in range(1, len(args)):
                 text += r'$\Vert$'f" {TX(args[gr])} "
+
         self.LaTexT(text)
         del text
 
@@ -997,7 +1191,7 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1_3(ttk.Frame):
 
         self.Title4rdTex(f"Niveau d'eau dans le puit pompé ({TX('h_w')}):")
 
-        self.RelaTex(r"h_w=h_2-\frac{Q}{2\pi{Kb}}\ln{\frac{r_2}{r_1}}")
+        self.RelaTex(r"h_w=h_2-\frac{Q}{2\pi{Kb}}ln{\frac{r_2}{r_1}}")
 
         self.Draw()
 
@@ -1017,14 +1211,14 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1_3(ttk.Frame):
         self.EntryTex(("h_2", h2, "m"), ("r_1", r1, "m"), ("r_2", r2, "m"), ("K", K, "m/j"), ("Q", Q, "m^3/j"),
                       ("b", b, "m"))
         self.IntroTex(f"Calcul du niveau d'eau dans le puit pompé ({TX('h_w')}):")
-        self.CalclTex(r"$h_w=h_2-\frac{Q}{2\pi{Kb}}\ln{\frac{r_2}{r_1}}$")
+        self.CalclTex(r"$h_w=h_2-\frac{Q}{2\pi{Kb}}ln{\frac{r_2}{r_1}}$")
         self.EvalTex("h_w", hw, "m")
 
         r"""
 2. ECOULEMENT RADIAL CONSTANT VERS UN PUITS:
     2.1. Aquifére confine:
         Niveau d'eau dans le puit pompé:
-            "$h_w=h_2-\frac{Q}{2\pi{Kb}}\ln{\frac{r_2}{r_1}}$"
+            "$h_w=h_2-\frac{Q}{2\pi{Kb}}ln{\frac{r_2}{r_1}}$"
 """
         self.Draw()
 
@@ -1317,7 +1511,7 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2_3(ttk.Frame):
 
         self.Title4rdTex(f"Niveau d'eau dans le puit pompé ({TX('h_w')}):")
 
-        self.RelaTex(r"h_w=\sqrt{h_2^2-\frac{Q}{\pi{K}}\ln{\frac{r_2}{r_1}}}")
+        self.RelaTex(r"h_w=\sqrt{h_2^2-\frac{Q}{\pi{K}}ln{\frac{r_2}{r_1}}}")
 
         self.Draw()
 
@@ -1335,14 +1529,14 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2_3(ttk.Frame):
 
         self.EntryTex(("h_2", h2, "m"), ("r_1", r1, "m"), ("r_2", r2, "m"), ("K", K, "m/j"), ("Q", Q, "m^3/j"))
         self.IntroTex(f"Calcul du niveau d'eau dans le puit pompé ({TX('h_w')}):")
-        self.CalclTex(r"$h_w=\sqrt{h_2^2-\frac{Q}{\pi{K}}\ln{\frac{r_2}{r_1}}}$")
+        self.CalclTex(r"$h_w=\sqrt{h_2^2-\frac{Q}{\pi{K}}ln{\frac{r_2}{r_1}}}$")
         self.EvalTex("h_w", hw, "m")
 
         r"""
 2. ECOULEMENT RADIAL CONSTANT VERS UN PUITS:
     2.2. Aquifére non confine:
         Niveau d'eau dans le puit pompé:
-            "$h_w=\sqrt{h_2^2-\frac{Q}{\pi{K}}\ln{\frac{r_2}{r_1}}}$"
+            "$h_w=\sqrt{h_2^2-\frac{Q}{\pi{K}}ln{\frac{r_2}{r_1}}}$"
 """
         self.Draw()
 

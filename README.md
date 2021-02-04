@@ -159,11 +159,15 @@ Cette application est une solution pour les relations d'hydrologie et de process
 
 ## Comment Démarrer
 
-### [Téléchargez La Dernière Commit Dans Hydrogéologie Repository Fichier .zip](https://github.com/DeepEastWind/Hydrogeologie/archive/main.zip)
+### [Téléchargez La Dernière Commit Dans Hydrogéologie Repository](https://github.com/DeepEastWind/Hydrogeologie/archive/main.zip)
+
+Ou bien 
+
+### [Téléchargez La Dernière Release Dans Hydrogéologie Releases](https://github.com/DeepEastWind/Hydrogeologie/releases/latest)
 
 ### Installation du Font
 
-Pour une bonne qualité d'écriture téléchargez et installée le font `DejaVuSans.ttf`
+Pour une bonne qualité d'écriture installée le font `DejaVuSans.ttf`
 
 ### Installation des Modules Requis :: [pypi](https://pypi.org/) 
 ouvrir `cmd.exe` en tant qu'administrateur
@@ -248,3 +252,12 @@ C:\WINDOWS\system32>python C:\ ...(adresse)... \Hydrogeologie-main\__main__.py
 
 ### [version 3.2.0.5 FV](https://github.com/DeepEastWind/Hydrogeologie/releases/tag/9ab6fea)
 1. améliorer à nouveau DrawLaTex dans FigureXY
+
+### version 4.0.0.1 bêta
+- ajouter menu bare avec deux fonctionnalités:
+    - les paramétrages d'application contient:
+        - changements de polices et de tailles pour la partie GUI et pour la feuille de calcul
+        
+        - changements de titre pour la feuille de calcul
+        
+    - quitté l'application

@@ -9,9 +9,37 @@ from matplotlib.figure import Figure
 from matplotlib.colors import to_hex
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 from Pmw.Pmw_2_0_1.lib.PmwBalloon import Balloon
+from configparser import ConfigParser
 
 
-def FonTX(kind, text):
+def Create_INI_File(font_name_gui='DejaVu Sans',
+                    font_size_gui='16',
+                    font_name_xy='DejaVu Sans',
+                    font_size_xy='16',
+                    identify='Master HIGH 2020/2021'):
+    config = ConfigParser()
+
+    config['default'] = {
+        "font_name_gui": "DejaVu Sans",
+        "font_size_gui": "16",
+        "font_name_xy": "DejaVu Sans",
+        "font_size_xy": "16",
+        "identify": "Master HIGH 2020/2021"
+    }
+
+    config['settings'] = {
+        "font_name_gui":font_name_gui,
+        "font_size_gui":font_size_gui,
+        "font_name_xy":font_name_xy,
+        "font_size_xy":font_size_xy,
+        "identify":identify
+    }
+
+    with open('paramètre.ini', 'w') as fp:
+        config.write(fp)
+
+
+def MaTeX(kind, text):
     return str(r'$\math' + kind + '{' + text + '}' + '$')
 
 
@@ -196,8 +224,9 @@ class FigureXY(Figure):
     rgb_Black = ((0. / 255.), (0. / 255.), (0. / 255.))
     rgb_White = ((255. / 255.), (255. / 255.), (255. / 255.))
 
-    def __init__(self, font_size, save_draw=1, **kwargs):
+    def __init__(self, font_name, font_size, save_draw=1, **kwargs):
         super(FigureXY, self).__init__(tight_layout=True, **kwargs)
+        self.font_name = font_name
         self.font_size = font_size
         self.save_draw = save_draw
 
@@ -218,7 +247,7 @@ class FigureXY(Figure):
 
         # Set subplot
         self.Axes = self.add_subplot(1, 1, 1)
-        self.Text = self.Axes.text(0, 1, '', fontsize=self.font_size)
+        self.Text = self.Axes.text(0, 1, '', fontname=self.font_name, fontsize=self.font_size)
 
     def DrawLaTex(self, LaTexT, axe_x=0, color=rgb_Black):
         """
@@ -238,6 +267,7 @@ class FigureXY(Figure):
                                    y=0.5 - self.tex_draw,
                                    s=LaTexT,
                                    color=color,
+                                   fontname=self.font_name,
                                    fontsize=self.font_size)
 
         Renderer = self.canvas.get_renderer(cleared=True)
@@ -253,6 +283,7 @@ class FigureXY(Figure):
         # Configure the coordination of subplot
         self.Axes.set_ylim((-self.tex_draw, 0))
         self.Axes.set_xlim((0, (self.max_w + 20) / 10))
+        # self.Axes._set_title_offset_trans('Master HIGH 2020/2021')
         self.Axes.axis('off')
         self.Axes.set_xticklabels("", visible=False)
         self.Axes.set_yticklabels("", visible=False)
@@ -261,7 +292,8 @@ class FigureXY(Figure):
 
         # self.tight_layout()
 
-        del Renderer, bb
+        return bb
+        # del Renderer, bb
 
     def InputTkAggXY(self, TkAgg):
         """
