@@ -1,6 +1,7 @@
 import itertools
 import tkinter as tk
 from tkinter.ttk import Notebook
+from tkinter import ttk
 from abc import ABC
 
 from sympy import sympify, latex
@@ -10,6 +11,15 @@ from matplotlib.colors import to_hex
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 from Pmw.Pmw_2_0_1.lib.PmwBalloon import Balloon
 from configparser import ConfigParser
+
+
+def FontSizeNote(font_size_gui):
+    if font_size_gui <= 8:
+        return font_size_gui
+    elif 8 < font_size_gui <= 12:
+        return int((4 * font_size_gui) / 5)
+    else:
+        return int((2 * font_size_gui) / 3)
 
 
 def Create_INI_File(font_name_gui='DejaVu Sans',
@@ -28,19 +38,15 @@ def Create_INI_File(font_name_gui='DejaVu Sans',
     }
 
     config['settings'] = {
-        "font_name_gui":font_name_gui,
-        "font_size_gui":font_size_gui,
-        "font_name_xy":font_name_xy,
-        "font_size_xy":font_size_xy,
-        "identify":identify
+        "font_name_gui": font_name_gui,
+        "font_size_gui": font_size_gui,
+        "font_name_xy": font_name_xy,
+        "font_size_xy": font_size_xy,
+        "identify": identify
     }
 
     with open('paramètre.ini', 'w') as fp:
         config.write(fp)
-
-
-def MaTeX(kind, text):
-    return str(r'$\math' + kind + '{' + text + '}' + '$')
 
 
 def TX(Math_Expression):
@@ -130,6 +136,17 @@ class HoverButton(tk.Button):
 
     def Leave(self, event):
         self['bg'] = self.DefaultBG
+
+
+class HapticButton(ttk.Button):
+    def __init__(self, master=None, balloon=None, status=None, **kwargs):
+        super(HapticButton, self).__init__(master=master, cursor="hand2", **kwargs)
+
+        self.balloon = Balloon(master)
+        self.change_balloon_bind(balloon=balloon, status=status)
+
+    def change_balloon_bind(self, balloon=None, status=None):
+        self.balloon.bind(self, balloonHelp=balloon, statusHelp=status)
 
 
 class ToolbarController(NavigationToolbar2Tk, ABC):
@@ -224,10 +241,8 @@ class FigureXY(Figure):
     rgb_Black = ((0. / 255.), (0. / 255.), (0. / 255.))
     rgb_White = ((255. / 255.), (255. / 255.), (255. / 255.))
 
-    def __init__(self, font_name, font_size, save_draw=1, **kwargs):
+    def __init__(self, save_draw=3, **kwargs):
         super(FigureXY, self).__init__(tight_layout=True, **kwargs)
-        self.font_name = font_name
-        self.font_size = font_size
         self.save_draw = save_draw
 
         self.tex_draw = 1
@@ -247,7 +262,7 @@ class FigureXY(Figure):
 
         # Set subplot
         self.Axes = self.add_subplot(1, 1, 1)
-        self.Text = self.Axes.text(0, 1, '', fontname=self.font_name, fontsize=self.font_size)
+        self.Text = self.Axes.text(0, 1, '')
 
     def DrawLaTex(self, LaTexT, axe_x=0, color=rgb_Black):
         """
@@ -266,9 +281,7 @@ class FigureXY(Figure):
         self.Text = self.Axes.text(x=axe_x,
                                    y=0.5 - self.tex_draw,
                                    s=LaTexT,
-                                   color=color,
-                                   fontname=self.font_name,
-                                   fontsize=self.font_size)
+                                   color=color)
 
         Renderer = self.canvas.get_renderer(cleared=True)
         bb = self.Text.get_window_extent(renderer=Renderer)
@@ -307,7 +320,7 @@ class FigureXY(Figure):
         self.tight_layout()
         self.TkAggXY.Draw(width=self.max_w, height=self.max_h)
 
-    def Clear(self):
+    def Clear(self, size_xy=0):
         self.clear()
 
         self.tex_draw = 1
@@ -329,7 +342,12 @@ class FigureXY(Figure):
         self.Axes = self.add_subplot(1, 1, 1)
 
         for lil in range(self.save_draw):
-            self.DrawLaTex(self.singing_math[lil], self.singing_line[lil], self.singing_color[lil])
+            if size_xy == 0:
+                self.DrawLaTex(self.singing_math[lil], self.singing_line[lil], self.singing_color[lil])
+            else:
+                original_percent_axe = (self.singing_line[lil] * 100) / size_xy[0]
+                new_percent_axe = (original_percent_axe * size_xy[1]) / 100
+                self.DrawLaTex(self.singing_math[lil], new_percent_axe, self.singing_color[lil])
 
         self.Draw()
 
@@ -459,10 +477,10 @@ class NoteBook(Notebook):
         self.NtBk_tab = 0
         self.TotalTabs = len(classes)
 
-        self.Tabs = []
+        self.Classes = []
         for nb in range(self.TotalTabs):
             cls = classes[nb](master=self)
-            self.Tabs.append(cls)
+            self.Classes.append(cls)
             self.add(cls, text=cls_name[nb])
 
         self.grid(row=0, column=0, sticky=tk.NSEW)
@@ -480,4 +498,8 @@ class NoteBook(Notebook):
     def Keyboard(self, keyword):
         for cls in range(self.TotalTabs):
             if self.NtBk_tab == cls:
-                self.Tabs[cls].Keyboard(keyword)
+                self.Classes[cls].Keyboard(keyword)
+
+    def Apply(self, font, size_xy, clear):
+        for cls in range(self.TotalTabs):
+            self.Classes[cls].Apply(font, size_xy, clear)

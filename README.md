@@ -241,7 +241,7 @@ C:\WINDOWS\system32>python C:\ ...(adresse)... \Hydrogeologie-main\__main__.py
 
 ### [version 3.2.0.3 bêta](https://github.com/DeepEastWind/Hydrogeologie/releases/tag/c5208c3)
 1. améliorer DrawLaTex dans FigureXY pour GUI en :
-    1. l'afichage rapide des des résultats dans la feuille de calcul
+    1. l'affichage rapide des des résultats dans la feuille de calcul
     
     2. définir la position verticale de chaque ligne de texte en attente sur l'axe x
     
@@ -253,7 +253,7 @@ C:\WINDOWS\system32>python C:\ ...(adresse)... \Hydrogeologie-main\__main__.py
 ### [version 3.2.0.5 FV](https://github.com/DeepEastWind/Hydrogeologie/releases/tag/9ab6fea)
 1. améliorer à nouveau DrawLaTex dans FigureXY
 
-### version 4.0.0.1 bêta
+### [version 4.0.0.1 bêta](https://github.com/DeepEastWind/Hydrogeologie/releases/tag/c9e23e4)
 - ajouter menu bare avec deux fonctionnalités:
     - les paramétrages d'application contient:
         - changements de polices et de tailles pour la partie GUI et pour la feuille de calcul
@@ -261,3 +261,14 @@ C:\WINDOWS\system32>python C:\ ...(adresse)... \Hydrogeologie-main\__main__.py
         - changements de titre pour la feuille de calcul
         
     - quitté l'application
+
+### version 4.0.0.2 bêta
+- régler la taille de fenêtre du démarrage 
+
+- accordée la notebook avec le style de police d'interface
+
+- colorer les boutons de paramètres
+
+- l'application des modifications ne nécessite plus un redémarrage de l'hydrogéologie juste l'effacement du feuille de calcul
+
+- mettre la disposition des widgets dynamique selon son nom

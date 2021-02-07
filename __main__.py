@@ -2,17 +2,16 @@ from init import *
 
 from configparser import ConfigParser
 from os import path
-import os
 
 from tkinter import *
 from tkinter import ttk, messagebox, font
+from ttkthemes import ThemedStyle
 
 from sympy import *
 from sympy.solvers import solve
 from sympy.solvers.solveset import solvify
 from matplotlib import font_manager
 import matplotlib as mpl
-
 
 r"""
 Hydrologie des eaux souterraines Livre de David Keith Todd
@@ -167,17 +166,19 @@ Hydrologie des eaux souterraines Livre de David Keith Todd
         
         """
 '''
-### version 4.0.0.1 bêta
-- ajouter menu bare avec deux fonctionnalités:
-    - les paramétrages d'application contient:
-        - changements de polices et de tailles pour la partie GUI et pour la feuille de calcul
-        
-        - changements de titre pour la feuille de calcul
-        
-    - quitté l'application
+### version 4.0.0.2 bêta
+- régler la taille de fenêtre du démarrage 
+
+- accordée la notebook avec le style de police d'interface
+
+- colorer les boutons de paramètres
+
+- l'application des modifications ne nécessite plus un redémarrage de l'hydrogéologie juste l'effacement du feuille de calcul
+
+- mettre la disposition des widgets dynamique selon son nom
 '''
 __author__ = 'DeepEastWind'
-__version__ = '4.0.0.1 bêta'
+__version__ = '4.0.0.2 bêta'
 __title__ = 'Hydrogéologie'
 
 if not path.exists('paramètre.ini'):
@@ -192,41 +193,12 @@ font_name_xy = parser.get('settings', 'font_name_xy')
 font_size_xy = parser.getint('settings', 'font_size_xy')
 identify = parser.get('settings', 'identify')
 
-# mpl_default = ['rm', 'it', 'tt', 'sf', 'bf', 'default', 'bb', 'regular']
-mpl.rcParams['mathtext.default'] = 'regular'
+mpl_default = ['rm', 'it', 'tt', 'sf', 'bf', 'default', 'bb', 'regular']
+mpl.rcParams['mathtext.default'] = mpl_default[7]  # 'regular'
+mpl.rcParams["font.family"] = font_name_xy
+mpl.rcParams["font.size"] = font_size_xy
 # mpl_fontset = ['dejavusans', 'dejavuserif', 'cm', 'stix', 'stixsans', 'custom']
 # mpl.rcParams['mathtext.fontset'] = 'stixsans'
-
-btn_prm = {'padx': 18,
-           'pady': 1,
-           'bd': 1,
-           'background': 'firebrick2',
-           'fg': 'white',
-           'bg': 'firebrick2',
-           'font': (font_name_gui, font_size_gui),
-           'width': 2,
-           'height': 1,
-           'relief': 'raised',
-           'activeback': 'firebrick3',
-           'activebackground': 'firebrick4',
-           'activeforeground': "white"}
-ent_prm = {'fg': 'black',
-           'bg': 'white',
-           'width': '12',
-           'font': (font_name_gui, font_size_gui),
-           'relief': 'flat'}
-lbl_prm = {'fg': 'white',
-           'bg': '#050505',
-           'width': 27,
-           'anchor': 'w',
-           'font': (font_name_gui, font_size_gui),
-           'relief': 'flat'}
-si_prm = {'fg': 'white',
-          'width': 4,
-          # 'bg': '#212121',
-          # 'anchor': 'w',
-          'font': (font_name_gui, font_size_gui),
-          'relief': 'flat'}
 
 rgb_Black = ((0. / 255.), (0. / 255.), (0. / 255.))
 rgb_White = ((255. / 255.), (255. / 255.), (255. / 255.))
@@ -244,40 +216,122 @@ rgb_Teal = ((0. / 255.), (128. / 255.), (128. / 255.))  # 008080
 rgb_Navy = ((0. / 255.), (0. / 255.), (128. / 255.))  # 000080
 
 hex_White = '#FFFFFF'
+hex_Black = '#000000'
 hex_Dark = '#050505'
+hex_Gray = '#212121'
+hex_Orange = '#FF9900'
+
+btn_set = {'padx': 18,
+           'pady': 1,
+           'bd': 1,
+           'background': 'firebrick2',
+           'fg': hex_White,
+           'bg': 'firebrick2',
+           'width': 2,
+           'height': 1,
+           'relief': 'raised',
+           'activeback': 'firebrick3',
+           'activebackground': 'firebrick4',
+           'activeforeground': hex_Orange}
+ent_prm = {'foreground': 'black',
+           'background': 'white',
+           # 'width': '12',
+           'font': (font_name_gui, font_size_gui)}
+lbl_prm = {# 'width': 27,
+           'anchor': 'w'}
+si_prm = {# 'width': 4,
+          'anchor': 'center'}
 
 sn = SmallNumbers(10)
 sns = SmallNumbers(10, "super")
 
-# (((bb.w1-bb.w2)/4)·100)÷73=x
-n_identify = (128 * font_size_xy) / 100
-n_book = (64 * font_size_xy) / 100
-n_title2nd = (32 * font_size_xy) / 100
-n_title3rd = (64 * font_size_xy) / 100
-n_title4rd = (96 * font_size_xy) / 100
-n_intro = (32 * font_size_xy) / 100
-n_calcl = (64 * font_size_xy) / 100
-
 
 # Master Window ////////////////////////////////////////////////////////////////////////////////////////////////////////
-class Hydrogeologie(Tk):
+class Hydrogeologie(object):
     def __init__(self):
         # Window Configuration _________________________________________________________________________________________
         super(Hydrogeologie, self).__init__()
-        self.iconbitmap('04-earth.ico')
-        self.iconify()
-        self.geometry("1360x715")
-        self.minsize(width=1133, height=500)
-        self.resizable(width=True, height=True)
-        self.title(u"%s v%s" % (__title__, __version__))
-        self.configure(background=lbl_prm['bg'])
-        self.bind_all('<Key>', self.Keyboard)
+        self.Master = Tk()
+        self.Master.iconbitmap('04-earth.ico')
+        self.Master.iconify()
+        self.Master.geometry("1313x600")
+        self.Master.minsize(width=1133, height=500)
+        self.Master.resizable(width=True, height=True)
+        self.Master.title(u"%s v%s" % (__title__, __version__))
+        self.Master.configure(background=hex_Dark)
+        self.Master.bind_all('<Key>', self.Keyboard)
+
+        # Themed Style _________________________________________________________________________________________________
+        self.Master.style = ThemedStyle()
+        THEME = [
+            "adapta",
+            "alt",
+            "aquativo",
+            "arc",
+            "black",
+            "blue",
+            "breeze",
+            "clam",
+            "classic",
+            "clearlooks",
+            "default",
+            "elegance",  # 11
+            "equilux",
+            "itft1",
+            "keramik",
+            "kroc",
+            "plastik",
+            "radiance",
+            "scidblue",
+            "scidgreen",
+            "scidgrey",
+            "scidmint",
+            "scidpink",
+            "scidpurple",
+            "scidsand",
+            "smog",
+            "ubuntu",
+            "vista",
+            "winnative",
+            "winxpblue",
+            "xpnative",
+            "yaru"
+        ]
+        self.Master.style.theme_use(THEME[10])
+        # All Widget Style Font ----------------------------------------------------------------------------------------
+        self.Master.style.configure('.', font=(font_name_gui, font_size_gui))
+
+        # NoteBook Style -----------------------------------------------------------------------------------------------
+        self.Master.style.configure('TNotebook', background=hex_Dark)
+
+        # NoteBook Tab Style -------------------------------------------------------------------------------------------
+        self.Master.style.configure('TNotebook.Tab', background='#737373', foreground=hex_Black,
+                                    highlightthickness='20',
+                                    font=(font_name_gui, FontSizeNote(font_size_gui)))
+        self.Master.style.map('TNotebook.Tab', foreground=[('active', hex_Orange), ("selected", hex_White)],
+                              background=[('active', hex_Gray), ("selected", hex_Dark)])
+        # Label Style --------------------------------------------------------------------------------------------------
+        self.Master.style.configure('TLabel', background=hex_Dark, foreground=hex_White)
+
+        # Button Style -------------------------------------------------------------------------------------------------
+        self.Master.style.configure('TButton', foreground=hex_White, highlightthickness='20')
+        self.Master.style.map('TButton', foreground=[('pressed', hex_Orange), ('active', hex_Black)],
+                              highlightcolor=[('focus', 'green'), ('!focus', 'red')])
+
+        self.Master.style.configure('eff_ann.TButton', background='firebrick2')
+        self.Master.style.map('eff_ann.TButton', background=[('pressed', 'firebrick4'), ('active', 'firebrick3')])
+
+        self.Master.style.configure('mod_def.TButton', background='#737373')
+        self.Master.style.map('mod_def.TButton', background=[('pressed', '#5F5F5F'), ('active', '#696969')])
+
+        self.Master.style.configure('cal_app.TButton', background='#20B645')
+        self.Master.style.map('cal_app.TButton', background=[('pressed', '#00751E'), ('active', '#009C27')])
 
         # Menu Configuration ___________________________________________________________________________________________
-        self.MenuBare = Menu(self)
+        self.MenuBare = Menu(self.Master)
         self.File = Menu(self.MenuBare, tearoff=False)
 
-        self.File.add_command(label='Paramètre', command=lambda: ConfigWindow(self))
+        self.File.add_command(label='Paramètre', command=lambda: ConfigWindow(self, self.Master))
         self.File.add_separator()
         self.File.add_command(label="Quité", command=lambda: self.ExitApplication())
 
@@ -293,34 +347,44 @@ class Hydrogeologie(Tk):
                     '3. PUIT DANS UN ECOULEMENT UNIFORME',
                     '4. FLUX RADIAL INSTANTANE DANS UN AQUIFERE CONFINE']
 
-        self.NtBk = NoteBook(master=self, classes=classes, cls_name=cls_name)
+        self.NtBk = NoteBook(master=self.Master, classes=classes, cls_name=cls_name)
 
         # Window Configuration _________________________________________________________________________________________
-        self.config(menu=self.MenuBare)
-        self.rowconfigure(0, weight=1)
-        self.columnconfigure(0, weight=1)
-        self.protocol("WM_DELETE_WINDOW", self.ExitApplication)
+        self.Master.config(menu=self.MenuBare)
+        self.Master.rowconfigure(0, weight=1)
+        self.Master.columnconfigure(0, weight=1)
+        self.Master.protocol("WM_DELETE_WINDOW", self.ExitApplication)
 
-        self.deiconify()
+        self.Master.deiconify()
         self.TopMost(True)
-        self.update()
+        self.Master.update()
         self.TopMost(False)
-        self.mainloop()
+        self.Master.mainloop()
 
     def TopMost(self, top):
-        self.attributes('-topmost', top)
+        self.Master.attributes('-topmost', top)
 
     def ExitApplication(self):
-        self.iconify()
+        self.Master.iconify()
         sys.exit()
 
     def Keyboard(self, keyword):
         self.NtBk.Keyboard(keyword)
 
+    def Apply(self, font, size_xy, clear):
+        self.NtBk.Apply(font, size_xy, clear)
+
+    def Unbind(self):
+        self.Master.unbind_all('<Key>')
+
+    def Bind(self):
+        self.Master.bind_all('<Key>', self.Keyboard)
+
 
 # Config Window ********************************************************************************************************
 class ConfigWindow(Toplevel):
-    def __init__(self, master):
+    def __init__(self, parent, master):
+        self.Parent = parent
         self.Master = master
         self.parser = ConfigParser()
         self.parser.read('paramètre.ini')
@@ -329,6 +393,7 @@ class ConfigWindow(Toplevel):
         # Window Configuration _________________________________________________________________________________________
         super(ConfigWindow, self).__init__()
         self.WindowGeometry()
+        self.Parent.Unbind()
         self.window_exist = True
 
         # TopLevel Configuration _______________________________________________________________________________________
@@ -337,7 +402,7 @@ class ConfigWindow(Toplevel):
         self.minsize(width=350, height=400)
         self.resizable(width=False, height=False)
         self.title(u"Paramètre de %s" % __title__)
-        self.configure(background=lbl_prm['bg'])
+        self.configure(background=hex_Dark)
         self.protocol("WM_DELETE_WINDOW", self.ExitWindow)
         self.wm_overrideredirect(True)
         self.bind_all("<Configure>", self.WindowConfigure)
@@ -357,6 +422,7 @@ class ConfigWindow(Toplevel):
         frame.grid(row=2, column=0, sticky=NSEW)
 
         # Widgets ______________________________________________________________________________________________________
+
         # Labels -------------------------------------------------------------------------------------------------------
 
         lbl = Label(label_frame[0], text="Police & Taille :", anchor='w')
@@ -416,16 +482,20 @@ class ConfigWindow(Toplevel):
 
         # Buttons ------------------------------------------------------------------------------------------------------
 
-        txt = ["Default", "Annuler", "Enregistrer"]
+        txt = ["Annuler", "Default", "Appliquer"]
         btn = []
         for bt in range(3):
-            btn.append(Button(frame, text=txt[bt]))
+            btn.append(HoverButton(frame, text=txt[bt], **btn_set))
             btn[bt].grid(row=0, column=bt, sticky=EW)
             frame.columnconfigure(bt, weight=1)
 
-        btn[0].configure(command=lambda: self.Default())
-        btn[1].configure(command=lambda: self.ExitWindow())
-        btn[2].configure(command=lambda: self.Enregistrer())
+        btn[0].configure(command=lambda: self.ExitWindow())
+
+        btn[1].configure(command=lambda: self.Default())
+        btn[1].change_color_bind(DefaultBG='#737373', HoverBG='#696969', ActiveBG='#5F5F5F')
+
+        btn[2].configure(command=lambda: self.Appliquer())
+        btn[2].change_color_bind(DefaultBG='#20B645', HoverBG='#009C27', ActiveBG='#00751E')
 
         # TopLevel Configuration _______________________________________________________________________________________
         self.rowconfigure(0, weight=1)
@@ -448,27 +518,44 @@ class ConfigWindow(Toplevel):
             self.x_pre, self.y_pre = event.x, event.y
             self.WindowGeometry()
 
-    def Enregistrer(self):
+    def Appliquer(self):
         if self.window_exist:
-            self.window_exist = False
+            ask = messagebox.askyesno(title="appliquer les modifications ",
+                                      message=f"Pour appliquer les modifications sur les feuilles de calcul, "
+                                              f"elles doivent toutes être supprimées."
+                                              f"\noui pour supprimer et non pour rester")
+
             Create_INI_File(font_name_gui=self.var_font[0].get(),
                             font_size_gui=self.var_size[0].get(),
                             font_name_xy=self.var_font[1].get(),
                             font_size_xy=self.var_size[1].get(),
                             identify=self.entry.get())
-            self.grab_release()  # to return to normal
-            self.destroy()
 
-        ask = messagebox.askyesno(title="Redémarrer",
-                                  message=f"Pour appliquez les modifications il faut redémarrer Hydrogéologie, "
-                                          f"oui pour redémarrer et non pour rester")
-        if ask == YES:
-            os.startfile(sys.argv[0])
-            sys.exit()
+            self.Master.style.configure('.', font=(self.var_font[0].get(), self.var_size[0].get()))
+            self.Master.style.configure('TNotebook.Tab',
+                                        font=(self.var_font[0].get(), FontSizeNote(self.var_size[0].get())))
+
+            old_font_size = mpl.rcParams["font.size"]
+
+            mpl.rcParams["font.family"] = self.var_font[1].get()
+            mpl.rcParams["font.size"] = self.var_size[1].get()
+
+            self.Parent.Apply(font=(self.var_font[0].get(), self.var_size[0].get()),
+                              size_xy=[old_font_size, self.var_size[1].get()], clear=ask)
+
+            self.ExitWindow()
+            # if ask == YES:
+            # Works at Windows (Without args)
+            # os.startfile(__file__)
+
+            # OR
+            # os.startfile(sys.argv[0])
+            # sys.exit()
 
     def ExitWindow(self):
         if self.window_exist:
             self.window_exist = False
+            self.Parent.Bind()
             self.grab_release()  # to return to normal
             self.destroy()
 
@@ -495,11 +582,19 @@ class GUI_MASTER(Frame):
 
         self.automatic = True
 
-        self.frame1 = Frame(self, background=lbl_prm['bg'], relief='flat')
+        # (((bb.w1-bb.w2)/4)·100)÷73=x
+        self.n_identify = (128 * font_size_xy) / 100
+        self.n_book = (64 * font_size_xy) / 100
+        self.n_title2nd = (32 * font_size_xy) / 100
+        self.n_title3rd = (64 * font_size_xy) / 100
+        self.n_title4rd = (96 * font_size_xy) / 100
+        self.n_intro = (32 * font_size_xy) / 100
+        self.n_calcl = (64 * font_size_xy) / 100
+
+        self.frame1 = Frame(self, background=hex_Dark, relief='flat')
         self.frame1.grid(row=0, column=0, sticky=NSEW)
 
-        self.FigureXY = FigureXY(figsize=(1, 1), font_name=font_name_xy, font_size=font_size_xy,
-                                 save_draw=save_draw + 3, facecolor=hex_White)
+        self.FigureXY = FigureXY(figsize=(1, 1), save_draw=save_draw + 3, facecolor=hex_White)
         self.TkAggXY = ScrollableTkAggXY(figure=self.FigureXY, master=self)
         self.TkAggXY.grid(row=0, column=1, rowspan=2, sticky=NSEW)
 
@@ -512,18 +607,19 @@ class GUI_MASTER(Frame):
         self.frame2.columnconfigure(1, weight=1)
         self.frame2.columnconfigure(2, weight=1)
 
+        self.Range = len(function_text)
         self.entry = []
         label_function = []
         label_si = []
 
-        for sd in range(len(function_text)):
-            label_function.append(Label(self.frame1, text=function_text[sd], **lbl_prm))
+        for sd in range(self.Range):
+            label_function.append(ttk.Label(self.frame1, text=function_text[sd], **lbl_prm))
             label_function[sd].grid(row=sd, column=0, sticky=NSEW)
 
-            self.entry.append(Entry(self.frame1, **ent_prm))
+            self.entry.append(ttk.Entry(self.frame1, **ent_prm))
             self.entry[sd].grid(row=sd, column=1, sticky=EW)
 
-            label_si.append(Label(self.frame1, text=si_text[sd], bg=lbl_prm['bg'], **si_prm))
+            label_si.append(ttk.Label(self.frame1, text=si_text[sd], **si_prm))
             label_si[sd].grid(row=sd, column=2, sticky=NSEW)
 
             self.frame1.rowconfigure(sd, weight=1)
@@ -562,25 +658,23 @@ class GUI_MASTER(Frame):
 
         }
         self.button = []
-        cbtn_text = ["Effacer", "Mode Automatique", "Calculer"]
+        btn_txt = ["Effacer", "Mode Automatique", "Calculer"]
+        btn_bal = [self.btn_auto['efface'], self.btn_auto['switch'], self.btn_auto['calcul']]
+        btn_sty = ['eff_ann.TButton', 'mod_def.TButton', 'cal_app.TButton']
 
-        cbtn_ball = [self.btn_auto['efface'], self.btn_auto['switch'], self.btn_auto['calcul']]
-
-        for er in range(len(cbtn_text)):
-            self.button.append(HoverButton(self.frame2, **btn_prm, text=cbtn_text[er], balloon=cbtn_ball[er]))
+        for er in range(len(btn_txt)):
+            self.button.append(HapticButton(self.frame2, style=btn_sty[er], text=btn_txt[er], balloon=btn_bal[er]))
             self.button[er].grid(row=0, column=er, sticky=NSEW)
 
         self.button[0].configure(command=lambda: self.Delete())
 
-        self.button[1].configure(fg='#FF9950', activeforeground='orange', command=lambda: self.Switcher())
-        self.button[1].change_color_bind(DefaultBG='#737373', HoverBG='#696969', ActiveBG='#5F5F5F')
+        self.button[1].configure(command=lambda: self.Switcher())
 
-        self.button[2].configure(bg='#20B645', activebackground='#00751E', command=lambda: self.Application())
-        self.button[2].change_color_bind(DefaultBG='#20B645', HoverBG='#009C27', ActiveBG='#00751E')
+        self.button[2].configure(command=lambda: self.Application())
 
-        self.LaTexT(identify, n_identify, color=rgb_Blue)
+        self.LaTexT(identify, self.n_identify, color=rgb_Blue)
 
-        self.LaTexT(f'Hydrologie des eaux souterraines Livre de David Keith Todd', n_book, color=rgb_Red)
+        self.LaTexT(f'Hydrologie des eaux souterraines Livre de David Keith Todd', self.n_book, color=rgb_Red)
 
         self.LaTexT(f"Chapiter IV: Hydraulique des puits, pompage d'essai et étude des rabattements")
 
@@ -588,13 +682,13 @@ class GUI_MASTER(Frame):
         return self.FigureXY.DrawLaTex(LaTexT=LaTexT, axe_x=axe_x, color=color)
 
     def Title2ndTex(self, LaTexT, color=rgb_Maroon):
-        self.LaTexT(LaTexT=LaTexT, axe_x=n_title2nd, color=color)
+        self.LaTexT(LaTexT=LaTexT, axe_x=self.n_title2nd, color=color)
 
     def Title3rdTex(self, LaTexT, color=rgb_Teal):
-        self.LaTexT(LaTexT=LaTexT, axe_x=n_title3rd, color=color)
+        self.LaTexT(LaTexT=LaTexT, axe_x=self.n_title3rd, color=color)
 
     def Title4rdTex(self, LaTexT, color=rgb_Olive):
-        self.LaTexT(LaTexT=LaTexT, axe_x=n_title4rd, color=color)
+        self.LaTexT(LaTexT=LaTexT, axe_x=self.n_title4rd, color=color)
 
     def RelaTex(self, *args):
         if len(args) == 1:
@@ -615,10 +709,10 @@ class GUI_MASTER(Frame):
         del text
 
     def IntroTex(self, LaTexT, color=rgb_Navy):
-        self.LaTexT(LaTexT=LaTexT, axe_x=n_intro, color=color)
+        self.LaTexT(LaTexT=LaTexT, axe_x=self.n_intro, color=color)
 
     def CalclTex(self, LaTexT, color=rgb_Purple):
-        self.LaTexT(LaTexT=LaTexT, axe_x=n_calcl, color=color)
+        self.LaTexT(LaTexT=LaTexT, axe_x=self.n_calcl, color=color)
 
     def EvalTex(self, expression, variable, unite=r"\! ", color=rgb_Green):
         result_str = App(variable)
@@ -652,6 +746,20 @@ class GUI_MASTER(Frame):
             self.Application()
         elif keyword.keysym == "Delete" and self.automatic:
             self.Delete()
+
+    def Apply(self, font, size_xy, clear):
+        for sd in range(self.Range):
+            self.entry[sd].configure(font=font)
+
+        self.n_identify = (128 * size_xy[1]) / 100
+        self.n_book = (64 * size_xy[1]) / 100
+        self.n_title2nd = (32 * size_xy[1]) / 100
+        self.n_title3rd = (64 * size_xy[1]) / 100
+        self.n_title4rd = (96 * size_xy[1]) / 100
+        self.n_intro = (32 * size_xy[1]) / 100
+        self.n_calcl = (64 * size_xy[1]) / 100
+        if clear == YES:
+            self.FigureXY.Clear(size_xy=size_xy)
 
     def DelState(self):
         self.TkAggXY.delete_state(self.automatic)
@@ -708,6 +816,9 @@ class ECOULEMENT_UNIDIRECTIONNEL_STABLE(ttk.Frame):
     def Keyboard(self, keyword):
         self.NtBk.Keyboard(keyword)
 
+    def Apply(self, font, size_xy, clear):
+        self.NtBk.Apply(font, size_xy, clear)
+
 
 # 1.1. Aquifére confine ================================================================================================
 class ECOULEMENT_UNIDIRECTIONNEL_STABLE_1(ttk.Frame):
@@ -736,6 +847,7 @@ class ECOULEMENT_UNIDIRECTIONNEL_STABLE_1(ttk.Frame):
         self.EvalTex = self.Master.EvalTex
         self.Draw = self.Master.Draw
         self.Keyboard = self.Master.Keyboard
+        self.Apply = self.Master.Apply
 
         self.RUN()
 
@@ -801,6 +913,7 @@ class ECOULEMENT_UNIDIRECTIONNEL_STABLE_2(ttk.Frame):
         self.EvalTex = self.Master.EvalTex
         self.Draw = self.Master.Draw
         self.Keyboard = self.Master.Keyboard
+        self.Apply = self.Master.Apply
 
         self.RUN()
 
@@ -868,6 +981,7 @@ class ECOULEMENT_UNIDIRECTIONNEL_STABLE_3(ttk.Frame):
         self.EvalTex = self.Master.EvalTex
         self.Draw = self.Master.Draw
         self.Keyboard = self.Master.Keyboard
+        self.Apply = self.Master.Apply
 
         self.RUN()
 
@@ -968,6 +1082,9 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS(ttk.Frame):
     def Keyboard(self, keyword):
         self.NtBk.Keyboard(keyword)
 
+    def Apply(self, font, size_xy, clear):
+        self.NtBk.Apply(font, size_xy, clear)
+
 
 # 2.1. Aquifére confine ================================================================================================
 class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1(ttk.Frame):
@@ -989,6 +1106,9 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1(ttk.Frame):
 
     def Keyboard(self, keyword):
         self.NtBk.Keyboard(keyword)
+
+    def Apply(self, font, size_xy, clear):
+        self.NtBk.Apply(font, size_xy, clear)
 
 
 # Débit de pompage -----------------------------------------------------------------------------------------------------
@@ -1021,6 +1141,7 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1_1(ttk.Frame):
         self.EvalTex = self.Master.EvalTex
         self.Draw = self.Master.Draw
         self.Keyboard = self.Master.Keyboard
+        self.Apply = self.Master.Apply
 
         self.RUN()
 
@@ -1110,6 +1231,7 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1_2(ttk.Frame):
         self.EvalTex = self.Master.EvalTex
         self.Draw = self.Master.Draw
         self.Keyboard = self.Master.Keyboard
+        self.Apply = self.Master.Apply
 
         self.RUN()
 
@@ -1181,6 +1303,7 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1_3(ttk.Frame):
         self.EvalTex = self.Master.EvalTex
         self.Draw = self.Master.Draw
         self.Keyboard = self.Master.Keyboard
+        self.Apply = self.Master.Apply
 
         self.RUN()
 
@@ -1253,6 +1376,7 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1_4(ttk.Frame):
         self.EvalTex = self.Master.EvalTex
         self.Draw = self.Master.Draw
         self.Keyboard = self.Master.Keyboard
+        self.Apply = self.Master.Apply
 
         self.RUN()
 
@@ -1316,6 +1440,9 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2(ttk.Frame):
     def Keyboard(self, keyword):
         self.NtBk.Keyboard(keyword)
 
+    def Apply(self, font, size_xy, clear):
+        self.NtBk.Apply(font, size_xy, clear)
+
 
 # Débit de pompage -----------------------------------------------------------------------------------------------------
 class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2_1(ttk.Frame):
@@ -1346,6 +1473,7 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2_1(ttk.Frame):
         self.EvalTex = self.Master.EvalTex
         self.Draw = self.Master.Draw
         self.Keyboard = self.Master.Keyboard
+        self.Apply = self.Master.Apply
 
         self.RUN()
 
@@ -1423,6 +1551,7 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2_2(ttk.Frame):
         self.EvalTex = self.Master.EvalTex
         self.Draw = self.Master.Draw
         self.Keyboard = self.Master.Keyboard
+        self.Apply = self.Master.Apply
 
         self.RUN()
 
@@ -1501,6 +1630,7 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2_3(ttk.Frame):
         self.EvalTex = self.Master.EvalTex
         self.Draw = self.Master.Draw
         self.Keyboard = self.Master.Keyboard
+        self.Apply = self.Master.Apply
 
         self.RUN()
 
@@ -1570,6 +1700,7 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2_4(ttk.Frame):
         self.EvalTex = self.Master.EvalTex
         self.Draw = self.Master.Draw
         self.Keyboard = self.Master.Keyboard
+        self.Apply = self.Master.Apply
 
         self.RUN()
 
@@ -1639,6 +1770,7 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_3(ttk.Frame):
         self.EvalTex = self.Master.EvalTex
         self.Draw = self.Master.Draw
         self.Keyboard = self.Master.Keyboard
+        self.Apply = self.Master.Apply
 
         self.r_0 = symbols('r_0')
         self.R = S.Reals
@@ -1730,6 +1862,9 @@ class PUIT_DANS_UN_ECOULEMENT_UNIFORME(ttk.Frame):
     def Keyboard(self, keyword):
         self.NtBk.Keyboard(keyword)
 
+    def Apply(self, font, size_xy, clear):
+        self.NtBk.Apply(font, size_xy, clear)
+
 
 # Conductivité hydraulique ---------------------------------------------------------------------------------------------
 class PUIT_DANS_UN_ECOULEMENT_UNIFORME_1(ttk.Frame):
@@ -1761,6 +1896,7 @@ class PUIT_DANS_UN_ECOULEMENT_UNIFORME_1(ttk.Frame):
         self.EvalTex = self.Master.EvalTex
         self.Draw = self.Master.Draw
         self.Keyboard = self.Master.Keyboard
+        self.Apply = self.Master.Apply
 
         self.RUN()
 
@@ -1826,6 +1962,7 @@ class PUIT_DANS_UN_ECOULEMENT_UNIFORME_2(ttk.Frame):
         self.EvalTex = self.Master.EvalTex
         self.Draw = self.Master.Draw
         self.Keyboard = self.Master.Keyboard
+        self.Apply = self.Master.Apply
 
         self.RUN()
 
@@ -1888,6 +2025,7 @@ class PUIT_DANS_UN_ECOULEMENT_UNIFORME_3(ttk.Frame):
         self.EvalTex = self.Master.EvalTex
         self.Draw = self.Master.Draw
         self.Keyboard = self.Master.Keyboard
+        self.Apply = self.Master.Apply
 
         self.RUN()
 
@@ -1955,6 +2093,9 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE(ttk.Frame):
     def Keyboard(self, keyword):
         self.NtBk.Keyboard(keyword)
 
+    def Apply(self, font, size_xy, clear):
+        self.NtBk.Apply(font, size_xy, clear)
+
 
 # 4.1. Equation de pompage de puits instable =====================================================================
 class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_1(ttk.Frame):
@@ -1972,6 +2113,9 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_1(ttk.Frame):
 
     def Keyboard(self, keyword):
         self.NtBk.Keyboard(keyword)
+
+    def Apply(self, font, size_xy, clear):
+        self.NtBk.Apply(font, size_xy, clear)
 
 
 # La Transmisivité -----------------------------------------------------------------------------------------------------
@@ -2001,6 +2145,7 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_1_1(ttk.Frame):
         self.EvalTex = self.Master.EvalTex
         self.Draw = self.Master.Draw
         self.Keyboard = self.Master.Keyboard
+        self.Apply = self.Master.Apply
 
         self.RUN()
 
@@ -2095,6 +2240,7 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_1_2(ttk.Frame):
         self.EvalTex = self.Master.EvalTex
         self.Draw = self.Master.Draw
         self.Keyboard = self.Master.Keyboard
+        self.Apply = self.Master.Apply
 
         self.RUN()
 
@@ -2167,6 +2313,9 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_2(ttk.Frame):
     def Keyboard(self, keyword):
         self.NtBk.Keyboard(keyword)
 
+    def Apply(self, font, size_xy, clear):
+        self.NtBk.Apply(font, size_xy, clear)
+
 
 # La Transmisivité -----------------------------------------------------------------------------------------------------
 class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_2_1(ttk.Frame):
@@ -2195,6 +2344,7 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_2_1(ttk.Frame):
         self.EvalTex = self.Master.EvalTex
         self.Draw = self.Master.Draw
         self.Keyboard = self.Master.Keyboard
+        self.Apply = self.Master.Apply
 
         self.RUN()
 
@@ -2261,6 +2411,7 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_2_2(ttk.Frame):
         self.EvalTex = self.Master.EvalTex
         self.Draw = self.Master.Draw
         self.Keyboard = self.Master.Keyboard
+        self.Apply = self.Master.Apply
 
         self.RUN()
 
@@ -2316,6 +2467,9 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_3(ttk.Frame):
     def Keyboard(self, keyword):
         self.NtBk.Keyboard(keyword)
 
+    def Apply(self, font, size_xy, clear):
+        self.NtBk.Apply(font, size_xy, clear)
+
 
 # La Transmisivité -----------------------------------------------------------------------------------------------------
 class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_3_1(ttk.Frame):
@@ -2343,6 +2497,7 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_3_1(ttk.Frame):
         self.EvalTex = self.Master.EvalTex
         self.Draw = self.Master.Draw
         self.Keyboard = self.Master.Keyboard
+        self.Apply = self.Master.Apply
 
         self.RUN()
 
@@ -2408,6 +2563,7 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_3_2(ttk.Frame):
         self.EvalTex = self.Master.EvalTex
         self.Draw = self.Master.Draw
         self.Keyboard = self.Master.Keyboard
+        self.Apply = self.Master.Apply
 
         self.RUN()
 
