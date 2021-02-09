@@ -163,11 +163,13 @@ Cette application est une solution pour les relations d'hydrologie et de process
 
 Ou bien 
 
-### [Téléchargez La Dernière Release Dans Hydrogéologie Releases](https://github.com/DeepEastWind/Hydrogeologie/releases/latest)
+### [Télécharger La Dernière Release Dans Hydrogéologie Releases](https://github.com/DeepEastWind/Hydrogeologie/releases/latest)
 
 ### Installation du Font
 
-Pour une bonne qualité d'écriture installée le font `DejaVuSans.ttf`
+- Pour une bonne qualité d'écriture installée la police `DejaVuSans.ttf`, sa valable pour les versions inférieur à la version 4
+
+- Depuis la version 4 on es capable de changer la police de GUI, mais la police `DejaVuSans` reste donnée par défaut
 
 ### Installation des Modules Requis :: [pypi](https://pypi.org/) 
 ouvrir `cmd.exe` en tant qu'administrateur
@@ -262,7 +264,7 @@ C:\WINDOWS\system32>python C:\ ...(adresse)... \Hydrogeologie-main\__main__.py
         
     - quitté l'application
 
-### version 4.0.0.2 bêta
+### [version 4.0.0.2 bêta](https://github.com/DeepEastWind/Hydrogeologie/releases/tag/7aaaa1f)
 - régler la taille de fenêtre du démarrage 
 
 - accordée la notebook avec le style de police d'interface
@@ -272,3 +274,14 @@ C:\WINDOWS\system32>python C:\ ...(adresse)... \Hydrogeologie-main\__main__.py
 - l'application des modifications ne nécessite plus un redémarrage de l'hydrogéologie juste l'effacement du feuille de calcul
 
 - mettre la disposition des widgets dynamique selon son nom
+
+### version 4.0.0.3 RC
+- réduire l'affichage de la popup pour ne s'applique qu'aux changements qui prennent en compte la feuille de calcul
+
+- ajouter une option pur choisir un theme style
+
+- régler l'application des modifications qui prennent en compte la feuille de calcul en cas de choisir non
+
+- la bouton appliquer ne s'allume quand il'y a un changement dans les paramètre
+
+- des améliorations sur le script

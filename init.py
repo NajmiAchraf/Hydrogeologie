@@ -22,26 +22,23 @@ def FontSizeNote(font_size_gui):
         return int((2 * font_size_gui) / 3)
 
 
-def Create_INI_File(font_name_gui='DejaVu Sans',
-                    font_size_gui='16',
-                    font_name_xy='DejaVu Sans',
-                    font_size_xy='16',
+def Create_INI_File(font_name_gui='DejaVu Sans', font_size_gui='16',
+                    theme_style='default',
+                    font_name_xy='DejaVu Sans', font_size_xy='16',
                     identify='Master HIGH 2020/2021'):
     config = ConfigParser()
 
     config['default'] = {
-        "font_name_gui": "DejaVu Sans",
-        "font_size_gui": "16",
-        "font_name_xy": "DejaVu Sans",
-        "font_size_xy": "16",
+        "font_name_gui": "DejaVu Sans", "font_size_gui": "16",
+        "theme_style": "default",
+        "font_name_xy": "DejaVu Sans", "font_size_xy": "16",
         "identify": "Master HIGH 2020/2021"
     }
 
     config['settings'] = {
-        "font_name_gui": font_name_gui,
-        "font_size_gui": font_size_gui,
-        "font_name_xy": font_name_xy,
-        "font_size_xy": font_size_xy,
+        "font_name_gui": font_name_gui, "font_size_gui": font_size_gui,
+        "theme_style": theme_style,
+        "font_name_xy": font_name_xy, "font_size_xy": font_size_xy,
         "identify": identify
     }
 
@@ -320,7 +317,7 @@ class FigureXY(Figure):
         self.tight_layout()
         self.TkAggXY.Draw(width=self.max_w, height=self.max_h)
 
-    def Clear(self, size_xy=0):
+    def Clear(self, size_xy=None):
         self.clear()
 
         self.tex_draw = 1
@@ -342,7 +339,7 @@ class FigureXY(Figure):
         self.Axes = self.add_subplot(1, 1, 1)
 
         for lil in range(self.save_draw):
-            if size_xy == 0:
+            if size_xy is None:
                 self.DrawLaTex(self.singing_math[lil], self.singing_line[lil], self.singing_color[lil])
             else:
                 original_percent_axe = (self.singing_line[lil] * 100) / size_xy[0]
@@ -395,7 +392,7 @@ class SmallNumbers(object):
             nbr += 1
 
 
-class AutoScrollbar(tk.Scrollbar):
+class AutoScrollbar(ttk.Scrollbar):
     # a scrollbar that hides itself if it's not needed.  only
     # works if you use the grid geometry manager.
     def set(self, lo, hi):
