@@ -2,6 +2,7 @@ import itertools
 import tkinter as tk
 from tkinter.ttk import Notebook
 from tkinter import ttk
+from ttkwidgets.autohidescrollbar import AutoHideScrollbar
 from abc import ABC
 
 from sympy import sympify, latex
@@ -25,14 +26,14 @@ def FontSizeNote(font_size_gui):
 def Create_INI_File(font_name_gui='DejaVu Sans', font_size_gui='16',
                     theme_style='default',
                     font_name_xy='DejaVu Sans', font_size_xy='16',
-                    identify='Master HIGH 2020/2021'):
+                    identify="Vous pouvez écrire n'importe quoi ici : Fichier >> Paramètre"):
     config = ConfigParser()
 
     config['default'] = {
         "font_name_gui": "DejaVu Sans", "font_size_gui": "16",
         "theme_style": "default",
         "font_name_xy": "DejaVu Sans", "font_size_xy": "16",
-        "identify": "Master HIGH 2020/2021"
+        "identify": "Vous pouvez écrire n'importe quoi ici : Fichier >> Paramètre"
     }
 
     config['settings'] = {
@@ -56,50 +57,36 @@ def LaTeX(Math_Expression):
     return TEX
 
 
-def App(character):
-    try:
-        pik = str(character)
+def Operation(character, mode, *args):
+    """
+
+    :param character: str
+    :param mode: Before, After, AfterNum
+    :return: LaTex
+    """
+
+    pik = str(character)
+    if mode == 'Before':
         try:
             expression = parse_expr(pik, evaluate=False)
         except Exception:
             expression = sympify(pik, rational=True, evaluate=False)
-        return LaTeX(expression)
-    except None:
-        pass
-    except Exception:
-        pass
 
-
-def Eva(character):
-    try:
-        pik = str(character)
+    elif mode == 'After':
         expression = sympify(pik, evaluate=True)
-        return LaTeX(expression)
-    except None:
-        pass
-    except Exception:
-        pass
 
+    elif mode == 'Number':
+        if len(args) == 1 and isinstance(args[0], int):
+                expression = sympify(pik, evaluate=True).evalf(args[0])
+        else: expression = sympify(pik, evaluate=True).evalf()
 
-def Num(*args):
-    global expression
-    try:
-        if len(args) == 1 and isinstance(args[0], str):
-            expression = sympify(args[0], evaluate=True).evalf()
-            return LaTeX(expression)
-
-        elif len(args) == 2:
-            if isinstance(args[0], str) and isinstance(args[1], int):
-                expression = sympify(args[0], evaluate=True).evalf(args[1])
-
-            elif isinstance(args[0], int) and isinstance(args[1], str):
-                expression = sympify(args[1], evaluate=True).evalf(args[0])
-
-            return expression
-    except None:
-        pass
-    except Exception:
-        pass
+    TEX = LaTeX(expression)
+    symbol = [r'\log']
+    func = ['ln']
+    index = len(symbol)
+    for num in range(index):
+        TEX = TEX.replace(symbol[num], func[num])
+    return TEX
 
 
 class HoverButton(tk.Button):
@@ -194,10 +181,10 @@ class ScrollableTkAggXY(tk.Canvas):
         self.AggWidget = self.TkAgg.get_tk_widget()
         self.AggWidget.grid(row=0, column=0, sticky=tk.NSEW)
 
-        self.vbar = AutoScrollbar(self, orient=tk.VERTICAL, command=self.fig_canvas_xy.yview)
+        self.vbar = AutoHideScrollbar(self, orient=tk.VERTICAL, command=self.fig_canvas_xy.yview)
         self.vbar.grid(row=1, column=1, sticky=tk.NS)
 
-        self.hbar = AutoScrollbar(self, orient=tk.HORIZONTAL, command=self.fig_canvas_xy.xview)
+        self.hbar = AutoHideScrollbar(self, orient=tk.HORIZONTAL, command=self.fig_canvas_xy.xview)
         self.hbar.grid(row=2, column=0, sticky=tk.EW)
 
         self.fig_canvas_xy.configure(yscrollcommand=self.vbar.set, xscrollcommand=self.hbar.set,
@@ -392,24 +379,6 @@ class SmallNumbers(object):
             nbr += 1
 
 
-class AutoScrollbar(ttk.Scrollbar):
-    # a scrollbar that hides itself if it's not needed.  only
-    # works if you use the grid geometry manager.
-    def set(self, lo, hi):
-        if float(lo) <= 0.0 and float(hi) >= 1.0:
-            # grid_remove is currently missing from Tkinter!
-            self.tk.call("grid", "remove", self)
-        else:
-            self.grid()
-        tk.Scrollbar.set(self, lo, hi)
-
-    def pack(self, **kw):
-        raise tk.TclError("cannot use pack with this widget")
-
-    def place(self, **kw):
-        raise tk.TclError("cannot use place with this widget")
-
-
 class ScrollBind(object):
     def __init__(self, canvas_self, canvas_widget, y_scroll, x_scroll, vbar=None, hbar=None):
         self.canvas_self, self.canvas_widget = canvas_self, canvas_widget
@@ -467,9 +436,9 @@ class ScrollBind(object):
             self.canvas_widget.xview_scroll(self.scroll_inch, "units")
 
 
-class NoteBook(Notebook):
+class NoTeBooK(Notebook):
     def __init__(self, master, classes, cls_name, **kw):
-        super(NoteBook, self).__init__(master=master, **kw)
+        super(NoTeBooK, self).__init__(master=master, **kw)
 
         self.NtBk_tab = 0
         self.TotalTabs = len(classes)

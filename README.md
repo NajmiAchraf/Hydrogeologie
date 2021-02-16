@@ -8,15 +8,15 @@ Cette application est une solution pour les relations d'hydrologie et de process
 ### Chapitre Ⅳ: Hydraulique des puits, pompage d'essai et étude des rabattements
 
 ##### 1. ECOULEMENT UNIDIRECTIONNEL STABLE
-1. Aquifère confine:
+1. Aquifère confiné:
     
     ![h=-\frac{vx}{K}](https://latex.codecogs.com/svg.latex?\Large&space;h=-\frac{vx}{K})
 
-2. Aquifère non confine:
+2. Aquifère non confiné:
     
     ![q=\frac{K}{2x}\left({h_0^2-h^2}\right)](https://latex.codecogs.com/svg.latex?\Large&space;q=\frac{K}{2x}\left({h_0^2-h^2}\right))
 
-3. Flux de base vers un flux:
+3. Débit de base vers un cours d'eau:
 
     ![q_x=\frac{K\left({h_1^2-h_2^2}\right)}{2L}-W\left(\frac{L}{2}-x\right)](https://latex.codecogs.com/svg.latex?\Large&space;q_x=\frac{K\left({h_1^2-h_2^2}\right)}{2L}-W\left(\frac{L}{2}-x\right))
 
@@ -27,7 +27,7 @@ Cette application est une solution pour les relations d'hydrologie et de process
     ![h_{max}=\sqrt{{h_1^2}-\frac{\left({h_1^2-h_2^2}\right)d}{L}+\frac{W}{K}\left(L-d\right)d}](https://latex.codecogs.com/svg.latex?\Large&space;h_{max}=\sqrt{{h_1^2}-\frac{\left({h_1^2-h_2^2}\right)d}{L}+\frac{W}{K}\left(L-d\right)d})
 
 ##### 2. ECOULEMENT RADIAL CONSTANT VERS UN PUITS
-1. Aquifère confine:
+1. Aquifère confiné:
     1. Débit de pompage:
     
         ![Q=2\pi{Kb}\frac{h-h_w}{ln\left(\frac{r}{r_w}\right)}](https://latex.codecogs.com/svg.latex?\Large&space;Q=2\pi{Kb}\frac{h-h_w}{ln\left(\frac{r}{r_w}\right)})
@@ -46,7 +46,7 @@ Cette application est une solution pour les relations d'hydrologie et de process
     
         ![R=r_0=r_1e^{\left(2\pi{Kb}\frac{h_0-h_1}{Q}\right)}](https://latex.codecogs.com/svg.latex?\Large&space;R=r_0=r_1e^{\left(2\pi{Kb}\frac{h_0-h_1}{Q}\right)})
 
-2. Aquifère non confine:
+2. Aquifère non confiné:
     1. Débit de pompage:
     
         ![Q=\pi{K}\frac{h^2_2-h^2_1}{ln\left(\frac{r_2}{r_1}\right)}](https://latex.codecogs.com/svg.latex?\Large&space;Q=\pi{K}\frac{h^2_2-h^2_1}{ln\left(\frac{r_2}{r_1}\right)})
@@ -67,7 +67,7 @@ Cette application est une solution pour les relations d'hydrologie et de process
     
         ![R=r_0=r_{1}e^{\left(\pi{K}\frac{h_0^2-h_1^2}{Q}\right)}](https://latex.codecogs.com/svg.latex?\Large&space;R=r_0=r_{1}e^{\left(\pi{K}\frac{h_0^2-h_1^2}{Q}\right)})
     
-3. Aquifère non confine avec recharge uniforme:
+3. Aquifère non confiné avec recharge uniforme:
     1. Équation de la courbe de rabattement:
     
         ![h^2_0-h^2=\frac{W}{2K}\left(r^2-r^2_0\right)+\frac{Q_w}{\pi{K}}ln\left(\frac{r_0}{r}\right)](https://latex.codecogs.com/svg.latex?\Large&space;h^2_0-h^2=\frac{W}{2K}\left(r^2-r^2_0\right)+\frac{Q_w}{\pi{K}}ln\left(\frac{r_0}{r}\right))
@@ -159,7 +159,7 @@ Cette application est une solution pour les relations d'hydrologie et de process
 
 ## Comment Démarrer
 
-### [Téléchargez La Dernière Commit Dans Hydrogéologie Repository](https://github.com/DeepEastWind/Hydrogeologie/archive/main.zip)
+### [Télécharger La Dernière Commit Dans Hydrogéologie Repository](https://github.com/DeepEastWind/Hydrogeologie/archive/main.zip)
 
 Ou bien 
 
@@ -275,7 +275,7 @@ C:\WINDOWS\system32>python C:\ ...(adresse)... \Hydrogeologie-main\__main__.py
 
 - mettre la disposition des widgets dynamique selon son nom
 
-### version 4.0.0.3 RC
+### [version 4.0.0.3 RC](https://github.com/DeepEastWind/Hydrogeologie/releases/tag/a32e88a)
 - réduire l'affichage de la popup pour ne s'applique qu'aux changements qui prennent en compte la feuille de calcul
 
 - ajouter une option pur choisir un theme style
@@ -285,3 +285,12 @@ C:\WINDOWS\system32>python C:\ ...(adresse)... \Hydrogeologie-main\__main__.py
 - la bouton appliquer ne s'allume quand il'y a un changement dans les paramètre
 
 - des améliorations sur le script
+
+### version 4.0.0.4 FV
+- des corrections au niveau du texte
+
+- a propos des calculs la modification concerne l'affichage de "ln" à là place de "log"
+  
+- modification de l'application du paramètre Titre ID
+
+- au niveau du script la modification de choisir soit que changer le Titre ID ou non est manuel

@@ -2,6 +2,7 @@ from init import *
 
 from configparser import ConfigParser
 from os import path
+import os
 
 from tkinter import *
 from tkinter import ttk, messagebox, font
@@ -16,18 +17,18 @@ import matplotlib as mpl
 r"""
 Hydrologie des eaux souterraines Livre de David Keith Todd
 
-    Chapiter Ⅳ: Hydraulique des puits, pompage d'essai et étude des rabattements"
+    Chapitre Ⅳ: Hydraulique des puits, pompage d'essai et étude des rabattements"
 
         1. ECOULEMENT UNIDIRECTIONNEL STABLE
-            1. Aquifére confine:
+            1. Aquifére confiné:
                 
                 $h=-\frac{vx}{K}$
         
-            2. Aquifére non confine:
+            2. Aquifére non confiné:
             
                 $q=\frac{K}{2x}\left({h_0^2-h^2}\right)$
         
-            3. Flux de base vers un flux:
+            3. Débit de base vers un cours d'eau:
             
                 $q_x=\frac{K\left({h_1^2-h_2^2}\right)}{2L}-W\left(\frac{L}{2}-x\right)$
         
@@ -38,7 +39,7 @@ Hydrologie des eaux souterraines Livre de David Keith Todd
                 $h_{max}=\sqrt{{h_1^2}-\frac{\left({h_1^2-h_2^2}\right)d}{L}+\frac{W}{K}\left(L-d\right)d}$
         
         2. ECOULEMENT RADIAL CONSTANT VERS UN PUITS
-            1. Aquifére confine:
+            1. Aquifére confiné:
                 1. Débit de pompage:
                 
                     $Q=2\pi{Kb}\frac{h-h_w}{ln\left(\frac{r}{r_w}\right)}$
@@ -57,7 +58,7 @@ Hydrologie des eaux souterraines Livre de David Keith Todd
                 
                     $R=r_0=r_1e^{\left(2\pi{Kb}\frac{h_0-h_1}{Q}\right)}$
         
-            2. Aquifére non confine:
+            2. Aquifére non confiné:
                 1. Débit de pompage:
                 
                     $Q=\pi{K}\frac{h^2_2-h^2_1}{ln\left(\frac{r_2}{r_1}\right)}$
@@ -78,7 +79,7 @@ Hydrologie des eaux souterraines Livre de David Keith Todd
                 
                     $R=r_0=r_{1}e^{\left(\pi{K}\frac{h_0^2-h_1^2}{Q}\right)}$
                 
-            3. Aquifére non confine avec recharge uniforme:
+            3. Aquifére non confiné avec recharge uniforme:
                 1. Equation de la courbe de rabattement:
                 
                     $h^2_0-h^2=\frac{W}{2K}\left(r^2-r^2_0\right)+\frac{Q_w}{\pi{K}}ln\left(\frac{r_0}{r}\right)$
@@ -166,19 +167,17 @@ Hydrologie des eaux souterraines Livre de David Keith Todd
         
         """
 '''
-### version 4.0.0.3 RC
-- réduire l'affichage de la popup pour ne s'applique qu'aux changements qui prennent en compte la feuille de calcul
+### version 4.0.0.4 FV
+- des corrections au niveau du texte
 
-- ajouter une option pur choisir un theme style
+- a propos des calculs la modification concerne l'affichage de "ln" à là place de "log"
+  
+- modification de l'application du paramètre Titre ID
 
-- régler l'application des modifications qui prennent en compte la feuille de calcul en cas de choisir non
-
-- la bouton appliquer ne s'allume quand il'y a un changement dans les paramètre
-
-- des améliorations sur le script
+- au niveau du script la modification de choisir soit que changer le Titre ID ou non est manuel
 '''
 __author__ = 'DeepEastWind'
-__version__ = '4.0.0.3 RC'
+__version__ = '4.0.0.4 FV'
 __title__ = 'Hydrogéologie'
 
 if not path.exists('paramètre.ini'):
@@ -192,7 +191,12 @@ font_size_gui = parser.getint('settings', 'font_size_gui')
 theme_style = parser.get('settings', 'theme_style')
 font_name_xy = parser.get('settings', 'font_name_xy')
 font_size_xy = parser.getint('settings', 'font_size_xy')
-identify = parser.get('settings', 'identify')
+
+Titre_ID = True
+if Titre_ID:
+    identify = parser.get('settings', 'identify')
+else:
+    identify = 'NOURA NAJMI Master HIGH 2020/2021'
 
 mpl_default = ['rm', 'it', 'tt', 'sf', 'bf', 'default', 'bb', 'regular']
 mpl.rcParams['mathtext.default'] = mpl_default[7]  # 'regular'
@@ -266,7 +270,7 @@ class Hydrogeologie(object):
         self.Main.bind_all('<Key>', self.Keyboard)
 
         # Themed Style _________________________________________________________________________________________________
-        self.Main.style = ThemedStyle()
+        self.ThemeStyle = ThemedStyle()
         self.ThemedStyle(theme_style, font_name_gui, font_size_gui)
 
         # Menu Configuration ___________________________________________________________________________________________
@@ -275,9 +279,9 @@ class Hydrogeologie(object):
 
         self.File.add_command(label='Paramètre', command=lambda: ConfigWindow(self))
         self.File.add_separator()
-        self.File.add_command(label="Quité", command=lambda: self.ExitApplication())
+        self.File.add_command(label="Sortie", command=lambda: self.ExitApplication())
 
-        self.MenuBare.add_cascade(label="File", menu=self.File)
+        self.MenuBare.add_cascade(label="Fichier", menu=self.File)
 
         # NoteBook Configuration _______________________________________________________________________________________
         classes = [ECOULEMENT_UNIDIRECTIONNEL_STABLE,
@@ -289,7 +293,7 @@ class Hydrogeologie(object):
                     '3. PUIT DANS UN ECOULEMENT UNIFORME',
                     '4. FLUX RADIAL INSTANTANE DANS UN AQUIFERE CONFINE']
 
-        self.NtBk = NoteBook(master=self.Main, classes=classes, cls_name=cls_name)
+        self.NtBk = NoTeBooK(master=self.Main, classes=classes, cls_name=cls_name)
 
         # Window Configuration _________________________________________________________________________________________
         self.Main.config(menu=self.MenuBare)
@@ -323,17 +327,17 @@ class Hydrogeologie(object):
         self.NtBk.Apply(font, size_xy, clear)
 
     def ThemedStyle(self, theme_style, font_name_gui, font_size_gui):
-        self.Main.style.theme_use(theme_style)
+        self.ThemeStyle.theme_use(theme_style)
         # All Widget Style Font ----------------------------------------------------------------------------------------
-        self.Main.style.configure('.', font=(font_name_gui, font_size_gui))
+        self.ThemeStyle.configure('.', font=(font_name_gui, font_size_gui))
         # NoteBook Style -----------------------------------------------------------------------------------------------
-        self.Main.style.configure('TNotebook', background=hex_Dark)
+        self.ThemeStyle.configure('TNotebook', background=hex_Dark)
         # NoteBook Tab Style -------------------------------------------------------------------------------------------
-        self.Main.style.configure('TNotebook.Tab', font=(font_name_gui, FontSizeNote(font_size_gui)))
+        self.ThemeStyle.configure('TNotebook.Tab', font=(font_name_gui, FontSizeNote(font_size_gui)))
         # Frame Style --------------------------------------------------------------------------------------------------
-        self.Main.style.configure('TFrame', background=hex_Dark)
+        self.ThemeStyle.configure('TFrame', background=hex_Dark)
         # Label Style --------------------------------------------------------------------------------------------------
-        self.Main.style.configure('TLabel', background=hex_Dark, foreground=hex_White)
+        self.ThemeStyle.configure('TLabel', background=hex_Dark, foreground=hex_White)
 
         THEME = [
             "alt",  # _______0
@@ -344,22 +348,22 @@ class Hydrogeologie(object):
         ]
         if theme_style in THEME:
             # NoteBook Tab Style ---------------------------------------------------------------------------------------
-            self.Main.style.configure('TNotebook.Tab', background=hex_Light_Gray, foreground=hex_Black)
-            self.Main.style.map('TNotebook.Tab', foreground=[('active', hex_Orange), ("selected", hex_White)],
+            self.ThemeStyle.configure('TNotebook.Tab', background=hex_Light_Gray, foreground=hex_Black)
+            self.ThemeStyle.map('TNotebook.Tab', foreground=[('active', hex_Orange), ("selected", hex_White)],
                                 background=[('active', hex_Dark_Gray), ("selected", hex_Dark)])
 
             # Button Style ---------------------------------------------------------------------------------------------
-            self.Main.style.configure('TButton', foreground=hex_White)
-            self.Main.style.map('TButton', foreground=[('pressed', hex_Orange), ('active', hex_Black)])
+            self.ThemeStyle.configure('TButton', foreground=hex_White)
+            self.ThemeStyle.map('TButton', foreground=[('pressed', hex_Orange), ('active', hex_Black)])
 
-            self.Main.style.configure('eff_ann.TButton', background='firebrick2')
-            self.Main.style.map('eff_ann.TButton', background=[('pressed', 'firebrick4'), ('active', 'firebrick3')])
+            self.ThemeStyle.configure('eff_ann.TButton', background='firebrick2')
+            self.ThemeStyle.map('eff_ann.TButton', background=[('pressed', 'firebrick4'), ('active', 'firebrick3')])
 
-            self.Main.style.configure('mod_def.TButton', background=hex_Light_Gray)
-            self.Main.style.map('mod_def.TButton', background=[('pressed', hex_Dark_Gray), ('active', hex_Gray)])
+            self.ThemeStyle.configure('mod_def.TButton', background=hex_Light_Gray)
+            self.ThemeStyle.map('mod_def.TButton', background=[('pressed', hex_Dark_Gray), ('active', hex_Gray)])
 
-            self.Main.style.configure('cal_app.TButton', background=hex_Light_Green)
-            self.Main.style.map('cal_app.TButton', background=[('pressed', hex_Dark_Green), ('active', hex_Green)])
+            self.ThemeStyle.configure('cal_app.TButton', background=hex_Light_Green)
+            self.ThemeStyle.map('cal_app.TButton', background=[('pressed', hex_Dark_Green), ('active', hex_Green)])
 
 
 # Config Window \|/|\|/|\|/|\|/|\|/|\|/|\|/|\|/|\|/|\|/|\|/|\|/|\|/|\|/|\|/|\|/|\|/|\|/|\|/|\|/|\|/|\|/|\|/|\|/|\|/|\|/|
@@ -417,8 +421,11 @@ class ConfigWindow(Toplevel):
             label_frame[0].rowconfigure(lb, weight=1)
 
         label1 = []
-        lbl_txt = ["Police & Taille :",
-                   "Titre ID :"]
+        if Titre_ID:
+            lbl_txt = ["Police & Taille :",
+                       "Titre ID :"]
+        else:
+            lbl_txt = ["Police & Taille :"]
         for lb in range(len(lbl_txt)):
             label1.append(Label(label_frame[1], text=lbl_txt[lb], anchor='w'))
             label1[lb].grid(row=lb, column=0, sticky=NSEW)
@@ -490,10 +497,10 @@ class ConfigWindow(Toplevel):
             om_size[oms].grid(row=0, column=2, sticky=EW)
 
         # Entry --------------------------------------------------------------------------------------------------------
-
-        self.entry = Entry(label_frame[1])
-        self.entry.grid(row=1, column=1, columnspan=2, sticky=EW)
-        self.entry.insert(0, self.parser.get('settings', 'identify'))
+        if Titre_ID:
+            self.entry = Entry(label_frame[1])
+            self.entry.grid(row=1, column=1, columnspan=2, sticky=EW)
+            self.entry.insert(0, self.parser.get('settings', 'identify'))
 
         # Buttons ------------------------------------------------------------------------------------------------------
 
@@ -541,28 +548,54 @@ class ConfigWindow(Toplevel):
                 self.parser.getint('settings', 'font_size_gui') != self.var_size[0].get() or \
                 self.parser.get('settings', 'theme_style') != self.var_styl.get() or \
                 self.parser.get('settings', 'font_name_xy') != self.var_font[1].get() or \
-                self.parser.getint('settings', 'font_size_xy') != self.var_size[1].get() or \
-                self.parser.get('settings', 'identify') != self.entry.get():
+                self.parser.getint('settings', 'font_size_xy') != self.var_size[1].get():
             self.btn[2].configure(state=NORMAL)
         else:
             self.btn[2].configure(state=DISABLED)
+
+        if Titre_ID:
+            if self.parser.get('settings', 'identify') != self.entry.get():
+                self.btn[2].configure(state=NORMAL)
+            else:
+                self.btn[2].configure(state=DISABLED)
+
+    @staticmethod
+    def AskRestart():
+        return messagebox.askyesno(title="Redémarrer",
+                                   message=f"Pour appliquez le changement sur Titre ID il faut redémarrer "
+                                           f"Hydrogéologie.\noui pour redémarrer et non pour rester.")
+
+    @staticmethod
+    def AskDelete():
+        return messagebox.askyesno(title="appliquer les modifications ",
+                                   message=f"Pour appliquer les modifications sur les feuilles de calcul, "
+                                           f"elles doivent toutes être supprimées."
+                                           f"\noui pour supprimer si non fait le manuel.")
 
     def Appliquer(self):
         if self.window_exist:
             ask = NO
 
-            if self.parser.get('settings', 'font_name_xy') != self.var_font[1].get() or \
-                    self.parser.getint('settings', 'font_size_xy') != self.var_size[1].get() or \
-                    self.parser.get('settings', 'identify') != self.entry.get():
-                ask = messagebox.askyesno(title="appliquer les modifications ",
-                                          message=f"Pour appliquer les modifications sur les feuilles de calcul, "
-                                                  f"elles doivent toutes être supprimées."
-                                                  f"\noui pour supprimer si non fait le manuel.")
+            if Titre_ID:
+                Create_INI_File(font_name_gui=self.var_font[0].get(), font_size_gui=self.var_size[0].get(),
+                                theme_style=self.var_styl.get(),
+                                font_name_xy=self.var_font[1].get(), font_size_xy=self.var_size[1].get(),
+                                identify=self.entry.get())
 
-            Create_INI_File(font_name_gui=self.var_font[0].get(), font_size_gui=self.var_size[0].get(),
-                            theme_style=self.var_styl.get(),
-                            font_name_xy=self.var_font[1].get(), font_size_xy=self.var_size[1].get(),
-                            identify=self.entry.get())
+                if self.parser.get('settings', 'identify') != self.entry.get():
+                    ask = self.AskRestart()
+                    if ask == YES:
+                        os.startfile(sys.argv[0])
+                        sys.exit()
+
+            elif not Titre_ID:
+                Create_INI_File(font_name_gui=self.var_font[0].get(), font_size_gui=self.var_size[0].get(),
+                                theme_style=self.var_styl.get(),
+                                font_name_xy=self.var_font[1].get(), font_size_xy=self.var_size[1].get())
+
+            if self.parser.get('settings', 'font_name_xy') != self.var_font[1].get() or \
+                    self.parser.getint('settings', 'font_size_xy') != self.var_size[1].get():
+                ask = self.AskDelete()
 
             self.Parent.ThemedStyle(theme_style=self.var_styl.get(),
                                     font_name_gui=self.var_font[0].get(),
@@ -593,12 +626,13 @@ class ConfigWindow(Toplevel):
         self.var_font[1].set(self.parser.get('default', 'font_name_xy'))
         self.var_size[1].set(self.parser.getint('default', 'font_size_xy'))
 
-        self.entry.delete(0, END)
-        self.entry.insert(0, self.parser.get('default', 'identify'))
+        if Titre_ID:
+            self.entry.delete(0, END)
+            self.entry.insert(0, self.parser.get('default', 'identify'))
 
 
 # Master GUI \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-class GUI_MASTER(Frame):
+class GUI_MASTER(ttk.Frame):
     def __init__(self, master, Application, function_text, si_text, save_draw):
 
         self.Application = Application
@@ -626,7 +660,7 @@ class GUI_MASTER(Frame):
         self.frame1.grid(row=0, column=0, sticky=NSEW)
         self.frame1.columnconfigure(1, weight=1)
 
-        self.frame2 = Frame(self)
+        self.frame2 = ttk.Frame(self)
         self.frame2.grid(row=1, column=0, sticky=NSEW)
         self.frame2.columnconfigure(0, weight=1)
         self.frame2.columnconfigure(1, weight=1)
@@ -714,7 +748,7 @@ class GUI_MASTER(Frame):
 
         self.LaTexT(f'Hydrologie des eaux souterraines Livre de David Keith Todd', self.n_book, color=rgb_Red)
 
-        self.LaTexT(f"Chapiter IV: Hydraulique des puits, pompage d'essai et étude des rabattements")
+        self.LaTexT(f"Chapitre IV: Hydraulique des puits, pompage d'essai et étude des rabattements")
 
     def LaTexT(self, LaTexT, axe_x=0, color=rgb_Black):
         return self.FigureXY.DrawLaTex(LaTexT=LaTexT, axe_x=axe_x, color=color)
@@ -753,9 +787,9 @@ class GUI_MASTER(Frame):
         self.LaTexT(LaTexT=LaTexT, axe_x=self.n_calcl, color=color)
 
     def EvalTex(self, expression, variable, unite=r"\! ", color=rgb_Green):
-        result_str = App(variable)
-        result_expr = Eva(variable)
-        result_num = Num(variable)
+        result_str = Operation(variable, 'Before')
+        result_expr = Operation(variable, 'After')
+        result_num = Operation(variable, 'Number')
         # checking by zero
         dot_zero = str(result_num).replace('.0', '')
 
@@ -846,11 +880,11 @@ class ECOULEMENT_UNIDIRECTIONNEL_STABLE(ttk.Frame):
         classes = [ECOULEMENT_UNIDIRECTIONNEL_STABLE_1,
                    ECOULEMENT_UNIDIRECTIONNEL_STABLE_2,
                    ECOULEMENT_UNIDIRECTIONNEL_STABLE_3]
-        cls_name = ['1.1. Aquifére confine',
-                    '1.2. Aquifére non confine',
-                    '1.3. Flux de base vers un flux']
+        cls_name = ['1.1. Aquifére confiné',
+                    '1.2. Aquifére non confiné',
+                    "1.3. Débit de base vers un cours d'eau"]
 
-        self.NtBk = NoteBook(master=self, classes=classes, cls_name=cls_name)
+        self.NtBk = NoTeBooK(master=self, classes=classes, cls_name=cls_name)
 
     def Keyboard(self, keyword):
         self.NtBk.Keyboard(keyword)
@@ -859,7 +893,7 @@ class ECOULEMENT_UNIDIRECTIONNEL_STABLE(ttk.Frame):
         self.NtBk.Apply(font, size_xy, clear)
 
 
-# 1.1. Aquifére confine ================================================================================================
+# 1.1. Aquifére confiné ================================================================================================
 class ECOULEMENT_UNIDIRECTIONNEL_STABLE_1(ttk.Frame):
     def __init__(self, master):
         super(ECOULEMENT_UNIDIRECTIONNEL_STABLE_1, self).__init__(master=master)
@@ -918,13 +952,13 @@ class ECOULEMENT_UNIDIRECTIONNEL_STABLE_1(ttk.Frame):
 
         r"""
 1. ECOULEMENT UNIDIRECTIONNEL STABLE:
-    1.1. Aquifére confine:
+    1.1. Aquifére confiné:
         "$h=-\frac{vx}{K}$"
 """
         self.Draw()
 
 
-# 1.2. Aquifére non confine ============================================================================================
+# 1.2. Aquifére non confiné ============================================================================================
 class ECOULEMENT_UNIDIRECTIONNEL_STABLE_2(ttk.Frame):
     def __init__(self, master):
         super(ECOULEMENT_UNIDIRECTIONNEL_STABLE_2, self).__init__(master=master)
@@ -957,7 +991,7 @@ class ECOULEMENT_UNIDIRECTIONNEL_STABLE_2(ttk.Frame):
         self.RUN()
 
     def RUN(self):
-        self.Title2ndTex("1. DEBIT UNIDIRECTIONNEL STABLE:")
+        self.Title2ndTex("1. ECOULEMENT UNIDIRECTIONNEL STABLE:")
 
         self.Title3rdTex("1.2. Aquifére non confiné:")
 
@@ -984,13 +1018,13 @@ class ECOULEMENT_UNIDIRECTIONNEL_STABLE_2(ttk.Frame):
         self.EvalTex("q", q, 'm^2/j')
 
         r"""
-    1.2. Aquifére non confine:
+    1.2. Aquifére non confiné:
         "$q=\frac{K}{2x}\left({h_0^2-h^2}\right)$"
 """
         self.Draw()
 
 
-# 1.3. Flux de base vers un flux =======================================================================================
+# 1.3. Débit de base vers un cours d'eau ===============================================================================
 class ECOULEMENT_UNIDIRECTIONNEL_STABLE_3(ttk.Frame):
     def __init__(self, master):
         super(ECOULEMENT_UNIDIRECTIONNEL_STABLE_3, self).__init__(master=master)
@@ -1025,7 +1059,7 @@ class ECOULEMENT_UNIDIRECTIONNEL_STABLE_3(ttk.Frame):
         self.RUN()
 
     def RUN(self):
-        self.Title2ndTex("1. DEBIT UNIDIRECTIONNEL STABLE:")
+        self.Title2ndTex("1. ECOULEMENT UNIDIRECTIONNEL STABLE:")
 
         self.Title3rdTex("1.3. Débit de base vers un cours d'eau:")
 
@@ -1090,7 +1124,7 @@ class ECOULEMENT_UNIDIRECTIONNEL_STABLE_3(ttk.Frame):
         self.EvalTex("h_{max}", hr, "m")
 
         r"""
-    1.3. Flux de base vers un flux:
+    1.3. Débit de base vers un cours d'eau:
         "$q_x=\frac{K\left({h_1^2-h_2^2}\right)}{2L}-W\left(\frac{L}{2}-x\right)$"
 
         "$d=\frac{L}{2}-\frac{K}{W}\frac{\left({h_0^2-h^2}\right)}{2L}$"
@@ -1112,11 +1146,11 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS(ttk.Frame):
         classes = [ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1,
                    ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2,
                    ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_3]
-        cls_name = ['2.1. Aquifére confine',
-                    '2.2. Aquifére non confine',
-                    '2.3. Aquifére non confine avec recharge uniforme']
+        cls_name = ['2.1. Aquifére confiné',
+                    '2.2. Aquifére non confiné',
+                    '2.3. Aquifére non confiné avec recharge uniforme']
 
-        self.NtBk = NoteBook(master=self, classes=classes, cls_name=cls_name)
+        self.NtBk = NoTeBooK(master=self, classes=classes, cls_name=cls_name)
 
     def Keyboard(self, keyword):
         self.NtBk.Keyboard(keyword)
@@ -1125,7 +1159,7 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS(ttk.Frame):
         self.NtBk.Apply(font, size_xy, clear)
 
 
-# 2.1. Aquifére confine ================================================================================================
+# 2.1. Aquifére confiné ================================================================================================
 class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1(ttk.Frame):
     def __init__(self, master):
         super(ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1, self).__init__(master=master)
@@ -1141,7 +1175,7 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1(ttk.Frame):
                     "Niveau d'eau dans le puit pompé",
                     "Rayon d'influence"]
 
-        self.NtBk = NoteBook(master=self, classes=classes, cls_name=cls_name)
+        self.NtBk = NoTeBooK(master=self, classes=classes, cls_name=cls_name)
 
     def Keyboard(self, keyword):
         self.NtBk.Keyboard(keyword)
@@ -1231,7 +1265,7 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1_1(ttk.Frame):
 
         r"""
 2. ECOULEMENT RADIAL CONSTANT VERS UN PUITS:
-    2.1. Aquifére confine:
+    2.1. Aquifére confiné:
         Débit de pompage:
             "$Q=2\pi{Kb}\frac{h-h_w}{ln\left(\frac{r}{r_w}\right)}$"
 
@@ -1305,7 +1339,7 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1_2(ttk.Frame):
 
         r"""
 2. ECOULEMENT RADIAL CONSTANT VERS UN PUITS:
-    2.1. Aquifére confine:
+    2.1. Aquifére confiné:
         Conductivité hydraulique:
             "$K=\frac{Q}{2\pi{b}\left(h-h_w\right)}ln\left(\frac{r}{r_w}\right)$"
 """
@@ -1378,7 +1412,7 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1_3(ttk.Frame):
 
         r"""
 2. ECOULEMENT RADIAL CONSTANT VERS UN PUITS:
-    2.1. Aquifére confine:
+    2.1. Aquifére confiné:
         Niveau d'eau dans le puit pompé:
             "$h_w=h_2-\frac{Q}{2\pi{Kb}}ln{\frac{r_2}{r_1}}$"
 """
@@ -1451,14 +1485,14 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_1_4(ttk.Frame):
 
         r"""
 2. ECOULEMENT RADIAL CONSTANT VERS UN PUITS:
-    2.1. Aquifére confine:
+    2.1. Aquifére confiné:
         Rayon d'influence
             "$R=r_0=r_1e^{\left(2\pi{Kb}\frac{h_0-h_1}{Q}\right)}$"
 """
         self.Draw()
 
 
-# 2.2. Aquifére non confine ============================================================================================
+# 2.2. Aquifére non confiné ============================================================================================
 class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2(ttk.Frame):
     def __init__(self, master):
         super(ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2, self).__init__(master=master)
@@ -1474,7 +1508,7 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2(ttk.Frame):
                     "Niveau d'eau dans le puit pompé",
                     "Rayon d'influence"]
 
-        self.NtBk = NoteBook(master=self, classes=classes, cls_name=cls_name)
+        self.NtBk = NoTeBooK(master=self, classes=classes, cls_name=cls_name)
 
     def Keyboard(self, keyword):
         self.NtBk.Keyboard(keyword)
@@ -1517,7 +1551,7 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2_1(ttk.Frame):
         self.RUN()
 
     def RUN(self):
-        self.Title2ndTex("2. FLUX RADIAL CONSTANT VERS UN PUITS:")
+        self.Title2ndTex("2. ECOULEMENT RADIAL CONSTANT VERS UN PUITS:")
 
         self.Title3rdTex("2.2. Aquifére non confiné:")
 
@@ -1552,7 +1586,7 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2_1(ttk.Frame):
         self.EvalTex("T", T, 'm^2/j')
 
         r"""
-    2.2. Aquifére non confine:
+    2.2. Aquifére non confiné:
         Débit de pompage:
             "$Q=\pi{K}\frac{h^2_2-h^2_1}{ln\left(\frac{r_2}{r_1}\right)}$"
 
@@ -1595,7 +1629,7 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2_2(ttk.Frame):
         self.RUN()
 
     def RUN(self):
-        self.Title2ndTex("2. FLUX RADIAL CONSTANT VERS UN PUITS:")
+        self.Title2ndTex("2. ECOULEMENT RADIAL CONSTANT VERS UN PUITS:")
 
         self.Title3rdTex("2.2. Aquifére non confiné:")
 
@@ -1631,7 +1665,7 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2_2(ttk.Frame):
         self.EvalTex("T", T, "m^2/j")
 
         r"""
-    2.2. Aquifére non confine:
+    2.2. Aquifére non confiné:
         Conductivité hydraulique:
             "$K=\frac{Q}{\pi\left(h^2_2-h^2_1\right)}ln\left(\frac{r_2}{r_1}\right)$"
 
@@ -1703,7 +1737,7 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2_3(ttk.Frame):
 
         r"""
 2. ECOULEMENT RADIAL CONSTANT VERS UN PUITS:
-    2.2. Aquifére non confine:
+    2.2. Aquifére non confiné:
         Niveau d'eau dans le puit pompé:
             "$h_w=\sqrt{h_2^2-\frac{Q}{\pi{K}}ln{\frac{r_2}{r_1}}}$"
 """
@@ -1773,14 +1807,14 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_2_4(ttk.Frame):
 
         r"""
 2. ECOULEMENT RADIAL CONSTANT VERS UN PUITS:
-    2.2. Aquifére non confine:
+    2.2. Aquifére non confiné:
         Rayon d'influence
             "$R=r_0=r_{1}e^{\left(\pi{K}\frac{h_0^2-h_1^2}{Q}\right)}$"
 """
         self.Draw()
 
 
-# 2.3. Aquifére non confine avec recharge uniforme =====================================================================
+# 2.3. Aquifére non confiné avec recharge uniforme =====================================================================
 class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_3(ttk.Frame):
     def __init__(self, master):
         super(ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_3, self).__init__(master=master)
@@ -1861,8 +1895,8 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_3(ttk.Frame):
         self.EntryTex(("h", h, "m"), ("h_0", h0, "m"), ("r", r, "m"), ("K", K, "m/j"), ("W", W, "m/an"))
         self.IntroTex(f"Equation de la courbe de rabattement:")
         self.CalclTex(r"$h^2_0-h^2=\frac{W}{2K}\left(r^2-r^2_0\right)+\frac{Q_w}{\pi{K}}ln\left(\frac{r_0}{r}\right)$")
-        self.CalclTex(f"{App(q)} = {App(p)}", color=rgb_Black)
-        self.CalclTex(App(Eq(sympify(q), sympify(p))), color=rgb_Black)
+        self.CalclTex(f"{Operation(q, 'Before')} = {Operation(p, 'Before')}", color=rgb_Black)
+        self.CalclTex(Operation(Eq(sympify(q), sympify(p)), 'Before'), color=rgb_Black)
         self.IntroTex(
             f"Rayon d'influence ({TX('r_0')}) donné par la résolution d'équation de la courbe de rabattement:")
         self.EvalTex("r_0", r0, "m")
@@ -1872,7 +1906,7 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_3(ttk.Frame):
         self.EvalTex("Q_w", Q, "m^3/j")
 
         r"""
-    2.3. Aquifére non confine avec recharge uniforme:
+    2.3. Aquifére non confiné avec recharge uniforme:
         Equation de la courbe de rabattement:
             "$h^2_0-h^2=\frac{W}{2K}\left(r^2-r^2_0\right)+\frac{Q_w}{\pi{K}}ln\left(\frac{r_0}{r}\right)$"
             
@@ -1896,7 +1930,7 @@ class PUIT_DANS_UN_ECOULEMENT_UNIFORME(ttk.Frame):
                     "La pente de la surface piézométrique dans les conditions naturelles",
                     "Les limites longitudinales et transversales des eaux souterraines entrant dans le puit"]
 
-        self.NtBk = NoteBook(master=self, classes=classes, cls_name=cls_name)
+        self.NtBk = NoTeBooK(master=self, classes=classes, cls_name=cls_name)
 
     def Keyboard(self, keyword):
         self.NtBk.Keyboard(keyword)
@@ -2127,7 +2161,7 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE(ttk.Frame):
                     '4.3. Methode de solution de Cooper-Jacob',
                     '4.4. Methode de solution de Chow']
 
-        self.NtBk = NoteBook(master=self, classes=classes, cls_name=cls_name)
+        self.NtBk = NoTeBooK(master=self, classes=classes, cls_name=cls_name)
 
     def Keyboard(self, keyword):
         self.NtBk.Keyboard(keyword)
@@ -2148,7 +2182,7 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_1(ttk.Frame):
         cls_name = ['La Transmisivité',
                     'Le coefficient de stockage']
 
-        self.NtBk = NoteBook(master=self, classes=classes, cls_name=cls_name)
+        self.NtBk = NoTeBooK(master=self, classes=classes, cls_name=cls_name)
 
     def Keyboard(self, keyword):
         self.NtBk.Keyboard(keyword)
@@ -2224,8 +2258,8 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_1_1(ttk.Frame):
         self.EvalTex("T", T1, "gpd/ft")
 
         self.IntroTex(f"Conversion depuis les unités usuelles de U.S. vers S.I:")
-        self.CalclTex(f"Q = {Q} {TX('gpm')} = {Num(Qt)} {TX('m^3/j')}", color=rgb_Black)
-        self.CalclTex(f"s = {s} {TX('ft')} = {Num(st)} {TX('m')}", color=rgb_Black)
+        self.CalclTex(f"Q = {Q} {TX('gpm')} = {Operation(Qt, 'Number')} {TX('m^3/j')}", color=rgb_Black)
+        self.CalclTex(f"s = {s} {TX('ft')} = {Operation(st, 'Number')} {TX('m')}", color=rgb_Black)
 
         self.IntroTex(f"La Transmisivité en {TX('m^2/j')}:")
         self.CalclTex(r"$T=\frac{Q}{4\pi{s}}W\left(u\right)$")
@@ -2236,9 +2270,9 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_1_1(ttk.Frame):
 
         self.IntroTex(f"Vérifier que la Transmisivité en {TX('gpd/ft')} égale {TX('m^2/j')}:")
 
-        self.CalclTex(f"T = {App(T)}", color=rgb_Black)
+        self.CalclTex(f"T = {Operation(T, 'Before')}", color=rgb_Black)
 
-        self.CalclTex(f"T = {Num(T)} {TX('m^2/j')}", color=rgb_Green)
+        self.CalclTex(f"T = {Operation(T, 'Number')} {TX('m^2/j')}", color=rgb_Green)
 
         r"""
 4. FLUX RADIAL INSTANTANE DANS UN AQUIFERE CONFINE
@@ -2318,7 +2352,7 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_1_2(ttk.Frame):
         self.EvalTex("S", Sj)
 
         self.IntroTex(f"Conversion du jours vers minutes:")
-        self.CalclTex(f"t = {t} {TX('jours')} = {Num(tm)} {TX('minutes')}")
+        self.CalclTex(f"t = {t} {TX('jours')} = {Operation(tm, 'Number')} {TX('minutes')}")
 
         self.IntroTex("t en minutes:")
         self.CalclTex(r"$S=\frac{Tt}{\frac{1}{u}2693r^2}$")
@@ -2347,7 +2381,7 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_2(ttk.Frame):
         cls_name = ['La Transmisivité',
                     'Le coefficient de stockage']
 
-        self.NtBk = NoteBook(master=self, classes=classes, cls_name=cls_name)
+        self.NtBk = NoTeBooK(master=self, classes=classes, cls_name=cls_name)
 
     def Keyboard(self, keyword):
         self.NtBk.Keyboard(keyword)
@@ -2501,7 +2535,7 @@ class FLUX_RADIAL_INSTANTANE_DANS_UN_AQUIFERE_CONFINE_3(ttk.Frame):
         cls_name = ['La Transmisivité',
                     'Le coefficient de stockage']
 
-        self.NtBk = NoteBook(master=self, classes=classes, cls_name=cls_name)
+        self.NtBk = NoTeBooK(master=self, classes=classes, cls_name=cls_name)
 
     def Keyboard(self, keyword):
         self.NtBk.Keyboard(keyword)
