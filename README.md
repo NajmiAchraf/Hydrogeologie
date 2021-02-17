@@ -22,9 +22,9 @@ Cette application est une solution pour les relations d'hydrologie et de process
 
     ![d=\frac{L}{2}-\frac{K}{W}\frac{\left({h_0^2-h^2}\right)}{2L}](https://latex.codecogs.com/svg.latex?\Large&space;d=\frac{L}{2}-\frac{K}{W}\frac{\left({h_0^2-h^2}\right)}{2L})
 
-    ![h^2_{max}={h_1^2}-\frac{\left({h_1^2-h_2^2}\right)d}{L}+\frac{W}{K}\left(L-d\right)d](https://latex.codecogs.com/svg.latex?\Large&space;h^2_{max}={h_1^2}-\frac{\left({h_1^2-h_2^2}\right)d}{L}+\frac{W}{K}\left(L-d\right)d)
+    ![h^2_{max}={h_1^2}-\frac{\left({h_1^2-h_2^2}\right)d}{L}+\frac{W}{K}\left(L-d\right)d](https://latex.codecogs.com/svg.latex?\Large&space;h^{2}_{max}={h^{2}_{1}}-\frac{\left({h^{2}_{1}-h^{2}_{2}}\right){d}}{L}+\frac{W}{K}\left(L-d\right){d})
 
-    ![h_{max}=\sqrt{{h_1^2}-\frac{\left({h_1^2-h_2^2}\right)d}{L}+\frac{W}{K}\left(L-d\right)d}](https://latex.codecogs.com/svg.latex?\Large&space;h_{max}=\sqrt{{h_1^2}-\frac{\left({h_1^2-h_2^2}\right)d}{L}+\frac{W}{K}\left(L-d\right)d})
+    ![h_{max}=\sqrt{{h_1^2}-\frac{\left({h_1^2-h_2^2}\right)d}{L}+\frac{W}{K}\left(L-d\right)d}](https://latex.codecogs.com/svg.latex?\Large&space;h_{max}=\sqrt{{h^{2}_{1}}-\frac{\left({h^{2}_{1}-h^{2}_{2}}\right){d}}{L}+\frac{W}{K}\left(L-d\right){d}})
 
 ##### 2. ECOULEMENT RADIAL CONSTANT VERS UN PUITS
 1. Aquifère confiné:
@@ -49,13 +49,13 @@ Cette application est une solution pour les relations d'hydrologie et de process
 2. Aquifère non confiné:
     1. Débit de pompage:
     
-        ![Q=\pi{K}\frac{h^2_2-h^2_1}{ln\left(\frac{r_2}{r_1}\right)}](https://latex.codecogs.com/svg.latex?\Large&space;Q=\pi{K}\frac{h^2_2-h^2_1}{ln\left(\frac{r_2}{r_1}\right)})
+        ![Q=\pi{K}\frac{h^2_2-h^2_1}{ln\left(\frac{r_2}{r_1}\right)}](https://latex.codecogs.com/svg.latex?\Large&space;Q=\pi{K}\frac{h^{2}_{2}-h^{2}_{1}}{ln\left(\frac{r_2}{r_1}\right)})
 
         ![T\cong{K}\frac{h_1+h_2}{2}](https://latex.codecogs.com/svg.latex?\Large&space;T\cong{K}\frac{h_1+h_2}{2})
     
     2. Conductivité hydraulique:
     
-        ![K=\frac{Q}{\pi\left(h^2_2-h^2_1\right)}ln\left(\frac{r_2}{r_1}\right)](https://latex.codecogs.com/svg.latex?\Large&space;K=\frac{Q}{\pi\left(h^2_2-h^2_1\right)}ln\left(\frac{r_2}{r_1}\right))
+        ![K=\frac{Q}{\pi\left(h^2_2-h^2_1\right)}ln\left(\frac{r_2}{r_1}\right)](https://latex.codecogs.com/svg.latex?\Large&space;K=\frac{Q}{\pi\left(h^{2}_{2}-h^{2}_{1}\right)}ln\left(\frac{r_2}{r_1}\right))
 
         ![T\cong{K}\frac{h_1+h_2}{2}](https://latex.codecogs.com/svg.latex?\Large&space;T\cong{K}\frac{h_1+h_2}{2})
         
@@ -70,11 +70,11 @@ Cette application est une solution pour les relations d'hydrologie et de process
 3. Aquifère non confiné avec recharge uniforme:
     1. Équation de la courbe de rabattement:
     
-        ![h^2_0-h^2=\frac{W}{2K}\left(r^2-r^2_0\right)+\frac{Q_w}{\pi{K}}ln\left(\frac{r_0}{r}\right)](https://latex.codecogs.com/svg.latex?\Large&space;h^2_0-h^2=\frac{W}{2K}\left(r^2-r^2_0\right)+\frac{Q_w}{\pi{K}}ln\left(\frac{r_0}{r}\right))
+        ![h^2_0-h^2=\frac{W}{2K}\left(r^2-r^2_0\right)+\frac{Q_w}{\pi{K}}ln\left(\frac{r_0}{r}\right)](https://latex.codecogs.com/svg.latex?\Large&space;h^{2}_{0}-h^{2}=\frac{W}{2K}\left(r^{2}-r^{2}_{0}\right)+\frac{Q_{w}}{\pi{K}}ln\left(\frac{r_{0}}{r}\right))
         
     2. Débit de pompage:
     
-        ![Q_w=\pi{r_{0}^{2}}W](https://latex.codecogs.com/svg.latex?\Large&space;Q_w=\pi{r_{0}^{2}}W)
+        ![Q_w=\pi{r_{0}^{2}}W](https://latex.codecogs.com/svg.latex?\Large&space;Q_{w}=\pi{r^{2}_{0}}{W})
         
 ##### 3. PUIT DANS UN ECOULEMENT UNIFORME
 1. Conductivité hydraulique (K):
