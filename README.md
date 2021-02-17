@@ -286,7 +286,7 @@ C:\WINDOWS\system32>python C:\ ...(adresse)... \Hydrogeologie-main\__main__.py
 
 - des améliorations sur le script
 
-### version 4.0.0.4 FV
+### [version 4.0.0.4 FV](https://github.com/DeepEastWind/Hydrogeologie/releases/tag/b10d5f3)
 - des corrections au niveau du texte
 
 - a propos des calculs la modification concerne l'affichage de "ln" à là place de "log"
@@ -294,3 +294,6 @@ C:\WINDOWS\system32>python C:\ ...(adresse)... \Hydrogeologie-main\__main__.py
 - modification de l'application du paramètre Titre ID
 
 - au niveau du script la modification de choisir soit que changer le Titre ID ou non est manuel
+
+### version 4.0.1.0 FV
+- fixé le click du bouton Appliqué dans paramètre

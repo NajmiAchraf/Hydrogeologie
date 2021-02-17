@@ -167,17 +167,11 @@ Hydrologie des eaux souterraines Livre de David Keith Todd
         
         """
 '''
-### version 4.0.0.4 FV
-- des corrections au niveau du texte
-
-- a propos des calculs la modification concerne l'affichage de "ln" à là place de "log"
-  
-- modification de l'application du paramètre Titre ID
-
-- au niveau du script la modification de choisir soit que changer le Titre ID ou non est manuel
+### version 4.0.1.0 FV
+- fixé le click du bouton Appliqué dans paramètre
 '''
 __author__ = 'DeepEastWind'
-__version__ = '4.0.0.4 FV'
+__version__ = '4.0.1.0 FV'
 __title__ = 'Hydrogéologie'
 
 if not path.exists('paramètre.ini'):
@@ -544,17 +538,23 @@ class ConfigWindow(Toplevel):
         if not self.window_exist:
             return
 
-        if self.parser.get('settings', 'font_name_gui') != self.var_font[0].get() or \
-                self.parser.getint('settings', 'font_size_gui') != self.var_size[0].get() or \
-                self.parser.get('settings', 'theme_style') != self.var_styl.get() or \
-                self.parser.get('settings', 'font_name_xy') != self.var_font[1].get() or \
-                self.parser.getint('settings', 'font_size_xy') != self.var_size[1].get():
-            self.btn[2].configure(state=NORMAL)
-        else:
-            self.btn[2].configure(state=DISABLED)
-
         if Titre_ID:
-            if self.parser.get('settings', 'identify') != self.entry.get():
+            if self.parser.get('settings', 'font_name_gui') != self.var_font[0].get() or \
+                    self.parser.getint('settings', 'font_size_gui') != self.var_size[0].get() or \
+                    self.parser.get('settings', 'theme_style') != self.var_styl.get() or \
+                    self.parser.get('settings', 'font_name_xy') != self.var_font[1].get() or \
+                    self.parser.getint('settings', 'font_size_xy') != self.var_size[1].get() or \
+                    self.parser.get('settings', 'identify') != self.entry.get():
+                self.btn[2].configure(state=NORMAL)
+            else:
+                self.btn[2].configure(state=DISABLED)
+                
+        elif not Titre_ID:
+            if self.parser.get('settings', 'font_name_gui') != self.var_font[0].get() or \
+                    self.parser.getint('settings', 'font_size_gui') != self.var_size[0].get() or \
+                    self.parser.get('settings', 'theme_style') != self.var_styl.get() or \
+                    self.parser.get('settings', 'font_name_xy') != self.var_font[1].get() or \
+                    self.parser.getint('settings', 'font_size_xy') != self.var_size[1].get():
                 self.btn[2].configure(state=NORMAL)
             else:
                 self.btn[2].configure(state=DISABLED)
