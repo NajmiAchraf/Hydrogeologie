@@ -167,11 +167,16 @@ Hydrologie des eaux souterraines Livre de David Keith Todd
         
         """
 '''
-### version 4.0.1.0 FV
-- fixé le click du bouton Appliqué dans paramètre
+### version 4.1.0.0 FV
+- devise la partie 3. "Aquifére non confiné avec recharge uniforme" en deux parties:
+    - Équation de la courbe de rabattement
+    
+    - Débit de pompage
+
+- fixé un erreur de calcul dans l’Équation de la courbe de rabattement
 '''
-__author__ = 'DeepEastWind'
-__version__ = '4.0.1.0 FV'
+__author__ = 'NajmiAchraf'
+__version__ = '4.1.0.0 FV'
 __title__ = 'Hydrogéologie'
 
 if not path.exists('paramètre.ini'):
@@ -273,7 +278,7 @@ class Hydrogeologie(object):
 
         self.File.add_command(label='Paramètre', command=lambda: ConfigWindow(self))
         self.File.add_separator()
-        self.File.add_command(label="Sortie", command=lambda: self.ExitApplication())
+        self.File.add_command(label="Sortie", command=lambda: sys.exit())
 
         self.MenuBare.add_cascade(label="Fichier", menu=self.File)
 
@@ -293,7 +298,7 @@ class Hydrogeologie(object):
         self.Main.config(menu=self.MenuBare)
         self.Main.rowconfigure(0, weight=1)
         self.Main.columnconfigure(0, weight=1)
-        self.Main.protocol("WM_DELETE_WINDOW", self.ExitApplication)
+        self.Main.protocol("WM_DELETE_WINDOW", sys.exit)
 
         self.Main.deiconify()
         self.TopMost(True)
@@ -303,10 +308,6 @@ class Hydrogeologie(object):
 
     def TopMost(self, top):
         self.Main.attributes('-topmost', top)
-
-    def ExitApplication(self):
-        self.Main.iconify()
-        sys.exit()
 
     def Unbind(self):
         self.Main.unbind_all('<Key>')
@@ -690,8 +691,6 @@ class GUI_MASTER(ttk.Frame):
             label_si[sd].grid(row=sd, column=3, sticky=NSEW)
 
             self.frame1.rowconfigure(sd, weight=1)
-
-        ttk.Label(self.frame1).grid(row=0, rowspan=self.Range, column=1, sticky=NSEW)
 
         self.entry[0].focus_set()
 
@@ -1821,6 +1820,27 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_3(ttk.Frame):
         self.rowconfigure(0, weight=1)
         self.columnconfigure(0, weight=1)
 
+        classes = [ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_3_1,
+                   ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_3_2]
+        cls_name = ['Equation de la courbe de rabattement',
+                    'Débit de pompage']
+
+        self.NtBk = NoTeBooK(master=self, classes=classes, cls_name=cls_name)
+
+    def Keyboard(self, keyword):
+        self.NtBk.Keyboard(keyword)
+
+    def Apply(self, font, size_xy, clear):
+        self.NtBk.Apply(font, size_xy, clear)
+
+
+# Equation de la courbe de rabattement ---------------------------------------------------------------------------------
+class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_3_1(ttk.Frame):
+    def __init__(self, master):
+        super(ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_3_1, self).__init__(master=master)
+        self.rowconfigure(0, weight=1)
+        self.columnconfigure(0, weight=1)
+
         function_text = ["Niveau d'eau observé 1 (h)",
                          f"Niveau d'eau observé 2 (h{sn(0)})",
                          "Distance (r)",
@@ -1848,15 +1868,16 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_3(ttk.Frame):
         self.r_0 = symbols('r_0')
         self.R = S.Reals
         self.C = S.Complexes
+        self.solution_exist = True
 
         self.RUN()
 
     def RUN(self):
-        self.Title2ndTex("2. FLUX RADIAL CONSTANT VERS UN PUITS:")
+        self.Title2ndTex("2. ECOULEMENT RADIAL CONSTANT VERS UN PUITS:")
 
         self.Title3rdTex("2.3. Aquifére non confiné avec recharge uniforme:")
 
-        self.Title4rdTex(f"Débit de pompage ({TX('Q')}):")
+        self.Title4rdTex(f"Equation de la courbe de rabattement:")
 
         self.RelaTex(r"h^2_0-h^2=\frac{W}{2K}\left(r^2-r^2_0\right)+\frac{Q_w}{\pi{K}}ln\left(\frac{r_0}{r}\right)",
                      r"Q_w=\pi{r_{0}^{2}}W")
@@ -1884,32 +1905,98 @@ class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_3(ttk.Frame):
                 sol = solvify(Eq(sympify(q), sympify(p)), self.r_0, self.R)
         try:
             r0 = str(sol[0])
+            self.solution_exist = True
         except IndexError:
             messagebox.showerror(title="Erreur !!", message=f"L'équation de la courbe de rabattement n'a pas de "
                                                             f"solution pour le Rayon d'influence r{sn(0)}")
+            self.solution_exist = False
+
+        if self.solution_exist:
+            # Q = pi * r0 ** 2 * W
+            Q = f"{pi} * {sympify(r0, evaluate=True).evalf()} ** 2 * {W}"
+
+            self.Clear()
+
+            self.EntryTex(("h", h, "m"), ("h_0", h0, "m"), ("r", r, "m"), ("K", K, "m/j"), ("W", W, "m/an"))
+            self.IntroTex(f"Equation de la courbe de rabattement:")
+            self.CalclTex(r"$h^2_0-h^2=\frac{W}{2K}\left(r^2-r^2_0\right)+\frac{Q_w}{\pi{K}}ln\left(\frac{r_0}{r}\right)$")
+            self.CalclTex(f"{Operation(q, 'Before')} = {Operation(p, 'Before')}", color=rgb_Black)
+            self.CalclTex(Operation(Eq(sympify(q), sympify(p)), 'Before'), color=rgb_Black)
+            self.IntroTex(
+                f"Rayon d'influence ({TX('r_0')}) donné par la résolution d'équation de la courbe de rabattement:")
+            self.EvalTex("r_0", r0, "m")
+
+            self.IntroTex(f'Calcul du Débit de pompage ({TX("Q_w")}):')
+            self.CalclTex(r"$Q_w=\pi{r_{0}^{2}}W$")
+            self.EvalTex("Q_w", Q, "m^3/j")
+
+            r"""
+        2.3. Aquifére non confiné avec recharge uniforme:
+            Equation de la courbe de rabattement:
+                "$h^2_0-h^2=\frac{W}{2K}\left(r^2-r^2_0\right)+\frac{Q_w}{\pi{K}}ln\left(\frac{r_0}{r}\right)$"
+                
+            Débit de pompage:
+                "$Q_w=\pi{r_{0}^{2}}W$"
+    """
+            self.Draw()
+
+
+# Débit de pompage -----------------------------------------------------------------------------------------------------
+class ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_3_2(ttk.Frame):
+    def __init__(self, master):
+        super(ECOULEMENT_RADIAL_CONSTANT_VERS_UN_PUITS_3_2, self).__init__(master=master)
+        self.rowconfigure(0, weight=1)
+        self.columnconfigure(0, weight=1)
+
+        function_text = [f"Rayon d'influence (r{sn(0)})",
+                         "Recharge (W)"]
+        si_text = ["m", "m/an"]
+
+        self.Master = GUI_MASTER(self, self.Application, function_text, si_text, save_draw=4)
+
+        self.entry = self.Master.entry
+        self.Clear = self.Master.Clear
+        self.LaTexT = self.Master.LaTexT
+        self.Title2ndTex = self.Master.Title2ndTex
+        self.Title3rdTex = self.Master.Title3rdTex
+        self.Title4rdTex = self.Master.Title4rdTex
+        self.RelaTex = self.Master.RelaTex
+        self.EntryTex = self.Master.EntryTex
+        self.IntroTex = self.Master.IntroTex
+        self.CalclTex = self.Master.CalclTex
+        self.EvalTex = self.Master.EvalTex
+        self.Draw = self.Master.Draw
+        self.Keyboard = self.Master.Keyboard
+        self.Apply = self.Master.Apply
+
+        self.RUN()
+
+    def RUN(self):
+        self.Title2ndTex("2. ECOULEMENT RADIAL CONSTANT VERS UN PUITS:")
+
+        self.Title3rdTex("2.3. Aquifére non confiné avec recharge uniforme:")
+
+        self.Title4rdTex(f"Débit de pompage ({TX('Q')}):")
+
+        self.RelaTex(r"Q_w=\pi{r_{0}^{2}}W")
+
+        self.Draw()
+
+    def Application(self):
+        r0 = eval(str(self.entry[0].get()))
+        W = eval(str(self.entry[1].get()))
+
         # Q = pi * r0 ** 2 * W
-        Q = f"{pi} * {r0} ** 2 * {W}"
+        Q = f"{pi} * {sympify(r0, evaluate=True).evalf()} ** 2 * {W}"
 
         self.Clear()
-
-        self.EntryTex(("h", h, "m"), ("h_0", h0, "m"), ("r", r, "m"), ("K", K, "m/j"), ("W", W, "m/an"))
-        self.IntroTex(f"Equation de la courbe de rabattement:")
-        self.CalclTex(r"$h^2_0-h^2=\frac{W}{2K}\left(r^2-r^2_0\right)+\frac{Q_w}{\pi{K}}ln\left(\frac{r_0}{r}\right)$")
-        self.CalclTex(f"{Operation(q, 'Before')} = {Operation(p, 'Before')}", color=rgb_Black)
-        self.CalclTex(Operation(Eq(sympify(q), sympify(p)), 'Before'), color=rgb_Black)
-        self.IntroTex(
-            f"Rayon d'influence ({TX('r_0')}) donné par la résolution d'équation de la courbe de rabattement:")
-        self.EvalTex("r_0", r0, "m")
 
         self.IntroTex(f'Calcul du Débit de pompage ({TX("Q_w")}):')
         self.CalclTex(r"$Q_w=\pi{r_{0}^{2}}W$")
         self.EvalTex("Q_w", Q, "m^3/j")
 
         r"""
-    2.3. Aquifére non confiné avec recharge uniforme:
-        Equation de la courbe de rabattement:
-            "$h^2_0-h^2=\frac{W}{2K}\left(r^2-r^2_0\right)+\frac{Q_w}{\pi{K}}ln\left(\frac{r_0}{r}\right)$"
-            
+    2.3. Aquifére non confiné avec recharge uniforme:            
         Débit de pompage:
             "$Q_w=\pi{r_{0}^{2}}W$"
 """

@@ -24,7 +24,7 @@ def FontSizeNote(font_size_gui):
 
 
 def Create_INI_File(font_name_gui='DejaVu Sans', font_size_gui='16',
-                    theme_style='default',
+                    theme_style='vista',
                     font_name_xy='DejaVu Sans', font_size_xy='16',
                     identify="Vous pouvez écrire n'importe quoi ici : Fichier >> Paramètre"):
     config = ConfigParser()
