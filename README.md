@@ -298,7 +298,7 @@ C:\WINDOWS\system32>python C:\ ...(adresse)... \Hydrogeologie-main\__main__.py
 ### [version 4.0.1.0 FV](https://github.com/NajmiAchraf/Hydrogeologie/releases/tag/43015c1)
 - fixé le click du bouton Appliqué dans paramètre
 
-### [version 4.1.0.0 FV](https://github.com/NajmiAchraf/Hydrogeologie/releases/tag/16ca53e)
+### [version 4.1.0.0 FV](https://github.com/NajmiAchraf/Hydrogeologie/releases/tag/c49573a)
 - devise la partie 3. "Aquifére non confiné avec recharge uniforme" en deux parties:
     - Équation de la courbe de rabattement
     
