@@ -121,7 +121,7 @@ Cette application est une solution pour les relations d'hydrologie et de process
         
     2. Le coefficient de stockage:
     
-        - ![S=\frac{2.246Tt_0}{r^2}](https://latex.codecogs.com/svg.latex?\Large&space;S=\frac{2.246Tt_{0}}{r^2})
+        - ![S=\frac{{2.246Tt}_0}{r^2}](https://latex.codecogs.com/svg.latex?\Large&space;S=\frac{{2.246Tt}_0}{r^2})
 
 4. Méthode de solution de Chow:
 
@@ -298,7 +298,7 @@ C:\WINDOWS\system32>python C:\ ...(adresse)... \Hydrogeologie-main\__main__.py
 ### [version 4.0.1.0 FV](https://github.com/DeepEastWind/Hydrogeologie/releases/tag/43015c1)
 - fixé le click du bouton Appliqué dans paramètre
 
-### version 4.1.0.0 FV
+### [version 4.1.0.0 FV](https://github.com/DeepEastWind/Hydrogeologie/releases/tag/16ca53e)
 - devise la partie 3. "Aquifére non confiné avec recharge uniforme" en deux parties:
     - Équation de la courbe de rabattement
     
