@@ -184,7 +184,7 @@ C:\WINDOWS\system32>python C:\ ...(adresse)... \Hydrogeologie-main\__main__.py
 ```
 
 # Notes de Version
-### [version 1.0.0.1 RC](https://github.com/NajmiAchraf/Hydrogeologie/releases/tag/df6af02)
+### [version 1.0.0.1 RC](https://github.com/NajmiAchraf/Hydrogeologie/releases/tag/v1.0.0.1-RC)
 1. Release Candidate contient deux parties:
     1. Écoulement Permanent Unidirectionnel
     
@@ -195,53 +195,53 @@ C:\WINDOWS\system32>python C:\ ...(adresse)... \Hydrogeologie-main\__main__.py
     
     2. la deuxième interface contient la feuille du calcul
 
-### [version 2.0.0.1 RC](https://github.com/NajmiAchraf/Hydrogeologie/releases/tag/381b303)
+### [version 2.0.0.1 RC](https://github.com/NajmiAchraf/Hydrogeologie/releases/tag/v2.0.0.1-RC)
 1. switcher l'interface graphique vers le Notebook
 
 2. amélioration du script
 
-### [version 3.0.0.1 bêta](https://github.com/NajmiAchraf/Hydrogeologie/releases/tag/30d8efe)
+### [version 3.0.0.1 bêta](https://github.com/NajmiAchraf/Hydrogeologie/releases/tag/v3.0.0.1-bêta)
 1. commencer à inclure de nouvelles relations dans l'application
 
-### [version 3.0.0.2 bêta](https://github.com/NajmiAchraf/Hydrogeologie/releases/tag/d232780)
+### [version 3.0.0.2 bêta](https://github.com/NajmiAchraf/Hydrogeologie/releases/tag/v3.0.0.2-bêta)
 1. amélioration du script et des relations
 
-### [version 3.0.0.3 RC](https://github.com/NajmiAchraf/Hydrogeologie/releases/tag/793787d)
+### [version 3.0.0.3 RC](https://github.com/NajmiAchraf/Hydrogeologie/releases/tag/v3.0.0.3-RC)
 1. amélioration du script et ajoute des nouvelles tab
 
-### [version 3.0.0.4 FV](https://github.com/NajmiAchraf/Hydrogeologie/releases/tag/5f90fbd)
+### [version 3.0.0.4 FV](https://github.com/NajmiAchraf/Hydrogeologie/releases/tag/v3.0.0.4-FV)
 1. des petites améliorations au niveau du script
 
-### [version 3.1.0.1 bêta](https://github.com/NajmiAchraf/Hydrogeologie/releases/tag/4c2a01c)
+### [version 3.1.0.1 bêta](https://github.com/NajmiAchraf/Hydrogeologie/releases/tag/v3.1.0.1-bêta)
 1. ajout la possibilité de cliquer sur entré est afficher la résultat sur la feuille de calcul
 
 2. corrige le lent démarrage d'application
 
 3. amélioration l’adaptation du script
 
-### [version 3.1.0.2 bêta](https://github.com/NajmiAchraf/Hydrogeologie/releases/tag/65ee85b)
+### [version 3.1.0.2 bêta](https://github.com/NajmiAchraf/Hydrogeologie/releases/tag/v3.1.0.2-bêta)
 1. colorée la feuille du calcul au couleur blanche
 
 2. attribue les résultats par l'axe x dans la feuille du calcul
 
 3. amélioration global du script
 
-### [version 3.1.0.3 RC](https://github.com/NajmiAchraf/Hydrogeologie/releases/tag/fc5354e)
+### [version 3.1.0.3 RC](https://github.com/NajmiAchraf/Hydrogeologie/releases/tag/v3.1.0.3-RC)
 1. amélioration partout dans le script
 
-### [version 3.1.0.4 FV](https://github.com/NajmiAchraf/Hydrogeologie/releases/tag/a7f9ce7)
+### [version 3.1.0.4 FV](https://github.com/NajmiAchraf/Hydrogeologie/releases/tag/v3.1.0.4-FV)
 1. colorée les résultats et le texte généralement dans la feuille du calcul
 
-### [version 3.2.0.1 bêta](https://github.com/NajmiAchraf/Hydrogeologie/releases/tag/c86ba28)
+### [version 3.2.0.1 bêta](https://github.com/NajmiAchraf/Hydrogeologie/releases/tag/v3.2.0.1-bêta)
 
 1. amélioré la coloration des résultats et le texte généralement dans la feuille du calcul
 
 2. correction de texte partout dans l'application
 
-### [version 3.2.0.2 bêta](https://github.com/NajmiAchraf/Hydrogeologie/releases/tag/f9006c9)
+### [version 3.2.0.2 bêta](https://github.com/NajmiAchraf/Hydrogeologie/releases/tag/v3.2.0.2-bêta)
 1. amélioration global du script
 
-### [version 3.2.0.3 bêta](https://github.com/NajmiAchraf/Hydrogeologie/releases/tag/c5208c3)
+### [version 3.2.0.3 bêta](https://github.com/NajmiAchraf/Hydrogeologie/releases/tag/v3.2.0.3-bêta)
 1. améliorer DrawLaTex dans FigureXY pour GUI en :
     1. l'affichage rapide des des résultats dans la feuille de calcul
     
@@ -249,13 +249,13 @@ C:\WINDOWS\system32>python C:\ ...(adresse)... \Hydrogeologie-main\__main__.py
     
     3. améliore les couleurs pour chaque ligne de texte dans la feuille de calcul
     
-### [version 3.2.0.4 RC](https://github.com/NajmiAchraf/Hydrogeologie/releases/tag/bc89ca6)
+### [version 3.2.0.4 RC](https://github.com/NajmiAchraf/Hydrogeologie/releases/tag/v3.2.0.4-RC)
 1. améliorer DrawLaTex dans FigureXY par la méthode la plus rapide jamais vue pour afficher les résultats dans la feuille de calcul
 
-### [version 3.2.0.5 FV](https://github.com/NajmiAchraf/Hydrogeologie/releases/tag/9ab6fea)
+### [version 3.2.0.5 FV](https://github.com/NajmiAchraf/Hydrogeologie/releases/tag/v3.2.0.5-FV)
 1. améliorer à nouveau DrawLaTex dans FigureXY
 
-### [version 4.0.0.1 bêta](https://github.com/NajmiAchraf/Hydrogeologie/releases/tag/c9e23e4)
+### [version 4.0.0.1 bêta](https://github.com/NajmiAchraf/Hydrogeologie/releases/tag/v4.0.0.1-bêta)
 - ajouter menu bare avec deux fonctionnalités:
     - les paramétrages d'application contient:
         - changements de polices et de tailles pour la partie GUI et pour la feuille de calcul
@@ -264,7 +264,7 @@ C:\WINDOWS\system32>python C:\ ...(adresse)... \Hydrogeologie-main\__main__.py
         
     - quitté l'application
 
-### [version 4.0.0.2 bêta](https://github.com/NajmiAchraf/Hydrogeologie/releases/tag/7aaaa1f)
+### [version 4.0.0.2 bêta](https://github.com/NajmiAchraf/Hydrogeologie/releases/tag/v4.0.0.2-bêta)
 - régler la taille de fenêtre du démarrage 
 
 - accordée la notebook avec le style de police d'interface
@@ -275,7 +275,7 @@ C:\WINDOWS\system32>python C:\ ...(adresse)... \Hydrogeologie-main\__main__.py
 
 - mettre la disposition des widgets dynamique selon son nom
 
-### [version 4.0.0.3 RC](https://github.com/NajmiAchraf/Hydrogeologie/releases/tag/a32e88a)
+### [version 4.0.0.3 RC](https://github.com/NajmiAchraf/Hydrogeologie/releases/tag/v4.0.0.3-RC)
 - réduire l'affichage de la popup pour ne s'applique qu'aux changements qui prennent en compte la feuille de calcul
 
 - ajouter une option pur choisir un thème style
@@ -286,7 +286,7 @@ C:\WINDOWS\system32>python C:\ ...(adresse)... \Hydrogeologie-main\__main__.py
 
 - des améliorations sur le script
 
-### [version 4.0.0.4 FV](https://github.com/NajmiAchraf/Hydrogeologie/releases/tag/b10d5f3)
+### [version 4.0.0.4 FV](https://github.com/NajmiAchraf/Hydrogeologie/releases/tag/v4.0.0.4-FV)
 - des corrections au niveau du texte
 
 - a propos des calculs la modification concerne l'affichage de "ln" à là place de "log"
@@ -295,13 +295,18 @@ C:\WINDOWS\system32>python C:\ ...(adresse)... \Hydrogeologie-main\__main__.py
 
 - au niveau du script la modification de choisir soit que changer le Titre ID ou non est manuel
 
-### [version 4.0.1.0 FV](https://github.com/NajmiAchraf/Hydrogeologie/releases/tag/43015c1)
+### [version 4.0.1.0 FV](https://github.com/NajmiAchraf/Hydrogeologie/releases/tag/v4.0.1.0-FV)
 - fixé le click du bouton Appliqué dans paramètre
 
-### [version 4.1.0.0 FV](https://github.com/NajmiAchraf/Hydrogeologie/releases/tag/c49573a)
+### [version 4.1.0.0 FV](https://github.com/NajmiAchraf/Hydrogeologie/releases/tag/v4.1.0.0-FV)
 - devise la partie 3. "Aquifére non confiné avec recharge uniforme" en deux parties:
     - Équation de la courbe de rabattement
     
     - Débit de pompage
 
 - fixé un erreur de calcul dans l’Équation de la courbe de rabattement
+
+### [version 4.2.0.0 FV](https://github.com/NajmiAchraf/Hydrogeologie/releases/tag/v4.2.0.0-FV)
+- auto install du police
+
+- des améliorations sur le script

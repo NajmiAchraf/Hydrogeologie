@@ -469,3 +469,21 @@ class NoTeBooK(Notebook):
     def Apply(self, font, size_xy, clear):
         for cls in range(self.TotalTabs):
             self.Classes[cls].Apply(font, size_xy, clear)
+
+
+class CLASS_MODEL(ttk.Frame):
+    def __init__(self, master):
+        super(CLASS_MODEL, self).__init__(master=master)
+        self.rowconfigure(0, weight=1)
+        self.columnconfigure(0, weight=1)
+
+        classes = []
+        cls_name = []
+
+        self.NtBk = NoTeBooK(master=self, classes=classes, cls_name=cls_name)
+
+    def Keyboard(self, keyword):
+        self.NtBk.Keyboard(keyword)
+
+    def Apply(self, font, size_xy, clear):
+        self.NtBk.Apply(font, size_xy, clear)
