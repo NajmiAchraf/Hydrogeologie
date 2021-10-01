@@ -9,11 +9,11 @@ Cette application est une solution pour les relations d'hydrologie et de process
 
 ##### 1. ECOULEMENT UNIDIRECTIONNEL STABLE
 1. Aquifère confiné:
-    
+   
     - ![h=-\frac{vx}{K}](https://latex.codecogs.com/svg.latex?\Large&space;h=-\frac{vx}{K})
 
 2. Aquifère non confiné:
-    
+   
     - ![q=\frac{K}{2x}\left({h_0^2-h^2}\right)](https://latex.codecogs.com/svg.latex?\Large&space;q=\frac{K}{2x}\left({h_0^2-h^2}\right))
 
 3. Débit de base vers un cours d'eau:
@@ -136,7 +136,7 @@ Cette application est une solution pour les relations d'hydrologie et de process
 - ![u_y=\frac{r^{2}S_y}{4Tt}](https://latex.codecogs.com/svg.latex?\Large&space;u_y=\frac{r^{2}S_y}{4Tt})
 
 - ![\eta=\frac{r^{2}K_z}{b^{2}K_h}](https://latex.codecogs.com/svg.latex?\Large&space;\eta=\frac{r^{2}K_z}{b^{2}K_h})
-    
+  
 ##### 6. ECOULEMENT RADIAL INSTABLE DANS UN AQUIFERE QUI FUIT
 
 - ![s=\frac{Q}{4\pi{T}}W\left(u,\frac{r}{B}\right)](https://latex.codecogs.com/svg.latex?\Large&space;s=\frac{Q}{4\pi{T}}W\left(u,\frac{r}{B}\right))
@@ -144,7 +144,7 @@ Cette application est une solution pour les relations d'hydrologie et de process
 - ![u=\frac{r^{2}S}{4Tt}](https://latex.codecogs.com/svg.latex?\Large&space;u=\frac{r^{2}S}{4Tt})
 
 - ![\frac{r}{B}=\frac{r}{\sqrt{T'\left(\frac{K'}{b'}\right)}}](https://latex.codecogs.com/svg.latex?\Large&space;\frac{r}{B}=\frac{r}{\sqrt{T'\left(\frac{K'}{b'}\right)}})
-    
+  
 ##### 7. UN PUITS S'ECOULE PRES DES LIMITES DE L'AQUIFERE 
 
 - ![s_b=\frac{Q}{4\pi{T}}W\left(u_p\right)+\frac{Q}{4\pi{T}}W\left(u_i\right)](https://latex.codecogs.com/svg.latex?\Large&space;s_b=\frac{Q}{4\pi{T}}W\left(u_p\right)+\frac{Q}{4\pi{T}}W\left(u_i\right))
@@ -165,22 +165,29 @@ Ou bien
 
 ### [Télécharger La Dernière Release Dans Hydrogéologie Releases](https://github.com/NajmiAchraf/Hydrogeologie/releases/latest)
 
-### Installation du Font
-
-- Pour une bonne qualité d'écriture installée la police `DejaVuSans.ttf`, sa valable pour les versions inférieur à la version 4
-
-- Depuis la version 4 on es capable de changer la police de GUI, mais la police `DejaVuSans` reste donnée par défaut
-
 ### Installation des Modules Requis :: [pypi](https://pypi.org/) 
+
 ouvrir `cmd.exe` en tant qu'administrateur
 ```
 C:\WINDOWS\system32>pip install -r requirements.txt
 ```
+
+### Files To Copy
+
+Copiez les quatre fichiers `4` nommés `delete` existant dans le dossier `delete icon`
+
+Vers la source de la bibliothèque
+
+	C:\Users\%username%\AppData\Local\Programs\Python\Python37\Lib\site-packages\matplotlib\mpl-data\images
+
+Ou à la bibliothèque de l'environnement virtuel
+
+	C:\ ... \venv\Lib\site-packages\matplotlib\mpl-data\images
 ### Démarrer
 
 ouvrir `cmd.exe` en tant qu'administrateur
 ```
-C:\WINDOWS\system32>python C:\ ...(adresse)... \Hydrogeologie-main\__main__.py
+C:\WINDOWS\system32>python C:\ ... \Hydrogeologie-main\__main__.py
 ```
 
 # Notes de Version
