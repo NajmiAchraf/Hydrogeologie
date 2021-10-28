@@ -4,6 +4,7 @@ from configparser import ConfigParser
 from os import path, system
 import os
 
+import tkinter as tk
 from tkinter import *
 from tkinter import ttk, messagebox, font
 from ttkthemes import ThemedStyle
@@ -167,17 +168,18 @@ Hydrologie des eaux souterraines Livre de David Keith Todd
 		
 		"""
 '''
-### [version 4.2.0.0 FV](https://github.com/NajmiAchraf/Hydrogeologie/releases/tag/v4.2.0.0-FV)
-- auto install du police
+### [version 4.2.1.0 FV](https://github.com/NajmiAchraf/Hydrogeologie/releases/tag/v4.2.1.0-FV)
 
-- des améliorations sur le script
+- nouvelles:
+	- nouvelle fonction qui vérifie la police officielle de l'application si elle existe et l'installe sinon
+
+- changements:
+	- les boutons de contrôle ont de nouvelles icônes png
 '''
 __author__ = 'NajmiAchraf'
-__version__ = '4.2.0.0 FV'
+__version__ = '4.2.1.0 FV'
 __title__ = 'Hydrogéologie'
 
-# Install Font DejaVu Sans
-system(f'Font.bat')
 
 if not path.exists('paramètre.ini'):
 	Create_INI_File()
@@ -263,7 +265,7 @@ class Hydrogeologie(object):
 		# Window Configuration _________________________________________________________________________________________
 		super(Hydrogeologie, self).__init__()
 		self.Main = Tk()
-		self.Main.iconbitmap('04-earth.ico')
+		self.Main.iconbitmap(PathMainIcon('04-earth'))
 		self.Main.iconify()
 		self.Main.geometry("1313x600")
 		self.Main.minsize(width=1133, height=500)
@@ -271,6 +273,12 @@ class Hydrogeologie(object):
 		self.Main.title(u"%s v%s" % (__title__, __version__))
 		self.Main.configure(background=hex_Dark)
 		self.Main.bind_all('<Key>', self.Keyboard)
+
+		# Fonts Configuration __________________________________________________________________________________________
+		font_list = list(tk.font.families())
+		font_list.sort()
+
+		FontsConfiguration(font_list)
 
 		# Themed Style _________________________________________________________________________________________________
 		self.ThemeStyle = ThemedStyle()

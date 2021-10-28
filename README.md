@@ -159,35 +159,34 @@ Cette application est une solution pour les relations d'hydrologie et de process
 
 ## Comment Démarrer
 
-### [Télécharger La Dernière Commit Dans Hydrogéologie Repository](https://github.com/NajmiAchraf/Hydrogeologie/archive/main.zip)
-
-Ou bien 
-
 ### [Télécharger La Dernière Release Dans Hydrogéologie Releases](https://github.com/NajmiAchraf/Hydrogeologie/releases/latest)
+
+### ***Ou bien***
+
+### Cloné la Repository
+
+```bat
+git clone https://github.com/NajmiAchraf/Hydrogeologie.git
+```
+
+### Accès Au Repository Cloné 
+
+```bat
+cd Hydrogeologie-main
+```
 
 ### Installation des Modules Requis :: [pypi](https://pypi.org/) 
 
 ouvrir `cmd.exe` en tant qu'administrateur
+```bat
+pip install -r requirements.txt
 ```
-C:\WINDOWS\system32>pip install -r requirements.txt
-```
 
-### Files To Copy
-
-Copiez les quatre fichiers `4` nommés `delete` existant dans le dossier `delete icon`
-
-Vers la source de la bibliothèque
-
-	C:\Users\%username%\AppData\Local\Programs\Python\Python37\Lib\site-packages\matplotlib\mpl-data\images
-
-Ou à la bibliothèque de l'environnement virtuel
-
-	C:\ ... \venv\Lib\site-packages\matplotlib\mpl-data\images
 ### Démarrer
 
 ouvrir `cmd.exe` en tant qu'administrateur
-```
-C:\WINDOWS\system32>python C:\ ... \Hydrogeologie-main\__main__.py
+```bat
+python __main__.py
 ```
 
 # Notes de Version
@@ -317,3 +316,11 @@ C:\WINDOWS\system32>python C:\ ... \Hydrogeologie-main\__main__.py
 - auto install du police
 
 - des améliorations sur le script
+
+### [version 4.2.1.0 FV](https://github.com/NajmiAchraf/Hydrogeologie/releases/tag/v4.2.1.0-FV)
+
+- nouvelles:
+    - nouvelle fonction qui vérifie la police officielle de l'application si elle existe et l'installe sinon
+
+- changements:
+    - les boutons de contrôle ont de nouvelles icônes png
